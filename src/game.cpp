@@ -432,7 +432,7 @@ void updateGame() {
                 currentQuestion.asteroidIndex = -1;
             }
             
-            player.health -= 20; // Perde 20 de vida por colisão
+            player.health -= 50; // Perde 20 de vida por colisão
             if (player.health <= 0) {
                 player.health = 0; // Não deixa ficar negativo
                 setGameOver(true); // Ativar tela de Game Over
@@ -479,8 +479,8 @@ void handleGameKeyboard(unsigned char key) {
     // Se há uma questão ativa, processar input numérico
     if (currentQuestion.active) {
         if (key >= '0' && key <= '9') {
-            // Adicionar dígito à resposta (apenas se não estiver mostrando erro)
-            if (!currentQuestion.showError) {
+            // Adicionar dígito à resposta (apenas se não estiver mostrando erro E tiver menos de 2 dígitos)
+            if (!currentQuestion.showError && currentQuestion.userAnswer.length() < 2) {
                 currentQuestion.userAnswer += key;
                 glutPostRedisplay();
             }
