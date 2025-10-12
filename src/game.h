@@ -12,6 +12,10 @@ struct Player {
     float speed;
     int health;      // Vida do jogador
     int maxHealth;   // Vida máxima
+    bool isHit;      // Se foi atingido recentemente
+    int hitTimer;    // Contador de frames do efeito de dano
+    float shakeOffsetX; // Deslocamento horizontal do tremor
+    float shakeOffsetY; // Deslocamento vertical do tremor
 };
 
 struct Enemy {
@@ -20,6 +24,31 @@ struct Enemy {
     bool hasQuestion;  // Se este asteroide tem uma questão ativa
     int questionNum1;  // Primeiro número da soma
     int questionNum2;  // Segundo número da soma
+};
+
+// Estrutura para partículas de explosão
+struct Particle {
+    float x, y;           // Posição
+    float vx, vy;         // Velocidade
+    float life;           // Tempo de vida (0.0 a 1.0)
+    float size;           // Tamanho da partícula
+    float r, g, b;        // Cor
+};
+
+// Estrutura para explosão
+struct Explosion {
+    float x, y;                    // Posição central
+    std::vector<Particle> particles; // Partículas
+    int timer;                     // Tempo de vida da explosão
+    bool active;                   // Se está ativa
+};
+
+// Estrutura para tiro laser
+struct LaserShot {
+    float startX, startY;  // Posição inicial (nave)
+    float endX, endY;      // Posição final (asteroide)
+    float currentProgress; // Progresso da animação (0.0 a 1.0)
+    bool active;           // Se está ativo
 };
 
 // Estrutura para questão de matemática
@@ -37,6 +66,8 @@ struct MathQuestion {
 // Variáveis globais
 extern Player player;
 extern std::vector<Enemy> enemies;
+extern std::vector<Explosion> explosions; // Lista de explosões ativas
+extern LaserShot laserShot; // Tiro laser
 extern int windowWidth_game;
 extern int windowHeight_game;
 extern bool isMovingLeft;
@@ -52,10 +83,14 @@ void drawEnemies();
 void drawHealthBar();
 void drawCrosshair(); // Desenhar mira
 void drawMathQuestion(); // Desenhar questão matemática
+void drawExplosions(); // Desenhar explosões
+void drawLaserShot(); // Desenhar tiro laser
 
 void initGame();
 void drawGame();
 void updateGame();
+void updateExplosions(); // Atualizar explosões
+void updateLaserShot(); // Atualizar tiro laser
 void handleGameKeyboard(unsigned char key);
 void handleGameKeyboardUp(unsigned char key);
 void handleGameMouseMove(int x, int y); // Movimentação do mouse

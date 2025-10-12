@@ -2,15 +2,24 @@
 #include "game.h"
 #include "gameover.h"
 #include <sstream>
+#include <algorithm>
+#include <cstdlib>
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 Player player;
 std::vector<Enemy> enemies;
+std::vector<Explosion> explosions; // Lista de explosões ativas
+LaserShot laserShot = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false}; // Tiro laser
 int windowWidth_game = 800;  
 int windowHeight_game = 600; 
 
 bool isMovingLeft = false;
 bool isMovingRight = false;
 int spawnCooldown = 0; // Contador de frames entre spawns
+int gameFrameCounter = 0; // Contador global de frames para animações
 int mouseX = 400; // Posição inicial do mouse (centro)
 int mouseY = 300;
 MathQuestion currentQuestion = {false, 0, 0, 0, "", -1, false, 0};
@@ -19,79 +28,90 @@ void drawPlayer() {
     // Nave vista de cima, apenas a parte frontal (15% inferior da tela)
     // Para-brisa ENORME ocupando ~70% da tela horizontalmente
     
+    // Aplicar tremor se foi atingido
+    float shakeX = player.isHit ? player.shakeOffsetX : 0.0f;
+    float shakeY = player.isHit ? player.shakeOffsetY : 0.0f;
+    
+    // Calcular intensidade do efeito vermelho (0.0 a 1.0)
+    float redIntensity = 0.0f;
+    if (player.isHit) {
+        // Piscar vermelho nos primeiros 15 frames
+        redIntensity = (player.hitTimer % 10 < 5) ? 0.6f : 0.3f;
+    }
+    
     float baseY = windowHeight_game * 0.15f; // 15% da altura
     float parabrisa_width = windowWidth_game * 0.35f; // 70% total da tela (35% cada lado)
     
     // Asa esquerda (muito pequena)
-    glColor3f(0.2f, 0.2f, 0.6f);
+    glColor3f(0.2f + redIntensity, 0.2f, 0.6f - redIntensity * 0.5f);
     glBegin(GL_POLYGON);
-    glVertex2f(0, 0);
-    glVertex2f(0, baseY * 0.3f);
-    glVertex2f(player.x - parabrisa_width - 50, baseY * 0.2f);
-    glVertex2f(player.x - parabrisa_width - 40, 0);
+    glVertex2f(0 + shakeX, 0 + shakeY);
+    glVertex2f(0 + shakeX, baseY * 0.3f + shakeY);
+    glVertex2f(player.x - parabrisa_width - 50 + shakeX, baseY * 0.2f + shakeY);
+    glVertex2f(player.x - parabrisa_width - 40 + shakeX, 0 + shakeY);
     glEnd();
     
     // Asa direita (muito pequena)
     glBegin(GL_POLYGON);
-    glVertex2f(windowWidth_game, 0);
-    glVertex2f(windowWidth_game, baseY * 0.3f);
-    glVertex2f(player.x + parabrisa_width + 50, baseY * 0.2f);
-    glVertex2f(player.x + parabrisa_width + 40, 0);
+    glVertex2f(windowWidth_game + shakeX, 0 + shakeY);
+    glVertex2f(windowWidth_game + shakeX, baseY * 0.3f + shakeY);
+    glVertex2f(player.x + parabrisa_width + 50 + shakeX, baseY * 0.2f + shakeY);
+    glVertex2f(player.x + parabrisa_width + 40 + shakeX, 0 + shakeY);
     glEnd();
     
     // Corpo lateral esquerdo (parte da fuselagem)
-    glColor3f(0.15f, 0.15f, 0.5f); // Azul escuro
+    glColor3f(0.15f + redIntensity, 0.15f, 0.5f - redIntensity * 0.5f); // Azul escuro
     glBegin(GL_POLYGON);
-    glVertex2f(player.x - parabrisa_width - 40, 0);
-    glVertex2f(player.x - parabrisa_width - 50, baseY * 0.2f);
-    glVertex2f(player.x - parabrisa_width, baseY * 0.8f);
-    glVertex2f(player.x - parabrisa_width * 0.9f, 0);
+    glVertex2f(player.x - parabrisa_width - 40 + shakeX, 0 + shakeY);
+    glVertex2f(player.x - parabrisa_width - 50 + shakeX, baseY * 0.2f + shakeY);
+    glVertex2f(player.x - parabrisa_width + shakeX, baseY * 0.8f + shakeY);
+    glVertex2f(player.x - parabrisa_width * 0.9f + shakeX, 0 + shakeY);
     glEnd();
     
     // Corpo lateral direito (parte da fuselagem)
     glBegin(GL_POLYGON);
-    glVertex2f(player.x + parabrisa_width + 40, 0);
-    glVertex2f(player.x + parabrisa_width + 50, baseY * 0.2f);
-    glVertex2f(player.x + parabrisa_width, baseY * 0.8f);
-    glVertex2f(player.x + parabrisa_width * 0.9f, 0);
+    glVertex2f(player.x + parabrisa_width + 40 + shakeX, 0 + shakeY);
+    glVertex2f(player.x + parabrisa_width + 50 + shakeX, baseY * 0.2f + shakeY);
+    glVertex2f(player.x + parabrisa_width + shakeX, baseY * 0.8f + shakeY);
+    glVertex2f(player.x + parabrisa_width * 0.9f + shakeX, 0 + shakeY);
     glEnd();
     
     // Nariz central (ponta da nave apontando para cima)
-    glColor3f(0.25f, 0.25f, 0.7f);
+    glColor3f(0.25f + redIntensity, 0.25f, 0.7f - redIntensity * 0.5f);
     glBegin(GL_TRIANGLES);
-    glVertex2f(player.x, baseY); // Ponta superior
-    glVertex2f(player.x - parabrisa_width * 0.9f, 0);
-    glVertex2f(player.x + parabrisa_width * 0.9f, 0);
+    glVertex2f(player.x + shakeX, baseY + shakeY); // Ponta superior
+    glVertex2f(player.x - parabrisa_width * 0.9f + shakeX, 0 + shakeY);
+    glVertex2f(player.x + parabrisa_width * 0.9f + shakeX, 0 + shakeY);
     glEnd();
     
     // Para-brisa/Cockpit ENORME (vidro transparente/azul claro) - 70% da tela
-    glColor3f(0.25f, 0.6f, 0.9f); // Azul claro brilhante
+    glColor3f(0.25f + redIntensity, 0.6f - redIntensity * 0.3f, 0.9f - redIntensity * 0.7f); // Azul claro brilhante
     glBegin(GL_POLYGON);
-    glVertex2f(player.x, baseY * 0.98f); // Ponta quase no topo
-    glVertex2f(player.x - parabrisa_width, baseY * 0.6f);
-    glVertex2f(player.x - parabrisa_width * 0.85f, 0);
-    glVertex2f(player.x + parabrisa_width * 0.85f, 0);
-    glVertex2f(player.x + parabrisa_width, baseY * 0.6f);
+    glVertex2f(player.x + shakeX, baseY * 0.98f + shakeY); // Ponta quase no topo
+    glVertex2f(player.x - parabrisa_width + shakeX, baseY * 0.6f + shakeY);
+    glVertex2f(player.x - parabrisa_width * 0.85f + shakeX, 0 + shakeY);
+    glVertex2f(player.x + parabrisa_width * 0.85f + shakeX, 0 + shakeY);
+    glVertex2f(player.x + parabrisa_width + shakeX, baseY * 0.6f + shakeY);
     glEnd();
     
     // Reflexo no vidro (detalhe maior)
-    glColor3f(0.8f, 0.92f, 1.0f);
+    glColor3f(0.8f + redIntensity * 0.2f, 0.92f - redIntensity * 0.5f, 1.0f - redIntensity);
     glBegin(GL_POLYGON);
-    glVertex2f(player.x - parabrisa_width * 0.1f, baseY * 0.85f);
-    glVertex2f(player.x - parabrisa_width * 0.6f, baseY * 0.55f);
-    glVertex2f(player.x - parabrisa_width * 0.5f, baseY * 0.3f);
-    glVertex2f(player.x - parabrisa_width * 0.15f, baseY * 0.5f);
+    glVertex2f(player.x - parabrisa_width * 0.1f + shakeX, baseY * 0.85f + shakeY);
+    glVertex2f(player.x - parabrisa_width * 0.6f + shakeX, baseY * 0.55f + shakeY);
+    glVertex2f(player.x - parabrisa_width * 0.5f + shakeX, baseY * 0.3f + shakeY);
+    glVertex2f(player.x - parabrisa_width * 0.15f + shakeX, baseY * 0.5f + shakeY);
     glEnd();
     
     // Moldura do para-brisa (cinza escuro - mais grossa)
-    glColor3f(0.25f, 0.25f, 0.35f);
+    glColor3f(0.25f + redIntensity, 0.25f, 0.35f);
     glLineWidth(6.0f);
     glBegin(GL_LINE_LOOP);
-    glVertex2f(player.x, baseY * 0.98f);
-    glVertex2f(player.x - parabrisa_width, baseY * 0.6f);
-    glVertex2f(player.x - parabrisa_width * 0.85f, 0);
-    glVertex2f(player.x + parabrisa_width * 0.85f, 0);
-    glVertex2f(player.x + parabrisa_width, baseY * 0.6f);
+    glVertex2f(player.x + shakeX, baseY * 0.98f + shakeY);
+    glVertex2f(player.x - parabrisa_width + shakeX, baseY * 0.6f + shakeY);
+    glVertex2f(player.x - parabrisa_width * 0.85f + shakeX, 0 + shakeY);
+    glVertex2f(player.x + parabrisa_width * 0.85f + shakeX, 0 + shakeY);
+    glVertex2f(player.x + parabrisa_width + shakeX, baseY * 0.6f + shakeY);
     glEnd();
     glLineWidth(1.0f);
 }
@@ -258,6 +278,72 @@ void drawCrosshair() {
     glPointSize(1.0f);
 }
 
+// Desenhar explosões
+void drawExplosions() {
+    for (const auto& explosion : explosions) {
+        if (!explosion.active) continue;
+        
+        // Desenhar cada partícula da explosão
+        for (const auto& particle : explosion.particles) {
+            if (particle.life <= 0.0f) continue;
+            
+            // Calcular opacidade baseada na vida da partícula
+            float alpha = particle.life;
+            
+            // Desenhar partícula como círculo
+            glColor4f(particle.r, particle.g, particle.b, alpha);
+            
+            // Desenhar círculo preenchido para a partícula
+            glBegin(GL_TRIANGLE_FAN);
+            glVertex2f(particle.x, particle.y);
+            
+            int segments = 8;
+            for (int i = 0; i <= segments; i++) {
+                float angle = (float)i / (float)segments * 2.0f * M_PI;
+                float px = particle.x + cos(angle) * particle.size;
+                float py = particle.y + sin(angle) * particle.size;
+                glVertex2f(px, py);
+            }
+            glEnd();
+        }
+    }
+}
+
+// Desenhar tiro laser
+void drawLaserShot() {
+    if (!laserShot.active) return;
+    
+    // Calcular posição atual do laser baseado no progresso
+    float currentX = laserShot.startX + (laserShot.endX - laserShot.startX) * laserShot.currentProgress;
+    float currentY = laserShot.startY + (laserShot.endY - laserShot.startY) * laserShot.currentProgress;
+    
+    // Desenhar linha do laser (verde brilhante)
+    glLineWidth(3.0f);
+    glColor3f(0.0f, 1.0f, 0.0f); // Verde
+    glBegin(GL_LINES);
+    glVertex2f(laserShot.startX, laserShot.startY);
+    glVertex2f(currentX, currentY);
+    glEnd();
+    
+    // Efeito de brilho (linha mais fina e clara)
+    glLineWidth(1.5f);
+    glColor3f(0.5f, 1.0f, 0.5f); // Verde claro
+    glBegin(GL_LINES);
+    glVertex2f(laserShot.startX, laserShot.startY);
+    glVertex2f(currentX, currentY);
+    glEnd();
+    
+    // Ponto de impacto brilhante
+    glColor3f(1.0f, 1.0f, 1.0f); // Branco
+    glPointSize(8.0f);
+    glBegin(GL_POINTS);
+    glVertex2f(currentX, currentY);
+    glEnd();
+    
+    glLineWidth(1.0f);
+    glPointSize(1.0f);
+}
+
 // Desenhar questão matemática no para-brisa
 void drawMathQuestion() {
     if (!currentQuestion.active) {
@@ -353,6 +439,10 @@ void initGame() {
     player.speed = 15.0f;
     player.health = 100;    // Vida inicial
     player.maxHealth = 100; // Vida máxima
+    player.isHit = false;   // Não foi atingido
+    player.hitTimer = 0;    // Timer zerado
+    player.shakeOffsetX = 0.0f; // Sem tremor
+    player.shakeOffsetY = 0.0f; // Sem tremor
 
     enemies.clear();
     spawnCooldown = 0; // Resetar cooldown para spawnar imediatamente
@@ -370,6 +460,8 @@ void initGame() {
 void drawGame() {
     drawPlayer();
     drawEnemies();
+    drawExplosions(); // Desenhar explosões
+    drawLaserShot(); // Desenhar tiro laser
     drawHealthBar();
     drawMathQuestion(); // Desenhar questão matemática (se ativa)
     drawCrosshair(); // Desenhar mira customizada
@@ -406,6 +498,28 @@ void updateGame() {
         return;
     }
     
+    // Atualizar explosões
+    updateExplosions();
+    
+    // Atualizar tiro laser
+    updateLaserShot();
+    
+    // Atualizar efeito de dano (tremor)
+    if (player.isHit && player.hitTimer > 0) {
+        player.hitTimer--;
+        
+        // Calcular tremor (mais intenso no início)
+        float shakeIntensity = (float)player.hitTimer / 30.0f * 8.0f; // Máximo de 8 pixels
+        player.shakeOffsetX = ((rand() % 100) / 50.0f - 1.0f) * shakeIntensity; // -shakeIntensity a +shakeIntensity
+        player.shakeOffsetY = ((rand() % 100) / 50.0f - 1.0f) * shakeIntensity;
+        
+        if (player.hitTimer <= 0) {
+            player.isHit = false;
+            player.shakeOffsetX = 0.0f;
+            player.shakeOffsetY = 0.0f;
+        }
+    }
+    
     // Decrementar timer de erro
     if (currentQuestion.showError && currentQuestion.errorTimer > 0) {
         currentQuestion.errorTimer--;
@@ -433,6 +547,11 @@ void updateGame() {
             }
             
             player.health -= 20; // Perde 20 de vida por colisão
+            
+            // Ativar efeito de dano
+            player.isHit = true;
+            player.hitTimer = 30; // 30 frames = 0.5 segundos de efeito
+            
             if (player.health <= 0) {
                 player.health = 0; // Não deixa ficar negativo
                 setGameOver(true); // Ativar tela de Game Over
@@ -473,6 +592,58 @@ void updateGame() {
         spawnEnemy();
         spawnCooldown = 1200; // 1200 frames de espera (~20 segundos a 60 FPS)
     }
+    
+    // Incrementar contador global de frames
+    gameFrameCounter++;
+}
+
+// Atualizar explosões
+void updateExplosions() {
+    for (auto& explosion : explosions) {
+        if (!explosion.active) continue;
+        
+        // Atualizar cada partícula
+        for (auto& particle : explosion.particles) {
+            // Atualizar posição com velocidade
+            particle.x += particle.vx;
+            particle.y += particle.vy;
+            
+            // Reduzir vida da partícula
+            particle.life -= 0.05f; // Diminuir vida gradualmente
+            
+            // Desacelerar partículas
+            particle.vx *= 0.95f;
+            particle.vy *= 0.95f;
+        }
+        
+        // Incrementar timer
+        explosion.timer++;
+        
+        // Desativar explosão se o timer passou de 30 frames (~0.5s)
+        if (explosion.timer > 30) {
+            explosion.active = false;
+        }
+    }
+    
+    // Remover explosões inativas
+    explosions.erase(
+        std::remove_if(explosions.begin(), explosions.end(),
+            [](const Explosion& e) { return !e.active; }),
+        explosions.end()
+    );
+}
+
+// Atualizar tiro laser
+void updateLaserShot() {
+    if (!laserShot.active) return;
+    
+    // Incrementar progresso (velocidade rápida)
+    laserShot.currentProgress += 0.15f; // 15% por frame = ~7 frames para chegar
+    
+    // Desativar quando completar
+    if (laserShot.currentProgress >= 1.0f) {
+        laserShot.active = false;
+    }
 }
 
 void handleGameKeyboard(unsigned char key) {
@@ -503,9 +674,55 @@ void handleGameKeyboard(unsigned char key) {
             }
             
             if (userAnswerInt == currentQuestion.correctAnswer) {
-                // Resposta correta! Remover o asteroide
+                // Resposta correta! Criar tiro laser, explosão e remover o asteroide
                 if (currentQuestion.asteroidIndex >= 0 && 
                     currentQuestion.asteroidIndex < (int)enemies.size()) {
+                    
+                    // Posição do asteroide alvo
+                    float asteroidCenterX = enemies[currentQuestion.asteroidIndex].x + enemies[currentQuestion.asteroidIndex].width / 2.0f;
+                    float asteroidCenterY = enemies[currentQuestion.asteroidIndex].y + enemies[currentQuestion.asteroidIndex].height / 2.0f;
+                    
+                    // Criar tiro laser do centro da nave até o asteroide
+                    laserShot.startX = player.x;
+                    laserShot.startY = windowHeight_game * 0.15f; // Topo da nave
+                    laserShot.endX = asteroidCenterX;
+                    laserShot.endY = asteroidCenterY;
+                    laserShot.currentProgress = 0.0f;
+                    laserShot.active = true;
+                    
+                    // Criar explosão na posição do asteroide
+                    Explosion explosion;
+                    explosion.x = asteroidCenterX;
+                    explosion.y = asteroidCenterY;
+                    explosion.timer = 0;
+                    explosion.active = true;
+                    
+                    // Criar 12 partículas em diferentes direções
+                    int numParticles = 12;
+                    for (int i = 0; i < numParticles; i++) {
+                        Particle p;
+                        float angle = (float)i / (float)numParticles * 2.0f * M_PI;
+                        float speed = 2.0f + (float)(rand() % 100) / 50.0f; // Velocidade entre 2.0 e 4.0
+                        
+                        p.x = explosion.x;
+                        p.y = explosion.y;
+                        p.vx = cos(angle) * speed;
+                        p.vy = sin(angle) * speed;
+                        p.life = 1.0f;
+                        p.size = 3.0f + (float)(rand() % 100) / 50.0f; // Tamanho entre 3.0 e 5.0
+                        
+                        // Cores amarelo-laranja-vermelho para efeito de fogo
+                        float colorVariation = (float)(rand() % 100) / 100.0f;
+                        p.r = 1.0f;
+                        p.g = 0.5f + colorVariation * 0.5f; // 0.5 a 1.0
+                        p.b = 0.0f;
+                        
+                        explosion.particles.push_back(p);
+                    }
+                    
+                    explosions.push_back(explosion);
+                    
+                    // Remover asteroide
                     enemies.erase(enemies.begin() + currentQuestion.asteroidIndex);
                 }
                 
