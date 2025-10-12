@@ -128,6 +128,12 @@ void updateScene() {
 
 
 void handleMouseClick(int button, int state, int x, int y) {
+    // Se estiver no jogo, passar clique para o handler do jogo
+    if (currentState == GAME_SCREEN) {
+        handleGameMouseClick(button, state, x, y);
+        return;
+    }
+    
     if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
         switch (currentState) {
             case MAIN_MENU:
