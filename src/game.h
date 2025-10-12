@@ -26,17 +26,21 @@ extern int windowHeight_game;
 extern bool isMovingLeft;
 extern bool isMovingRight;
 extern int spawnCooldown; // Cooldown entre spawns de asteroides
+extern int mouseX; // Posição X do mouse
+extern int mouseY; // Posição Y do mouse
 
 // Funções de desenho
 void drawPlayer();
 void drawEnemies();
 void drawHealthBar();
+void drawCrosshair(); // Desenhar mira
 
 void initGame();
 void drawGame();
 void updateGame();
 void handleGameKeyboard(unsigned char key);
 void handleGameKeyboardUp(unsigned char key);
+void handleGameMouseMove(int x, int y); // Movimentação do mouse
 void spawnEnemy();
 
 // Callbacks para o sistema de Game Over

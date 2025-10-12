@@ -10,7 +10,8 @@ int windowHeight_game = 600;
 bool isMovingLeft = false;
 bool isMovingRight = false;
 int spawnCooldown = 0; // Contador de frames entre spawns
-
+int mouseX = 400; // Posição inicial do mouse (centro)
+int mouseY = 300;
 
 void drawPlayer() {
     // Nave vista de cima, apenas a parte frontal (10% inferior da tela)
@@ -175,6 +176,86 @@ void drawHealthBar() {
     glLineWidth(1.0f);
 }
 
+// Desenhar mira (crosshair) na posição do mouse
+void drawCrosshair() {
+    // Converter coordenadas do mouse (Y invertido)
+    float crosshairX = (float)mouseX;
+    float crosshairY = windowHeight_game - (float)mouseY;
+    
+    float size = 15.0f; // Tamanho da mira
+    float gap = 5.0f;   // Espaço no centro
+    float thickness = 2.5f;
+    
+    // Cor da mira (verde brilhante com contorno)
+    glLineWidth(thickness);
+    
+    // Contorno preto para melhor visibilidade
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glLineWidth(thickness + 1.5f);
+    
+    // Linha horizontal (esquerda)
+    glBegin(GL_LINES);
+    glVertex2f(crosshairX - size, crosshairY);
+    glVertex2f(crosshairX - gap, crosshairY);
+    glEnd();
+    
+    // Linha horizontal (direita)
+    glBegin(GL_LINES);
+    glVertex2f(crosshairX + gap, crosshairY);
+    glVertex2f(crosshairX + size, crosshairY);
+    glEnd();
+    
+    // Linha vertical (cima)
+    glBegin(GL_LINES);
+    glVertex2f(crosshairX, crosshairY + gap);
+    glVertex2f(crosshairX, crosshairY + size);
+    glEnd();
+    
+    // Linha vertical (baixo)
+    glBegin(GL_LINES);
+    glVertex2f(crosshairX, crosshairY - size);
+    glVertex2f(crosshairX, crosshairY - gap);
+    glEnd();
+    
+    // Mira verde brilhante
+    glColor3f(0.0f, 1.0f, 0.0f);
+    glLineWidth(thickness);
+    
+    // Linha horizontal (esquerda)
+    glBegin(GL_LINES);
+    glVertex2f(crosshairX - size, crosshairY);
+    glVertex2f(crosshairX - gap, crosshairY);
+    glEnd();
+    
+    // Linha horizontal (direita)
+    glBegin(GL_LINES);
+    glVertex2f(crosshairX + gap, crosshairY);
+    glVertex2f(crosshairX + size, crosshairY);
+    glEnd();
+    
+    // Linha vertical (cima)
+    glBegin(GL_LINES);
+    glVertex2f(crosshairX, crosshairY + gap);
+    glVertex2f(crosshairX, crosshairY + size);
+    glEnd();
+    
+    // Linha vertical (baixo)
+    glBegin(GL_LINES);
+    glVertex2f(crosshairX, crosshairY - size);
+    glVertex2f(crosshairX, crosshairY - gap);
+    glEnd();
+    
+    // Círculo central pequeno
+    glColor3f(0.0f, 1.0f, 0.0f);
+    glPointSize(3.0f);
+    glBegin(GL_POINTS);
+    glVertex2f(crosshairX, crosshairY);
+    glEnd();
+    
+    glLineWidth(1.0f);
+    glPointSize(1.0f);
+}
+
 void spawnEnemy() {
     Enemy newEnemy;
     newEnemy.width = 40;  // Aumentado de 30 para 40 (+33%)
@@ -207,12 +288,16 @@ void initGame() {
     initGameOver(windowWidth_game, windowHeight_game);
     registerRestartCallback(restartCurrentPhase);
     registerMenuCallback(returnToMenu);
+    
+    // Esconder cursor padrão do sistema
+    glutSetCursor(GLUT_CURSOR_NONE);
 }
 
 void drawGame() {
     drawPlayer();
     drawEnemies();
     drawHealthBar();
+    drawCrosshair(); // Desenhar mira customizada
     
     // Desenhar tela de Game Over se necessário
     drawGameOver();
@@ -321,4 +406,14 @@ void returnToMenu() {
     // Volta ao menu principal
     extern void changeState(int newState);
     changeState(0); // 0 = MAIN_MENU
+    
+    // Restaurar cursor normal no menu
+    glutSetCursor(GLUT_CURSOR_INHERIT);
+}
+
+// Função para capturar movimento do mouse
+void handleGameMouseMove(int x, int y) {
+    mouseX = x;
+    mouseY = y;
+    glutPostRedisplay(); // Atualizar tela
 }

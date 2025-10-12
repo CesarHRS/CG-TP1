@@ -133,7 +133,10 @@ void handleMouseClick(int button, int state, int x, int y) {
             case MAIN_MENU:
                 if (isMouseOverButton(x, y, startButton)) {
                     currentState = GAME_SCREEN;
-                    initGame(); 
+                    initGame();
+                    // Registrar callback de movimento do mouse no jogo
+                    glutPassiveMotionFunc(handleGameMouseMove);
+                    glutMotionFunc(handleGameMouseMove);
                 } else if (isMouseOverButton(x, y, instructionsButton)) {
                     currentState = INSTRUCTIONS_SCREEN;
                 } else if (isMouseOverButton(x, y, exitButton)) {
@@ -190,6 +193,9 @@ void handleKeyboard(unsigned char key, int x, int y) {
     if (currentState == GAME_SCREEN) {
         if (key == 27) { 
             currentState = MAIN_MENU;
+            // Restaurar cursor normal e callback de hover do menu
+            glutSetCursor(GLUT_CURSOR_INHERIT);
+            glutPassiveMotionFunc(handleMouseHover);
         } else {
             // Se está em Game Over, usar handleGameOverKeyboard
             if (getGameOver()) {
@@ -213,5 +219,12 @@ void setup() {
 
 void changeState(int newState) {
     currentState = (GameState)newState;
+    
+    // Se voltando ao menu, restaurar cursor e callbacks
+    if (newState == MAIN_MENU) {
+        glutSetCursor(GLUT_CURSOR_INHERIT);
+        glutPassiveMotionFunc(handleMouseHover);
+    }
+    
     glutPostRedisplay();
 }
