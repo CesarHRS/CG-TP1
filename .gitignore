@@ -1,0 +1,24 @@
+# Arquivos compilados
+*.o
+*.exe
+*.out
+*.app
+
+# Executáveis do projeto
+jogo_educativo
+jogo_educativo.exe
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Builds
+build/
+bin/
