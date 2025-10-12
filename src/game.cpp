@@ -1,6 +1,6 @@
 #include <GL/glut.h>
 #include "game.h"
-
+#include "gameover.h"
 
 Player player;
 std::vector<Enemy> enemies;
@@ -10,7 +10,6 @@ int windowHeight_game = 600;
 bool isMovingLeft = false;
 bool isMovingRight = false;
 int spawnCooldown = 0; // Contador de frames entre spawns
-InGameState currentInGameState = PLAYING;
 
 
 void drawPlayer() {
@@ -176,40 +175,6 @@ void drawHealthBar() {
     glLineWidth(1.0f);
 }
 
-// Função auxiliar para desenhar texto
-void drawText(const char* text, float x, float y, void* font = GLUT_BITMAP_HELVETICA_18) {
-    glRasterPos2f(x, y);
-    while (*text) {
-        glutBitmapCharacter(font, *text);
-        ++text;
-    }
-}
-
-// Tela de Game Over
-void drawGameOver() {
-    // Fundo semi-transparente escuro
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4f(0.0f, 0.0f, 0.0f, 0.8f);
-    glBegin(GL_QUADS);
-    glVertex2f(0, 0);
-    glVertex2f(windowWidth_game, 0);
-    glVertex2f(windowWidth_game, windowHeight_game);
-    glVertex2f(0, windowHeight_game);
-    glEnd();
-    glDisable(GL_BLEND);
-    
-    // Texto "GAME OVER" em vermelho grande
-    glColor3f(1.0f, 0.0f, 0.0f);
-    drawText("GAME OVER", windowWidth_game/2.0f - 120, windowHeight_game/2.0f + 50, GLUT_BITMAP_TIMES_ROMAN_24);
-    
-    // Instruções em branco
-    glColor3f(1.0f, 1.0f, 1.0f);
-    drawText("Pressione 'R' para reiniciar", windowWidth_game/2.0f - 130, windowHeight_game/2.0f - 20, GLUT_BITMAP_HELVETICA_18);
-    drawText("Pressione 'M' para voltar ao menu", windowWidth_game/2.0f - 150, windowHeight_game/2.0f - 60, GLUT_BITMAP_HELVETICA_18);
-}
-
-
 void spawnEnemy() {
     Enemy newEnemy;
     newEnemy.width = 40;  // Aumentado de 30 para 40 (+33%)
@@ -236,7 +201,12 @@ void initGame() {
 
     enemies.clear();
     spawnCooldown = 0; // Resetar cooldown para spawnar imediatamente
-    currentInGameState = PLAYING; // Resetar estado do jogo
+    setGameOver(false); // Resetar estado do game over
+    
+    // Registrar callbacks do Game Over
+    initGameOver(windowWidth_game, windowHeight_game);
+    registerRestartCallback(restartCurrentPhase);
+    registerMenuCallback(returnToMenu);
 }
 
 void drawGame() {
@@ -244,10 +214,8 @@ void drawGame() {
     drawEnemies();
     drawHealthBar();
     
-    // Se o jogo acabou, desenhar tela de Game Over
-    if (currentInGameState == GAME_OVER) {
-        drawGameOver();
-    }
+    // Desenhar tela de Game Over se necessário
+    drawGameOver();
 }
 
 bool checkCollision(const Enemy& enemy) {
@@ -274,7 +242,7 @@ bool checkCollision(const Enemy& enemy) {
 
 void updateGame() {
     // Se o jogo acabou, não atualizar
-    if (currentInGameState == GAME_OVER) {
+    if (getGameOver()) {
         return;
     }
     
@@ -291,7 +259,7 @@ void updateGame() {
             player.health -= 20; // Perde 20 de vida por colisão
             if (player.health <= 0) {
                 player.health = 0; // Não deixa ficar negativo
-                currentInGameState = GAME_OVER; // Ativar tela de Game Over
+                setGameOver(true); // Ativar tela de Game Over
             }
             it = enemies.erase(it); // Remove o asteroide após colisão
         } else if (it->y < -it->height) {
@@ -339,18 +307,18 @@ void handleGameKeyboardUp(unsigned char key) {
     }
 }
 
-void handleGameOverKeyboard(unsigned char key) {
-    switch (key) {
-        case 'r':
-        case 'R':
-            // Reiniciar o jogo
-            initGame();
-            break;
-        case 'm':
-        case 'M':
-            // Voltar ao menu (precisa ser implementado no main.cpp)
-            extern void changeState(int newState);
-            changeState(0); // 0 = menu
-            break;
-    }
+// Callbacks para o sistema de Game Over
+void restartCurrentPhase() {
+    // Reinicia apenas a fase atual (Fase 1)
+    player.health = 100;
+    player.maxHealth = 100;
+    enemies.clear();
+    spawnCooldown = 0;
+    setGameOver(false);
+}
+
+void returnToMenu() {
+    // Volta ao menu principal
+    extern void changeState(int newState);
+    changeState(0); // 0 = MAIN_MENU
 }

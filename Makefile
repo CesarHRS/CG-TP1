@@ -2,7 +2,7 @@ CXX = g++
 CXXFLAGS = -Wall -Wextra -std=c++11
 LDFLAGS = -lglut -lGLU -lGL
 TARGET = jogo_educativo
-SRCS = src/main.cpp src/menu.cpp src/game.cpp
+SRCS = src/main.cpp src/menu.cpp src/game.cpp src/gameover.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 # Windows-specific variables

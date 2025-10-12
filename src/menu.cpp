@@ -1,6 +1,7 @@
 #include <GL/glut.h>
 #include "menu.h"
-#include "game.h" 
+#include "game.h"
+#include "gameover.h"
 #include <string.h>
 #include <cmath>
 
@@ -183,8 +184,7 @@ void handleKeyboard(unsigned char key, int x, int y) {
             currentState = MAIN_MENU;
         } else {
             // Se está em Game Over, usar handleGameOverKeyboard
-            extern InGameState currentInGameState;
-            if (currentInGameState == GAME_OVER) {
+            if (getGameOver()) {
                 handleGameOverKeyboard(key);
             } else {
                 handleGameKeyboard(key);

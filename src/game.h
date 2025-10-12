@@ -6,12 +6,6 @@
 #include <ctime>
 #include <cmath> 
 
-// Estados internos do jogo (jogando ou game over)
-enum InGameState {
-    PLAYING,
-    GAME_OVER
-};
-
 struct Player {
     float x, y, width, height;
     float speed;
@@ -32,20 +26,21 @@ extern int windowHeight_game;
 extern bool isMovingLeft;
 extern bool isMovingRight;
 extern int spawnCooldown; // Cooldown entre spawns de asteroides
-extern InGameState currentInGameState;
 
 // Funções de desenho
 void drawPlayer();
 void drawEnemies();
 void drawHealthBar();
-void drawGameOver();
 
 void initGame();
 void drawGame();
 void updateGame();
 void handleGameKeyboard(unsigned char key);
 void handleGameKeyboardUp(unsigned char key);
-void handleGameOverKeyboard(unsigned char key);
 void spawnEnemy();
+
+// Callbacks para o sistema de Game Over
+void restartCurrentPhase();
+void returnToMenu();
 
 #endif // GAME_H
