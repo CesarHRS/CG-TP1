@@ -18,6 +18,7 @@ int windowHeight = 600;
 
 Button startButton = {300, 350, 200, 50, "Iniciar", false};
 Button instructionsButton = {300, 280, 200, 50, "Como Jogar", false};
+Button exitButton = {300, 210, 200, 50, "Sair", false};
 Button backButton = {300, 150, 200, 50, "Voltar para o Menu", false};
 
 void handleKeyboardUp(unsigned char key, int x, int y) {
@@ -85,6 +86,7 @@ void drawMainMenu() {
     drawText(320, 500, "Jogo de navinha mais legal da sua vida");
     drawButton(startButton);
     drawButton(instructionsButton);
+    drawButton(exitButton);
 }
 
 void drawInstructionsScreen() {
@@ -134,6 +136,8 @@ void handleMouseClick(int button, int state, int x, int y) {
                     initGame(); 
                 } else if (isMouseOverButton(x, y, instructionsButton)) {
                     currentState = INSTRUCTIONS_SCREEN;
+                } else if (isMouseOverButton(x, y, exitButton)) {
+                    exit(0); // Sair do jogo
                 }
                 break;
             case INSTRUCTIONS_SCREEN:
@@ -159,6 +163,10 @@ void handleMouseHover(int x, int y) {
             }
             if (instructionsButton.isHovered != isMouseOverButton(x, y, instructionsButton)) {
                 instructionsButton.isHovered = !instructionsButton.isHovered;
+                needsRedraw = true;
+            }
+            if (exitButton.isHovered != isMouseOverButton(x, y, exitButton)) {
+                exitButton.isHovered = !exitButton.isHovered;
                 needsRedraw = true;
             }
             break;

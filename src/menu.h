@@ -19,6 +19,7 @@ extern int windowWidth;
 extern int windowHeight;
 extern Button startButton;
 extern Button instructionsButton;
+extern Button exitButton;
 extern Button backButton;
 
 // Funções de desenho
