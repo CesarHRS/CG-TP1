@@ -10,6 +10,7 @@ int windowHeight_game = 600;
 bool isMovingLeft = false;
 bool isMovingRight = false;
 int spawnCooldown = 0; // Contador de frames entre spawns
+InGameState currentInGameState = PLAYING;
 
 
 void drawPlayer() {
@@ -175,6 +176,39 @@ void drawHealthBar() {
     glLineWidth(1.0f);
 }
 
+// Função auxiliar para desenhar texto
+void drawText(const char* text, float x, float y, void* font = GLUT_BITMAP_HELVETICA_18) {
+    glRasterPos2f(x, y);
+    while (*text) {
+        glutBitmapCharacter(font, *text);
+        ++text;
+    }
+}
+
+// Tela de Game Over
+void drawGameOver() {
+    // Fundo semi-transparente escuro
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(0.0f, 0.0f, 0.0f, 0.8f);
+    glBegin(GL_QUADS);
+    glVertex2f(0, 0);
+    glVertex2f(windowWidth_game, 0);
+    glVertex2f(windowWidth_game, windowHeight_game);
+    glVertex2f(0, windowHeight_game);
+    glEnd();
+    glDisable(GL_BLEND);
+    
+    // Texto "GAME OVER" em vermelho grande
+    glColor3f(1.0f, 0.0f, 0.0f);
+    drawText("GAME OVER", windowWidth_game/2.0f - 120, windowHeight_game/2.0f + 50, GLUT_BITMAP_TIMES_ROMAN_24);
+    
+    // Instruções em branco
+    glColor3f(1.0f, 1.0f, 1.0f);
+    drawText("Pressione 'R' para reiniciar", windowWidth_game/2.0f - 130, windowHeight_game/2.0f - 20, GLUT_BITMAP_HELVETICA_18);
+    drawText("Pressione 'M' para voltar ao menu", windowWidth_game/2.0f - 150, windowHeight_game/2.0f - 60, GLUT_BITMAP_HELVETICA_18);
+}
+
 
 void spawnEnemy() {
     Enemy newEnemy;
@@ -202,12 +236,18 @@ void initGame() {
 
     enemies.clear();
     spawnCooldown = 0; // Resetar cooldown para spawnar imediatamente
+    currentInGameState = PLAYING; // Resetar estado do jogo
 }
 
 void drawGame() {
     drawPlayer();
     drawEnemies();
     drawHealthBar();
+    
+    // Se o jogo acabou, desenhar tela de Game Over
+    if (currentInGameState == GAME_OVER) {
+        drawGameOver();
+    }
 }
 
 bool checkCollision(const Enemy& enemy) {
@@ -233,6 +273,10 @@ bool checkCollision(const Enemy& enemy) {
 }
 
 void updateGame() {
+    // Se o jogo acabou, não atualizar
+    if (currentInGameState == GAME_OVER) {
+        return;
+    }
     
     // Nave agora é fixa - sem movimento lateral
     // Removido: isMovingLeft e isMovingRight
@@ -244,9 +288,10 @@ void updateGame() {
     for (auto it = enemies.begin(); it != enemies.end(); ) {
         // Verificar colisão com a nave
         if (checkCollision(*it)) {
-            player.health -= 10; // Perde 10 de vida por colisão
-            if (player.health < 0) {
+            player.health -= 20; // Perde 20 de vida por colisão
+            if (player.health <= 0) {
                 player.health = 0; // Não deixa ficar negativo
+                currentInGameState = GAME_OVER; // Ativar tela de Game Over
             }
             it = enemies.erase(it); // Remove o asteroide após colisão
         } else if (it->y < -it->height) {
@@ -290,6 +335,22 @@ void handleGameKeyboardUp(unsigned char key) {
         case 'd':
         case 'D':
             isMovingRight = false;
+            break;
+    }
+}
+
+void handleGameOverKeyboard(unsigned char key) {
+    switch (key) {
+        case 'r':
+        case 'R':
+            // Reiniciar o jogo
+            initGame();
+            break;
+        case 'm':
+        case 'M':
+            // Voltar ao menu (precisa ser implementado no main.cpp)
+            extern void changeState(int newState);
+            changeState(0); // 0 = menu
             break;
     }
 }

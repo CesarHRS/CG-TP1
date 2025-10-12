@@ -182,7 +182,13 @@ void handleKeyboard(unsigned char key, int x, int y) {
         if (key == 27) { 
             currentState = MAIN_MENU;
         } else {
-            handleGameKeyboard(key);
+            // Se está em Game Over, usar handleGameOverKeyboard
+            extern InGameState currentInGameState;
+            if (currentInGameState == GAME_OVER) {
+                handleGameOverKeyboard(key);
+            } else {
+                handleGameKeyboard(key);
+            }
         }
         glutPostRedisplay();
     }
@@ -197,3 +203,7 @@ void setup() {
     glMatrixMode(GL_MODELVIEW);
 }
 
+void changeState(int newState) {
+    currentState = (GameState)newState;
+    glutPostRedisplay();
+}

@@ -35,5 +35,6 @@ void handleKeyboard(unsigned char key, int x, int y);
 void handleKeyboardUp(unsigned char key, int x, int y);
 void setup();
 void updateScene();
+void changeState(int newState);
 
 #endif // MENU_H
