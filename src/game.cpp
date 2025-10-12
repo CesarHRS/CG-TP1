@@ -13,45 +13,84 @@ int spawnCooldown = 0; // Contador de frames entre spawns
 
 
 void drawPlayer() {
-    glColor3f(0.2f, 0.2f, 0.8f); // Azul escuro
+    // Nave vista de cima, apenas a parte frontal (10% inferior da tela)
+    // Para-brisa ENORME ocupando ~70% da tela horizontalmente
+    
+    float baseY = windowHeight_game * 0.1f; // 10% da altura
+    float parabrisa_width = windowWidth_game * 0.35f; // 70% total da tela (35% cada lado)
+    
+    // Asa esquerda (muito pequena)
+    glColor3f(0.2f, 0.2f, 0.6f);
     glBegin(GL_POLYGON);
-    glVertex2f(player.x, player.y + player.height); // topo
-    glVertex2f(player.x - player.width * 0.25f, player.y + player.height * 0.5f);
-    glVertex2f(player.x - player.width * 0.25f, player.y);
-    glVertex2f(player.x + player.width * 0.25f, player.y);
-    glVertex2f(player.x + player.width * 0.25f, player.y + player.height * 0.5f);
+    glVertex2f(0, 0);
+    glVertex2f(0, baseY * 0.3f);
+    glVertex2f(player.x - parabrisa_width - 50, baseY * 0.2f);
+    glVertex2f(player.x - parabrisa_width - 40, 0);
     glEnd();
-
-    // Cockpit
-    glColor3f(0.6f, 0.9f, 1.0f); // Azul claro
+    
+    // Asa direita (muito pequena)
     glBegin(GL_POLYGON);
-    glVertex2f(player.x, player.y + player.height * 0.85f);
-    glVertex2f(player.x - player.width * 0.10f, player.y + player.height * 0.55f);
-    glVertex2f(player.x + player.width * 0.10f, player.y + player.height * 0.55f);
+    glVertex2f(windowWidth_game, 0);
+    glVertex2f(windowWidth_game, baseY * 0.3f);
+    glVertex2f(player.x + parabrisa_width + 50, baseY * 0.2f);
+    glVertex2f(player.x + parabrisa_width + 40, 0);
     glEnd();
-
-    // Asa esquerda
-    glColor3f(0.7f, 0.7f, 0.7f); // Cinza
+    
+    // Corpo lateral esquerdo (parte da fuselagem)
+    glColor3f(0.15f, 0.15f, 0.5f); // Azul escuro
+    glBegin(GL_POLYGON);
+    glVertex2f(player.x - parabrisa_width - 40, 0);
+    glVertex2f(player.x - parabrisa_width - 50, baseY * 0.2f);
+    glVertex2f(player.x - parabrisa_width, baseY * 0.8f);
+    glVertex2f(player.x - parabrisa_width * 0.9f, 0);
+    glEnd();
+    
+    // Corpo lateral direito (parte da fuselagem)
+    glBegin(GL_POLYGON);
+    glVertex2f(player.x + parabrisa_width + 40, 0);
+    glVertex2f(player.x + parabrisa_width + 50, baseY * 0.2f);
+    glVertex2f(player.x + parabrisa_width, baseY * 0.8f);
+    glVertex2f(player.x + parabrisa_width * 0.9f, 0);
+    glEnd();
+    
+    // Nariz central (ponta da nave apontando para cima)
+    glColor3f(0.25f, 0.25f, 0.7f);
     glBegin(GL_TRIANGLES);
-    glVertex2f(player.x - player.width * 0.25f, player.y + player.height * 0.5f);
-    glVertex2f(player.x - player.width * 0.5f, player.y + player.height * 0.2f);
-    glVertex2f(player.x - player.width * 0.25f, player.y);
+    glVertex2f(player.x, baseY); // Ponta superior
+    glVertex2f(player.x - parabrisa_width * 0.9f, 0);
+    glVertex2f(player.x + parabrisa_width * 0.9f, 0);
     glEnd();
-
-    // Asa direita
-    glBegin(GL_TRIANGLES);
-    glVertex2f(player.x + player.width * 0.25f, player.y + player.height * 0.5f);
-    glVertex2f(player.x + player.width * 0.5f, player.y + player.height * 0.2f);
-    glVertex2f(player.x + player.width * 0.25f, player.y);
+    
+    // Para-brisa/Cockpit ENORME (vidro transparente/azul claro) - 70% da tela
+    glColor3f(0.25f, 0.6f, 0.9f); // Azul claro brilhante
+    glBegin(GL_POLYGON);
+    glVertex2f(player.x, baseY * 0.98f); // Ponta quase no topo
+    glVertex2f(player.x - parabrisa_width, baseY * 0.6f);
+    glVertex2f(player.x - parabrisa_width * 0.85f, 0);
+    glVertex2f(player.x + parabrisa_width * 0.85f, 0);
+    glVertex2f(player.x + parabrisa_width, baseY * 0.6f);
     glEnd();
-
-    // Detalhe na ponta
-    glColor3f(1.0f, 0.3f, 0.3f); // Vermelho
-    glBegin(GL_TRIANGLES);
-    glVertex2f(player.x, player.y + player.height);
-    glVertex2f(player.x - player.width * 0.07f, player.y + player.height * 0.92f);
-    glVertex2f(player.x + player.width * 0.07f, player.y + player.height * 0.92f);
+    
+    // Reflexo no vidro (detalhe maior)
+    glColor3f(0.8f, 0.92f, 1.0f);
+    glBegin(GL_POLYGON);
+    glVertex2f(player.x - parabrisa_width * 0.1f, baseY * 0.85f);
+    glVertex2f(player.x - parabrisa_width * 0.6f, baseY * 0.55f);
+    glVertex2f(player.x - parabrisa_width * 0.5f, baseY * 0.3f);
+    glVertex2f(player.x - parabrisa_width * 0.15f, baseY * 0.5f);
     glEnd();
+    
+    // Moldura do para-brisa (cinza escuro - mais grossa)
+    glColor3f(0.25f, 0.25f, 0.35f);
+    glLineWidth(6.0f);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(player.x, baseY * 0.98f);
+    glVertex2f(player.x - parabrisa_width, baseY * 0.6f);
+    glVertex2f(player.x - parabrisa_width * 0.85f, 0);
+    glVertex2f(player.x + parabrisa_width * 0.85f, 0);
+    glVertex2f(player.x + parabrisa_width, baseY * 0.6f);
+    glEnd();
+    glLineWidth(1.0f);
 }
 
 void drawEnemies() {
@@ -91,8 +130,8 @@ void drawEnemies() {
 
 void spawnEnemy() {
     Enemy newEnemy;
-    newEnemy.width = 30;
-    newEnemy.height = 30;
+    newEnemy.width = 40;  // Aumentado de 30 para 40 (+33%)
+    newEnemy.height = 40; // Aumentado de 30 para 40 (+33%)
     newEnemy.x = rand() % (windowWidth_game - (int)newEnemy.width);
     newEnemy.y = windowHeight_game;
     newEnemy.speed = 0.4f; // Velocidade constante
@@ -105,10 +144,10 @@ void spawnEnemy() {
 void initGame() {
     srand(time(0));
 
-    player.width = 50.0f;
-    player.height = 50.0f;
+    player.width = 200.0f;  // Largura para controlar proporções da nave
+    player.height = 60.0f;  // 10% da altura (60px de 600px)
     player.x = windowWidth_game / 2.0f;
-    player.y = 50.0f;
+    player.y = 0.0f; // Nave na parte inferior
     player.speed = 15.0f;
 
     enemies.clear();
@@ -121,18 +160,8 @@ void drawGame() {
 
 void updateGame() {
     
-    if (isMovingLeft) {
-        player.x -= player.speed * 0.5f; 
-    }
-    if (isMovingRight) {
-        player.x += player.speed * 0.5f;
-    }
-    if (player.x < player.width / 2) {
-        player.x = player.width / 2;
-    }
-    if (player.x > windowWidth_game - player.width / 2) {
-        player.x = windowWidth_game - player.width / 2;
-    }
+    // Nave agora é fixa - sem movimento lateral
+    // Removido: isMovingLeft e isMovingRight
 
     for (size_t i = 0; i < enemies.size(); ++i) {
         enemies[i].y -= enemies[i].speed;
