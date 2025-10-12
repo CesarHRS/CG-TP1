@@ -127,6 +127,54 @@ void drawEnemies() {
     }
 }
 
+void drawHealthBar() {
+    // Barra de vida no canto superior esquerdo
+    float barWidth = 200.0f;
+    float barHeight = 25.0f;
+    float barX = 20.0f;
+    float barY = windowHeight_game - 40.0f;
+    
+    // Fundo da barra (vermelho escuro)
+    glColor3f(0.3f, 0.0f, 0.0f);
+    glBegin(GL_QUADS);
+    glVertex2f(barX, barY);
+    glVertex2f(barX + barWidth, barY);
+    glVertex2f(barX + barWidth, barY + barHeight);
+    glVertex2f(barX, barY + barHeight);
+    glEnd();
+    
+    // Barra de vida (verde para saudável, amarelo para médio, vermelho para baixo)
+    float healthPercentage = (float)player.health / (float)player.maxHealth;
+    float currentBarWidth = barWidth * healthPercentage;
+    
+    // Cor baseada na porcentagem de vida
+    if (healthPercentage > 0.6f) {
+        glColor3f(0.0f, 0.8f, 0.0f); // Verde
+    } else if (healthPercentage > 0.3f) {
+        glColor3f(0.9f, 0.9f, 0.0f); // Amarelo
+    } else {
+        glColor3f(0.9f, 0.0f, 0.0f); // Vermelho
+    }
+    
+    glBegin(GL_QUADS);
+    glVertex2f(barX, barY);
+    glVertex2f(barX + currentBarWidth, barY);
+    glVertex2f(barX + currentBarWidth, barY + barHeight);
+    glVertex2f(barX, barY + barHeight);
+    glEnd();
+    
+    // Borda da barra (branco)
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glLineWidth(2.0f);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(barX, barY);
+    glVertex2f(barX + barWidth, barY);
+    glVertex2f(barX + barWidth, barY + barHeight);
+    glVertex2f(barX, barY + barHeight);
+    glEnd();
+    glLineWidth(1.0f);
+}
+
 
 void spawnEnemy() {
     Enemy newEnemy;
@@ -149,13 +197,39 @@ void initGame() {
     player.x = windowWidth_game / 2.0f;
     player.y = 0.0f; // Nave na parte inferior
     player.speed = 15.0f;
+    player.health = 100;    // Vida inicial
+    player.maxHealth = 100; // Vida máxima
 
     enemies.clear();
+    spawnCooldown = 0; // Resetar cooldown para spawnar imediatamente
 }
 
 void drawGame() {
     drawPlayer();
     drawEnemies();
+    drawHealthBar();
+}
+
+bool checkCollision(const Enemy& enemy) {
+    // A nave ocupa 10% da parte inferior da tela (0 até windowHeight_game * 0.1)
+    float naveBaseY = windowHeight_game * 0.1f;
+    
+    // Verificar se o asteroide está na região da nave (10% inferior)
+    if (enemy.y > naveBaseY) {
+        return false; // Asteroide ainda não chegou na nave
+    }
+    
+    // Asteroide está na altura da nave
+    // A nave ocupa TODA a largura da tela (asas vão de 0 até windowWidth_game)
+    float enemyCenterY = enemy.y + enemy.height / 2.0f;
+    
+    // Colisão ocorre se o asteroide está na altura da nave (10% inferior)
+    // Como a nave ocupa toda a largura, qualquer asteroide nessa altura colide
+    if (enemyCenterY <= naveBaseY) {
+        return true;
+    }
+    
+    return false;
 }
 
 void updateGame() {
@@ -168,8 +242,15 @@ void updateGame() {
     }
 
     for (auto it = enemies.begin(); it != enemies.end(); ) {
-        if (it->y < -it->height) {
-            it = enemies.erase(it);
+        // Verificar colisão com a nave
+        if (checkCollision(*it)) {
+            player.health -= 10; // Perde 10 de vida por colisão
+            if (player.health < 0) {
+                player.health = 0; // Não deixa ficar negativo
+            }
+            it = enemies.erase(it); // Remove o asteroide após colisão
+        } else if (it->y < -it->height) {
+            it = enemies.erase(it); // Remove se saiu da tela
         } else {
             ++it;
         }

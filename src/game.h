@@ -9,6 +9,8 @@
 struct Player {
     float x, y, width, height;
     float speed;
+    int health;      // Vida do jogador
+    int maxHealth;   // Vida máxima
 };
 
 struct Enemy {
@@ -28,6 +30,7 @@ extern int spawnCooldown; // Cooldown entre spawns de asteroides
 // Funções de desenho
 void drawPlayer();
 void drawEnemies();
+void drawHealthBar();
 
 void initGame();
 void drawGame();
