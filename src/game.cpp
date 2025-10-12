@@ -9,6 +9,7 @@ int windowHeight_game = 600;
 
 bool isMovingLeft = false;
 bool isMovingRight = false;
+int spawnCooldown = 0; // Contador de frames entre spawns
 
 
 void drawPlayer() {
@@ -57,6 +58,7 @@ void drawEnemies() {
     for (const auto& enemy : enemies) {
         // Cores de asteroide
         glColor3f(0.5f + 0.2f * (rand() % 3), 0.4f, 0.3f + 0.1f * (rand() % 2));
+        
         glBegin(GL_POLYGON);
         int numVertices = 8 + rand() % 4; // 8 a 11 vértices
         float cx = enemy.x + enemy.width / 2.0f;
@@ -70,8 +72,10 @@ void drawEnemies() {
             glVertex2f(x, y);
         }
         glEnd();
+        
         // Detalhes (crateras)
         glColor3f(0.3f, 0.25f, 0.2f);
+        
         glBegin(GL_POINTS);
         for (int i = 0; i < 5; ++i) {
             float angle = 2.0f * 3.1415926f * (rand() % 100) / 100.0f;
@@ -91,7 +95,8 @@ void spawnEnemy() {
     newEnemy.height = 30;
     newEnemy.x = rand() % (windowWidth_game - (int)newEnemy.width);
     newEnemy.y = windowHeight_game;
-    newEnemy.speed = 1.0f + (rand() % 4); // Velocidade aleatória
+    newEnemy.speed = 0.4f; // Velocidade constante
+    
     enemies.push_back(newEnemy);
 }
 
@@ -141,8 +146,15 @@ void updateGame() {
         }
     }
 
-    if (rand() % 100 < 3) { // 3% de chance por frame de criar um inimigo
+    // Decrementar cooldown a cada frame
+    if (spawnCooldown > 0) {
+        spawnCooldown--;
+    }
+
+    // Spawnar novo inimigo apenas se houver menos de 10 na tela E cooldown zerado
+    if (enemies.size() < 10 && spawnCooldown == 0) {
         spawnEnemy();
+        spawnCooldown = 1200; // 1200 frames de espera (~20 segundos a 60 FPS)
     }
 }
 

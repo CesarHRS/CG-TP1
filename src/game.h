@@ -23,6 +23,7 @@ extern int windowWidth_game;
 extern int windowHeight_game;
 extern bool isMovingLeft;
 extern bool isMovingRight;
+extern int spawnCooldown; // Cooldown entre spawns de asteroides
 
 // Funções de desenho
 void drawPlayer();
