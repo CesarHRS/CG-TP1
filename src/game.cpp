@@ -432,7 +432,7 @@ void updateGame() {
                 currentQuestion.asteroidIndex = -1;
             }
             
-            player.health -= 50; // Perde 20 de vida por colisão
+            player.health -= 20; // Perde 20 de vida por colisão
             if (player.health <= 0) {
                 player.health = 0; // Não deixa ficar negativo
                 setGameOver(true); // Ativar tela de Game Over
