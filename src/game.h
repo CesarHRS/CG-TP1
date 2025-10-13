@@ -24,6 +24,7 @@ struct Enemy {
     bool hasQuestion;  // Se este asteroide tem uma questão ativa
     int questionNum1;  // Primeiro número da soma
     int questionNum2;  // Segundo número da soma
+    char questionOp;   // Operador da questão associada ('+', '-', '*')
 };
 
 // Estrutura para partículas de explosão
@@ -59,6 +60,7 @@ struct MathQuestion {
     int correctAnswer;     // Resposta correta
     std::string userAnswer; // Resposta digitada pelo usuário
     int asteroidIndex;     // Índice do asteroide associado
+    char op;               // Operador da questão ('+', '-', '*')
     bool showError;        // Mostrar erro (fundo vermelho)
     int errorTimer;        // Contador de frames para erro (30 frames = 0.5s a 60 FPS)
 };

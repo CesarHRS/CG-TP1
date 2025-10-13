@@ -22,7 +22,8 @@ int spawnCooldown = 0; // Contador de frames entre spawns
 int gameFrameCounter = 0; // Contador global de frames para animações
 int mouseX = 400; // Posição inicial do mouse (centro)
 int mouseY = 300;
-MathQuestion currentQuestion = {false, 0, 0, 0, "", -1, false, 0};
+// Init MathQuestion: active=false, num1=0, num2=0, correctAnswer=0, userAnswer="", asteroidIndex=-1, op='+', showError=false, errorTimer=0
+MathQuestion currentQuestion = {false, 0, 0, 0, "", -1, '+', false, 0};
 
 void drawPlayer() {
     // Nave vista de cima, apenas a parte frontal (15% inferior da tela)
@@ -390,7 +391,8 @@ void drawMathQuestion() {
     
     // Montar o texto da questão
     std::stringstream ss;
-    ss << currentQuestion.num1 << " + " << currentQuestion.num2 << " = " << currentQuestion.userAnswer;
+    // Mostrar o operador associado à questão
+    ss << currentQuestion.num1 << " " << currentQuestion.op << " " << currentQuestion.num2 << " = " << currentQuestion.userAnswer;
     std::string questionText = ss.str();
     
     // Desenhar o texto
@@ -423,6 +425,7 @@ void spawnEnemy() {
     newEnemy.hasQuestion = false;
     newEnemy.questionNum1 = 0;
     newEnemy.questionNum2 = 0;
+    newEnemy.questionOp = '+';
     
     enemies.push_back(newEnemy);
 }
@@ -650,8 +653,8 @@ void handleGameKeyboard(unsigned char key) {
     // Se há uma questão ativa, processar input numérico
     if (currentQuestion.active) {
         if (key >= '0' && key <= '9') {
-            // Adicionar dígito à resposta (apenas se não estiver mostrando erro E tiver menos de 2 dígitos)
-            if (!currentQuestion.showError && currentQuestion.userAnswer.length() < 2) {
+            // Adicionar dígito à resposta (apenas se não estiver mostrando erro E tiver menos de 3 dígitos)
+            if (!currentQuestion.showError && currentQuestion.userAnswer.length() < 3) {
                 currentQuestion.userAnswer += key;
                 glutPostRedisplay();
             }
@@ -832,18 +835,28 @@ void handleGameMouseClick(int button, int state, int x, int y) {
         if (clickX >= enemy.x && clickX <= enemy.x + enemy.width &&
             clickY >= enemy.y && clickY <= enemy.y + enemy.height) {
             
-            // Criar questão matemática
+            // Criar questão matemática com operação aleatória (+, -)
             currentQuestion.active = true;
+            int opType = rand() % 3; // 0:+, 1:-
             currentQuestion.num1 = (rand() % 20) + 1; // 1 a 20
             currentQuestion.num2 = (rand() % 20) + 1; // 1 a 20
-            currentQuestion.correctAnswer = currentQuestion.num1 + currentQuestion.num2;
+            if (opType == 0) {
+                currentQuestion.op = '+';
+                currentQuestion.correctAnswer = currentQuestion.num1 + currentQuestion.num2;
+            } else{
+                currentQuestion.op = '-';
+                // garantir resultado não-negativo para facilitar
+                if (currentQuestion.num1 < currentQuestion.num2) std::swap(currentQuestion.num1, currentQuestion.num2);
+                currentQuestion.correctAnswer = currentQuestion.num1 - currentQuestion.num2;
+            }
             currentQuestion.userAnswer = "";
             currentQuestion.asteroidIndex = i;
-            
+
             // Marcar asteroide como tendo questão
             enemy.hasQuestion = true;
             enemy.questionNum1 = currentQuestion.num1;
             enemy.questionNum2 = currentQuestion.num2;
+            enemy.questionOp = currentQuestion.op;
             
             break; // Só uma questão por vez
         }
