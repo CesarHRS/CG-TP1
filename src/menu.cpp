@@ -91,11 +91,12 @@ void drawMainMenu() {
 
 void drawInstructionsScreen() {
     drawText(330, 500, "Como Jogar");
-    drawText(150, 420, "Instrucao 1: Pressione 'A' para mover a nave para a esquerda.");
-    drawText(150, 390, "Instrucao 2: Pressione 'D' para mover a nave para a direita.");
-    drawText(150, 360, "Instrucao 3: Colete os itens de lixo espacial!");
-    drawText(150, 330, "Instrucao 4: Pressione 'ESC' no jogo para voltar ao menu.");
-    
+    drawText(150, 440, "Instrucao 1: Pressione 'A' para mover a nave para a esquerda.");
+    drawText(150, 420, "Instrucao 2: Pressione 'D' para mover a nave para a direita.");
+    drawText(150, 400, "Instrucao 3: Na fase 1, clique nos asteroides com o botao esquerdo do mouse.");
+    drawText(150, 380, "Instrucao 4: Digite o resultado da conta que aparecer no asteroide usando o teclado.");
+    drawText(150, 360, "Instrucao 5: Se o asteroide te atinge, voce tomara dano. Se o dano for muito alto, voce morre.");
+    drawText(150, 340, "Instrucao 6: Pressione 'ESC' no jogo para voltar ao menu.");
     drawButton(backButton);
 }
 
