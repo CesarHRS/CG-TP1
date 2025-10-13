@@ -78,6 +78,12 @@ extern int spawnCooldown; // Cooldown entre spawns de asteroides
 extern int mouseX; // Posição X do mouse
 extern int mouseY; // Posição Y do mouse
 extern MathQuestion currentQuestion; // Questão matemática atual
+// Progresso de acertos
+extern int correctAnswersCount; // Quantos acertos o jogador tem
+extern int correctAnswersTarget; // Quantos acertos para vencer
+
+// Desenho da barra de progresso
+void drawProgressBar();
 
 // Funções de desenho
 void drawPlayer();

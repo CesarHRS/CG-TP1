@@ -24,6 +24,8 @@ int mouseX = 400; // Posição inicial do mouse (centro)
 int mouseY = 300;
 // Init MathQuestion: active=false, num1=0, num2=0, correctAnswer=0, userAnswer="", asteroidIndex=-1, op='+', showError=false, errorTimer=0
 MathQuestion currentQuestion = {false, 0, 0, 0, "", -1, '+', false, 0};
+int correctAnswersCount = 0;
+int correctAnswersTarget = 10; // Vencer após 10 acertos
 
 void drawPlayer() {
     // Nave vista de cima, apenas a parte frontal (15% inferior da tela)
@@ -345,6 +347,62 @@ void drawLaserShot() {
     glPointSize(1.0f);
 }
 
+// Desenhar barra de progresso vertical no canto direito
+void drawProgressBar() {
+    // Tamanho e posição
+    float barWidth = 30.0f;
+    float barHeight = windowHeight_game * 0.6f; // 60% da altura
+    float barX = windowWidth_game - 40.0f; // 40px da borda direita
+    float barY = (windowHeight_game - barHeight) / 2.0f; // centralizada verticalmente
+
+    // Fundo da barra (cinza escuro)
+    glColor3f(0.15f, 0.15f, 0.15f);
+    glBegin(GL_QUADS);
+    glVertex2f(barX, barY);
+    glVertex2f(barX + barWidth, barY);
+    glVertex2f(barX + barWidth, barY + barHeight);
+    glVertex2f(barX, barY + barHeight);
+    glEnd();
+
+    // Altura preenchida proporcional aos acertos
+    float fillPercentage = 0.0f;
+    if (correctAnswersTarget > 0) {
+        fillPercentage = (float)correctAnswersCount / (float)correctAnswersTarget;
+        if (fillPercentage > 1.0f) fillPercentage = 1.0f;
+    }
+    float filledHeight = barHeight * fillPercentage;
+
+    // Cores do preenchimento (de vermelho para verde conforme avança)
+    float r = 1.0f - fillPercentage;
+    float g = 0.2f + 0.8f * fillPercentage;
+    glColor3f(r, g, 0.0f);
+    glBegin(GL_QUADS);
+    glVertex2f(barX, barY);
+    glVertex2f(barX + barWidth, barY);
+    glVertex2f(barX + barWidth, barY + filledHeight);
+    glVertex2f(barX, barY + filledHeight);
+    glEnd();
+
+    // Borda da barra (branco)
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glLineWidth(2.0f);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(barX, barY);
+    glVertex2f(barX + barWidth, barY);
+    glVertex2f(barX + barWidth, barY + barHeight);
+    glVertex2f(barX, barY + barHeight);
+    glEnd();
+    glLineWidth(1.0f);
+
+    // Desenhar texto com contagem (ex: 3/10) acima da barra
+    std::stringstream ss;
+    ss << correctAnswersCount << "/" << correctAnswersTarget;
+    std::string txt = ss.str();
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glRasterPos2f(barX - 40.0f, barY + barHeight + 20.0f);
+    for (const char c : txt) glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
+}
+
 // Desenhar questão matemática no para-brisa
 void drawMathQuestion() {
     if (!currentQuestion.active) {
@@ -450,6 +508,8 @@ void initGame() {
     enemies.clear();
     spawnCooldown = 0; // Resetar cooldown para spawnar imediatamente
     setGameOver(false); // Resetar estado do game over
+    // Resetar progresso de acertos
+    correctAnswersCount = 0;
     
     // Registrar callbacks do Game Over
     initGameOver(windowWidth_game, windowHeight_game);
@@ -468,6 +528,7 @@ void drawGame() {
     drawHealthBar();
     drawMathQuestion(); // Desenhar questão matemática (se ativa)
     drawCrosshair(); // Desenhar mira customizada
+    drawProgressBar(); // Desenhar barra de progresso vertical no canto direito
     
     // Desenhar tela de Game Over se necessário
     drawGameOver();
@@ -736,6 +797,13 @@ void handleGameKeyboard(unsigned char key) {
                 currentQuestion.showError = false;
                 currentQuestion.errorTimer = 0;
                 
+                // Incrementar contador de acertos e verificar vitória
+                correctAnswersCount++;
+                if (correctAnswersCount >= correctAnswersTarget) {
+                    // Vitória: terminar o jogo (usar game over como fim de fase)
+                    setGameOver(true);
+                }
+
                 // Adiantar próximo asteroide (resetar cooldown)
                 spawnCooldown = 0;
             } else {
@@ -794,6 +862,7 @@ void restartCurrentPhase() {
     enemies.clear();
     spawnCooldown = 0;
     setGameOver(false);
+    correctAnswersCount = 0;
 }
 
 void returnToMenu() {
