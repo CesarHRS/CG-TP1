@@ -11,13 +11,15 @@ struct Button {
 enum GameState {
     MAIN_MENU,
     INSTRUCTIONS_SCREEN,
-    GAME_SCREEN
+    GAME_SCREEN,
+    PHASE2_SCREEN
 };
 
 extern GameState currentState;
 extern int windowWidth;
 extern int windowHeight;
 extern Button startButton;
+extern Button phase2Button;
 extern Button instructionsButton;
 extern Button exitButton;
 extern Button backButton;

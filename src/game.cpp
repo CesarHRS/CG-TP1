@@ -1,5 +1,7 @@
 #include <GL/glut.h>
 #include "game.h"
+#include "menu.h"
+#include "phase2.h"
 #include "gameover.h"
 #include <sstream>
 #include <algorithm>
@@ -26,6 +28,7 @@ int mouseY = 300;
 MathQuestion currentQuestion = {false, 0, 0, 0, "", -1, '+', false, 0};
 int correctAnswersCount = 0;
 int correctAnswersTarget = 10; // Vencer após 10 acertos
+bool phase1Completed = false; // Se completou a fase 1
 
 void drawPlayer() {
     // Nave vista de cima, apenas a parte frontal (15% inferior da tela)
@@ -510,6 +513,7 @@ void initGame() {
     setGameOver(false); // Resetar estado do game over
     // Resetar progresso de acertos
     correctAnswersCount = 0;
+    phase1Completed = false; // Resetar flag de conclusão
     
     // Registrar callbacks do Game Over
     initGameOver(windowWidth_game, windowHeight_game);
@@ -800,8 +804,13 @@ void handleGameKeyboard(unsigned char key) {
                 // Incrementar contador de acertos e verificar vitória
                 correctAnswersCount++;
                 if (correctAnswersCount >= correctAnswersTarget) {
-                    // Vitória: terminar o jogo (usar game over como fim de fase)
-                    setGameOver(true);
+                    // Completou a Fase 1! Ir para Fase 2
+                    phase1Completed = true;
+                    currentState = PHASE2_SCREEN;
+                    initPhase2();
+                    glutPassiveMotionFunc(handlePhase2MouseMove);
+                    glutMotionFunc(handlePhase2MouseMove);
+                    return;
                 }
 
                 // Adiantar próximo asteroide (resetar cooldown)

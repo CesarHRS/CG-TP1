@@ -1,6 +1,7 @@
 #include <GL/glut.h>
 #include "menu.h"
 #include "game.h"
+#include "phase2.h"
 #include "gameover.h"
 #include <string.h>
 #include <cmath>
@@ -16,14 +17,18 @@ GameState currentState = MAIN_MENU;
 int windowWidth = 800;
 int windowHeight = 600;
 
-Button startButton = {300, 350, 200, 50, "Iniciar", false};
-Button instructionsButton = {300, 280, 200, 50, "Como Jogar", false};
-Button exitButton = {300, 210, 200, 50, "Sair", false};
+Button startButton = {300, 390, 200, 50, "Fase 1", false};
+Button phase2Button = {300, 320, 200, 50, "Fase 2", false};
+Button instructionsButton = {300, 250, 200, 50, "Como Jogar", false};
+Button exitButton = {300, 180, 200, 50, "Sair", false};
 Button backButton = {300, 150, 200, 50, "Voltar para o Menu", false};
 
 void handleKeyboardUp(unsigned char key, int x, int y) {
     if (currentState == GAME_SCREEN) {
         handleGameKeyboardUp(key);
+        glutPostRedisplay();
+    } else if (currentState == PHASE2_SCREEN) {
+        handlePhase2KeyboardUp(key);
         glutPostRedisplay();
     }
 }
@@ -85,6 +90,7 @@ bool isMouseOverButton(int x, int y, Button &button) {
 void drawMainMenu() {
     drawText(320, 500, "Jogo de navinha mais legal da sua vida");
     drawButton(startButton);
+    drawButton(phase2Button);
     drawButton(instructionsButton);
     drawButton(exitButton);
 }
@@ -115,6 +121,9 @@ void renderScene() {
         case GAME_SCREEN:
             drawGame(); 
             break;
+        case PHASE2_SCREEN:
+            drawPhase2();
+            break;
     }
 
     glutSwapBuffers();
@@ -124,6 +133,9 @@ void updateScene() {
     if (currentState == GAME_SCREEN) {
         updateGame();
         glutPostRedisplay(); 
+    } else if (currentState == PHASE2_SCREEN) {
+        updatePhase2();
+        glutPostRedisplay();
     }
 }
 
@@ -132,6 +144,12 @@ void handleMouseClick(int button, int state, int x, int y) {
     // Se estiver no jogo, passar clique para o handler do jogo
     if (currentState == GAME_SCREEN) {
         handleGameMouseClick(button, state, x, y);
+        return;
+    }
+    
+    // Se estiver na Fase 2, passar clique para o handler da Fase 2
+    if (currentState == PHASE2_SCREEN) {
+        handlePhase2MouseClick(button, state, x, y);
         return;
     }
     
@@ -144,6 +162,12 @@ void handleMouseClick(int button, int state, int x, int y) {
                     // Registrar callback de movimento do mouse no jogo
                     glutPassiveMotionFunc(handleGameMouseMove);
                     glutMotionFunc(handleGameMouseMove);
+                } else if (isMouseOverButton(x, y, phase2Button)) {
+                    currentState = PHASE2_SCREEN;
+                    initPhase2();
+                    // Registrar callback de movimento do mouse na Fase 2
+                    glutPassiveMotionFunc(handlePhase2MouseMove);
+                    glutMotionFunc(handlePhase2MouseMove);
                 } else if (isMouseOverButton(x, y, instructionsButton)) {
                     currentState = INSTRUCTIONS_SCREEN;
                 } else if (isMouseOverButton(x, y, exitButton)) {
@@ -169,6 +193,10 @@ void handleMouseHover(int x, int y) {
         case MAIN_MENU:
             if (startButton.isHovered != isMouseOverButton(x, y, startButton)) {
                 startButton.isHovered = !startButton.isHovered;
+                needsRedraw = true;
+            }
+            if (phase2Button.isHovered != isMouseOverButton(x, y, phase2Button)) {
+                phase2Button.isHovered = !phase2Button.isHovered;
                 needsRedraw = true;
             }
             if (instructionsButton.isHovered != isMouseOverButton(x, y, instructionsButton)) {
@@ -209,6 +237,21 @@ void handleKeyboard(unsigned char key, int x, int y) {
                 handleGameOverKeyboard(key);
             } else {
                 handleGameKeyboard(key);
+            }
+        }
+        glutPostRedisplay();
+    } else if (currentState == PHASE2_SCREEN) {
+        if (key == 27) {
+            currentState = MAIN_MENU;
+            // Restaurar cursor normal e callback de hover do menu
+            glutSetCursor(GLUT_CURSOR_INHERIT);
+            glutPassiveMotionFunc(handleMouseHover);
+        } else {
+            // Se está em Game Over, usar handleGameOverKeyboard
+            if (getGameOver()) {
+                handleGameOverKeyboard(key);
+            } else {
+                handlePhase2Keyboard(key);
             }
         }
         glutPostRedisplay();

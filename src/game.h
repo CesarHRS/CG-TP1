@@ -81,6 +81,7 @@ extern MathQuestion currentQuestion; // Questão matemática atual
 // Progresso de acertos
 extern int correctAnswersCount; // Quantos acertos o jogador tem
 extern int correctAnswersTarget; // Quantos acertos para vencer
+extern bool phase1Completed; // Se a fase 1 foi completada com sucesso
 
 // Desenho da barra de progresso
 void drawProgressBar();
