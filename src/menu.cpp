@@ -2,6 +2,7 @@
 #include "menu.h"
 #include "game.h"
 #include "phase2.h"
+#include "phase3.h"
 #include "gameover.h"
 #include <string.h>
 #include <cmath>
@@ -16,12 +17,16 @@
 GameState currentState = MAIN_MENU;
 int windowWidth = 800;
 int windowHeight = 600;
+// menu uses system cursor; custom pointer is drawn only in phase3
+int menuMouseX = 400;
+int menuMouseY = 300;
 
 Button startButton = {300, 390, 200, 50, "Fase 1", false};
 Button phase2Button = {300, 320, 200, 50, "Fase 2", false};
-Button instructionsButton = {300, 250, 200, 50, "Como Jogar", false};
-Button exitButton = {300, 180, 200, 50, "Sair", false};
-Button backButton = {300, 150, 200, 50, "Voltar para o Menu", false};
+Button phase3Button = {300, 250, 200, 50, "Fase 3", false};
+Button instructionsButton = {300, 190, 200, 50, "Como Jogar", false};
+Button exitButton = {300, 130, 200, 50, "Sair", false};
+Button backButton = {300, 80, 200, 50, "Voltar para o Menu", false};
 
 void handleKeyboardUp(unsigned char key, int x, int y) {
     if (currentState == GAME_SCREEN) {
@@ -30,15 +35,45 @@ void handleKeyboardUp(unsigned char key, int x, int y) {
     } else if (currentState == PHASE2_SCREEN) {
         handlePhase2KeyboardUp(key);
         glutPostRedisplay();
+    } else if (currentState == PHASE3_SCREEN) {
+        handlePhase3KeyboardUp(key);
+        glutPostRedisplay();
     }
 }
 
+
+// custom pointer removed from menu; phase3 draws its own pointer
 
 void drawText(float x, float y, const char *text) {
     glRasterPos2f(x, y);
     for (const char* c = text; *c != '\0'; c++) {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
     }
+}
+
+void drawMenuPointer(int mx, int my) {
+    float px = (float)mx;
+    float py = (float)(windowHeight - my);
+    float size = 10.0f;
+    // glow
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    glColor4f(0.0f, 0.7f, 1.0f, 0.12f);
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex2f(px, py);
+    for (int i = 0; i <= 20; ++i) {
+        float a = (float)i/20.0f * 2.0f * M_PI;
+        glVertex2f(px + cos(a) * (size+6.0f), py + sin(a) * (size+6.0f));
+    }
+    glEnd();
+    glDisable(GL_BLEND);
+
+    glColor3f(0.0f, 0.8f, 1.0f);
+    glBegin(GL_TRIANGLES);
+    glVertex2f(px, py);
+    glVertex2f(px + size, py - size * 0.6f);
+    glVertex2f(px + size * 0.2f, py + size * 0.2f);
+    glEnd();
 }
 
 void drawButton(Button &button) {
@@ -91,6 +126,7 @@ void drawMainMenu() {
     drawText(320, 500, "Jogo de navinha mais legal da sua vida");
     drawButton(startButton);
     drawButton(phase2Button);
+    drawButton(phase3Button);
     drawButton(instructionsButton);
     drawButton(exitButton);
 }
@@ -114,6 +150,7 @@ void renderScene() {
     switch (currentState) {
         case MAIN_MENU:
             drawMainMenu();
+            drawMenuPointer(menuMouseX, menuMouseY);
             break;
         case INSTRUCTIONS_SCREEN:
             drawInstructionsScreen();
@@ -123,6 +160,10 @@ void renderScene() {
             break;
         case PHASE2_SCREEN:
             drawPhase2();
+            break;
+        case PHASE3_SCREEN:
+            drawPhase3();
+            break;
             break;
     }
 
@@ -135,6 +176,9 @@ void updateScene() {
         glutPostRedisplay(); 
     } else if (currentState == PHASE2_SCREEN) {
         updatePhase2();
+        glutPostRedisplay();
+    } else if (currentState == PHASE3_SCREEN) {
+        updatePhase3();
         glutPostRedisplay();
     }
 }
@@ -150,6 +194,12 @@ void handleMouseClick(int button, int state, int x, int y) {
     // Se estiver na Fase 2, passar clique para o handler da Fase 2
     if (currentState == PHASE2_SCREEN) {
         handlePhase2MouseClick(button, state, x, y);
+        return;
+    }
+
+    // Se estiver na Fase 3, passar clique para o handler da Fase 3
+    if (currentState == PHASE3_SCREEN) {
+        handlePhase3MouseClick(button, state, x, y);
         return;
     }
     
@@ -168,6 +218,12 @@ void handleMouseClick(int button, int state, int x, int y) {
                     // Registrar callback de movimento do mouse na Fase 2
                     glutPassiveMotionFunc(handlePhase2MouseMove);
                     glutMotionFunc(handlePhase2MouseMove);
+                } else if (isMouseOverButton(x, y, phase3Button)) {
+                    currentState = PHASE3_SCREEN;
+                    initPhase3();
+                    // Registrar callback de movimento do mouse na Fase 3
+                    glutPassiveMotionFunc(handlePhase3MouseMove);
+                    glutMotionFunc(handlePhase3MouseMove);
                 } else if (isMouseOverButton(x, y, instructionsButton)) {
                     currentState = INSTRUCTIONS_SCREEN;
                 } else if (isMouseOverButton(x, y, exitButton)) {
@@ -187,6 +243,9 @@ void handleMouseClick(int button, int state, int x, int y) {
 }
 
 void handleMouseHover(int x, int y) {
+    // update menu pointer
+    menuMouseX = x;
+    menuMouseY = y;
     bool needsRedraw = false;
     
     switch (currentState) {
@@ -197,6 +256,10 @@ void handleMouseHover(int x, int y) {
             }
             if (phase2Button.isHovered != isMouseOverButton(x, y, phase2Button)) {
                 phase2Button.isHovered = !phase2Button.isHovered;
+                needsRedraw = true;
+            }
+            if (phase3Button.isHovered != isMouseOverButton(x, y, phase3Button)) {
+                phase3Button.isHovered = !phase3Button.isHovered;
                 needsRedraw = true;
             }
             if (instructionsButton.isHovered != isMouseOverButton(x, y, instructionsButton)) {
@@ -222,6 +285,7 @@ void handleMouseHover(int x, int y) {
         glutPostRedisplay();
     }
 }
+
 
 
 void handleKeyboard(unsigned char key, int x, int y) {
@@ -255,6 +319,20 @@ void handleKeyboard(unsigned char key, int x, int y) {
             }
         }
         glutPostRedisplay();
+    } else if (currentState == PHASE3_SCREEN) {
+        if (key == 27) {
+            currentState = MAIN_MENU;
+            // Restaurar cursor normal e callback de hover do menu
+            glutSetCursor(GLUT_CURSOR_INHERIT);
+            glutPassiveMotionFunc(handleMouseHover);
+        } else {
+            if (getGameOver()) {
+                handleGameOverKeyboard(key);
+            } else {
+                handlePhase3Keyboard(key);
+            }
+        }
+        glutPostRedisplay();
     }
 }
 
@@ -265,6 +343,8 @@ void setup() {
     glLoadIdentity();
     gluOrtho2D(0, windowWidth, 0, windowHeight);
     glMatrixMode(GL_MODELVIEW);
+    // hide system cursor so custom pointer is visible
+    glutSetCursor(GLUT_CURSOR_NONE);
 }
 
 void changeState(int newState) {

@@ -12,7 +12,8 @@ enum GameState {
     MAIN_MENU,
     INSTRUCTIONS_SCREEN,
     GAME_SCREEN,
-    PHASE2_SCREEN
+    PHASE2_SCREEN,
+    PHASE3_SCREEN
 };
 
 extern GameState currentState;
@@ -20,6 +21,7 @@ extern int windowWidth;
 extern int windowHeight;
 extern Button startButton;
 extern Button phase2Button;
+extern Button phase3Button;
 extern Button instructionsButton;
 extern Button exitButton;
 extern Button backButton;
