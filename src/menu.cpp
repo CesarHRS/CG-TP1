@@ -29,6 +29,8 @@ Button exitButton = {300, 130, 200, 50, "Sair", false};
 Button backButton = {300, 80, 200, 50, "Voltar para o Menu", false};
 
 void handleKeyboardUp(unsigned char key, int x, int y) {
+    (void)x;
+    (void)y;
     if (currentState == GAME_SCREEN) {
         handleGameKeyboardUp(key);
         glutPostRedisplay();
@@ -132,13 +134,33 @@ void drawMainMenu() {
 }
 
 void drawInstructionsScreen() {
-    drawText(330, 500, "Como Jogar");
-    drawText(150, 440, "Instrucao 1: Pressione 'A' para mover a nave para a esquerda.");
-    drawText(150, 420, "Instrucao 2: Pressione 'D' para mover a nave para a direita.");
-    drawText(150, 400, "Instrucao 3: Na fase 1, clique nos asteroides com o botao esquerdo do mouse.");
-    drawText(150, 380, "Instrucao 4: Digite o resultado da conta que aparecer no asteroide usando o teclado.");
-    drawText(150, 360, "Instrucao 5: Se o asteroide te atinge, voce tomara dano. Se o dano for muito alto, voce morre.");
-    drawText(150, 340, "Instrucao 6: Pressione 'ESC' no jogo para voltar ao menu.");
+    drawText(330, 560, "Como Jogar");
+    
+    // Instruções gerais
+    drawText(50, 520, "CONTROLES GERAIS:");
+    drawText(70, 500, "- Pressione ESC para pausar o jogo e acessar o menu de pausa");
+    drawText(70, 480, "- Use as setas para navegar nos menus");
+    
+    // Fase 1
+    drawText(50, 450, "FASE 1 - Defesa Espacial:");
+    drawText(70, 430, "- Use A/D para mover a nave para esquerda/direita");
+    drawText(70, 410, "- Clique nos asteroides para resolver a equacao");
+    drawText(70, 390, "- Digite a resposta e pressione ENTER");
+    drawText(70, 370, "- Complete 10 acertos para avancar para a Fase 2");
+    
+    // Fase 2
+    drawText(50, 340, "FASE 2 - Tiro Certeiro:");
+    drawText(70, 320, "- Use o mouse para mirar nos asteroides");
+    drawText(70, 300, "- Clique para atirar (5 tiros por rodada)");
+    drawText(70, 280, "- Acerte o asteroide com a resposta correta da equacao");
+    drawText(70, 260, "- Complete 10 acertos para avancar para a Fase 3");
+    
+    // Fase 3
+    drawText(50, 230, "FASE 3 - Bomba Instavel:");
+    drawText(70, 210, "- Use a calculadora clicavel para resolver a equacao da bomba");
+    drawText(70, 190, "- Voce tem 20 segundos antes da bomba explodir");
+    drawText(70, 170, "- Complete 10 bombas desarmadas para vencer o jogo!");
+    
     drawButton(backButton);
 }
 
@@ -150,7 +172,6 @@ void renderScene() {
     switch (currentState) {
         case MAIN_MENU:
             drawMainMenu();
-            drawMenuPointer(menuMouseX, menuMouseY);
             break;
         case INSTRUCTIONS_SCREEN:
             drawInstructionsScreen();
@@ -233,9 +254,13 @@ void handleMouseClick(int button, int state, int x, int y) {
             case INSTRUCTIONS_SCREEN:
                 if (isMouseOverButton(x, y, backButton)) {
                     currentState = MAIN_MENU;
+                    glutSetCursor(GLUT_CURSOR_INHERIT);
+                    glutPassiveMotionFunc(handleMouseHover);
                 }
                 break;
             case GAME_SCREEN:
+            case PHASE2_SCREEN:
+            case PHASE3_SCREEN:
                 break;
         }
         glutPostRedisplay();
@@ -278,6 +303,8 @@ void handleMouseHover(int x, int y) {
             }
             break;
         case GAME_SCREEN:
+        case PHASE2_SCREEN:
+        case PHASE3_SCREEN:
             break;
     }
 
@@ -289,6 +316,8 @@ void handleMouseHover(int x, int y) {
 
 
 void handleKeyboard(unsigned char key, int x, int y) {
+    (void)x;
+    (void)y;
     if (currentState == GAME_SCREEN) {
         if (key == 27) { 
             currentState = MAIN_MENU;
@@ -336,6 +365,13 @@ void handleKeyboard(unsigned char key, int x, int y) {
     }
 }
 
+void handleSpecialKey(int key, int x, int y) {
+    if (currentState == GAME_SCREEN) {
+        handleGameSpecialKey(key, x, y);
+        glutPostRedisplay();
+    }
+    // Adicionar para outras fases conforme necessário
+}
 
 void setup() {
     glClearColor(0.1f, 0.1f, 0.15f, 1.0f); 
@@ -343,8 +379,8 @@ void setup() {
     glLoadIdentity();
     gluOrtho2D(0, windowWidth, 0, windowHeight);
     glMatrixMode(GL_MODELVIEW);
-    // hide system cursor so custom pointer is visible
-    glutSetCursor(GLUT_CURSOR_NONE);
+    // Menu usa cursor padrão do sistema
+    glutSetCursor(GLUT_CURSOR_INHERIT);
 }
 
 void changeState(int newState) {

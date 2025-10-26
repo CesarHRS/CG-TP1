@@ -10,26 +10,33 @@ extern int windowHeightP3;
 extern int mouseXP3;
 extern int mouseYP3;
 
-// Calculator state
-struct CalculatorP3 {
-    std::string display; // texto atual
-    int selectedRow;
-    int selectedCol;
-    bool enterPressed;
+// Botão da calculadora
+struct CalcButton {
+    float x, y, w, h;
+    std::string label;
+    bool isHovered;
 };
 
-extern CalculatorP3 calcP3;
-
-struct EquationP3 {
-    int x; // pode ser -1 se for variável
-    int y; // pode ser -1 se for variável
-    int result;
-    char op; // '+','-','*','/'
+// Munição instável (Special Ammo)
+struct SpecialAmmoP3 {
+    int num1;
+    int num2;
+    char operation;
+    int correctAnswer;
+    std::string inputAnswer;
+    int timer;           // Timer em frames (decrementa até 0)
+    int maxTimer;        // Timer máximo (ex: 600 = 10 segundos)
     bool active;
-    bool xIsVariable; // se x é a incógnita
+    bool exploded;       // Se explodiu por timeout
+    bool isHit;          // Se está mostrando efeito de erro
+    int hitTimer;        // Timer do efeito de erro
 };
 
-extern EquationP3 currentEquationP3;
+extern SpecialAmmoP3 currentAmmoP3;
+extern int correctAnswersCountP3;
+extern int correctAnswersTargetP3;
+extern int playerHealthP3;
+extern int maxPlayerHealthP3;
 
 // Functions
 void initPhase3();

@@ -83,8 +83,19 @@ extern int correctAnswersCount; // Quantos acertos o jogador tem
 extern int correctAnswersTarget; // Quantos acertos para vencer
 extern bool phase1Completed; // Se a fase 1 foi completada com sucesso
 
+// Contagem regressiva no início da fase
+extern bool showCountdown;
+extern int countdownTimer;
+extern int countdownValue;
+
+// Sistema de pausa
+extern bool isPaused;
+extern int pauseSelectedOption; // 0 = Continuar, 1 = Menu
+
 // Desenho da barra de progresso
 void drawProgressBar();
+void drawCountdown(); // Desenhar contagem regressiva
+void drawPauseMenu(); // Desenhar menu de pausa
 
 // Funções de desenho
 void drawPlayer();
@@ -102,6 +113,7 @@ void updateExplosions(); // Atualizar explosões
 void updateLaserShot(); // Atualizar tiro laser
 void handleGameKeyboard(unsigned char key);
 void handleGameKeyboardUp(unsigned char key);
+void handleGameSpecialKey(int key, int x, int y); // Teclas especiais (setas)
 void handleGameMouseMove(int x, int y); // Movimentação do mouse
 void handleGameMouseClick(int button, int state, int x, int y); // Click do mouse
 void spawnEnemy();

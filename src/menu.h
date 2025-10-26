@@ -38,6 +38,7 @@ void handleMouseClick(int button, int state, int x, int y);
 void handleMouseHover(int x, int y);
 void handleKeyboard(unsigned char key, int x, int y);
 void handleKeyboardUp(unsigned char key, int x, int y);
+void handleSpecialKey(int key, int x, int y); // Teclas especiais (setas)
 void setup();
 void updateScene();
 void changeState(int newState);

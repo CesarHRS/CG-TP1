@@ -1,5 +1,7 @@
 #include <GL/glut.h>
 #include "phase2.h"
+#include "phase3.h"
+#include "game.h"
 #include "menu.h"
 #include "gameover.h"
 #include <sstream>
@@ -82,7 +84,8 @@ void drawPlayerP2() {
 }
 
 void drawAsteroidsP2() {
-    int slowAnimationSeed = gameFrameCounterP2 / 20;
+    // Animação mais lenta (muda a cada 20 frames) - parar no game over
+    int slowAnimationSeed = getGameOver() ? 0 : gameFrameCounterP2 / 20;
     
     for (size_t idx = 0; idx < asteroidsP2.size(); ++idx) {
         const auto& asteroid = asteroidsP2[idx];
@@ -408,6 +411,11 @@ void initPhase2() {
     correctAnswersCountP2 = 0;
     allAsteroidsSpawnedP2 = false;
     
+    // Iniciar contagem regressiva
+    showCountdown = true;
+    countdownTimer = 0;
+    countdownValue = 3;
+    
     createNewEquationP2();
     setGameOver(false);
     
@@ -430,6 +438,8 @@ void drawPhase2() {
     drawGameTimerP2();
     drawCorrectAnswersCountP2();
     drawCrosshairP2();
+    drawCountdown(); // Contagem regressiva
+    drawPauseMenu(); // Menu de pausa
     
     drawGameOver();
 }
@@ -602,15 +612,28 @@ void checkTimeoutDamageP2() {
 }
 
 void updatePhase2() {
-    if (getGameOver()) {
+    if (getGameOver() || isPaused) {
         return;
+    }
+    
+    // Atualizar contagem regressiva
+    if (showCountdown) {
+        countdownTimer++;
+        if (countdownTimer >= 60) {
+            countdownTimer = 0;
+            countdownValue--;
+            if (countdownValue <= 0) {
+                showCountdown = false;
+            }
+        }
+        return; // Não atualizar o jogo enquanto está contando
     }
     
     updateExplosionsP2();
     updateLaserShotsP2();
     
-    // Atualizar efeito de dano
-    if (playerP2.isHit && playerP2.hitTimer > 0) {
+    // Atualizar efeito de dano - parar no game over
+    if (!getGameOver() && playerP2.isHit && playerP2.hitTimer > 0) {
         playerP2.hitTimer--;
         
         float shakeIntensity = (float)playerP2.hitTimer / 30.0f * 8.0f;
@@ -749,9 +772,12 @@ void handlePhase2MouseClick(int button, int state, int x, int y) {
                     
                     // Verificar se completou os 10 acertos
                     if (correctAnswersCountP2 >= correctAnswersTargetP2) {
-                        // Vitória! Mostrar tela de game over com vitória
-                        setGameOver(true);
-                        setVictory(true);
+                        // Completou a Fase 2! Ir para Fase 3
+                        currentState = PHASE3_SCREEN;
+                        initPhase3();
+                        glutPassiveMotionFunc(handlePhase3MouseMove);
+                        glutMotionFunc(handlePhase3MouseMove);
+                        return;
                     } else {
                         // Resetar rodada para próxima pergunta
                         asteroidsP2.clear();
@@ -805,11 +831,51 @@ void handlePhase2MouseClick(int button, int state, int x, int y) {
 }
 
 void handlePhase2Keyboard(unsigned char key) {
-    // Pode adicionar controles de teclado se necessário
+    // ESC para pausar/despausar
+    if (key == 27) { // ESC
+        if (!getGameOver()) {
+            isPaused = !isPaused;
+            pauseSelectedOption = 0;
+            glutPostRedisplay();
+        }
+        return;
+    }
+    
+    // Se está pausado, tratar navegação do menu
+    if (isPaused) {
+        if (key == 13 || key == '\r') { // Enter
+            if (pauseSelectedOption == 0) {
+                isPaused = false;
+            } else if (pauseSelectedOption == 1) {
+                isPaused = false;
+                currentState = MAIN_MENU;
+                glutSetCursor(GLUT_CURSOR_INHERIT);
+                glutPassiveMotionFunc(handleMouseHover);
+            }
+            glutPostRedisplay();
+        }
+        return;
+    }
 }
 
 void handlePhase2KeyboardUp(unsigned char key) {
+    (void)key;
     // Pode adicionar controles de teclado se necessário
+}
+
+void handlePhase2SpecialKey(int key, int x, int y) {
+    (void)x;
+    (void)y;
+    
+    if (isPaused) {
+        if (key == GLUT_KEY_UP) {
+            pauseSelectedOption = 0;
+            glutPostRedisplay();
+        } else if (key == GLUT_KEY_DOWN) {
+            pauseSelectedOption = 1;
+            glutPostRedisplay();
+        }
+    }
 }
 
 void restartPhase2() {

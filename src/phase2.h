@@ -96,6 +96,7 @@ void updateExplosionsP2();
 void updateLaserShotsP2();
 void handlePhase2Keyboard(unsigned char key);
 void handlePhase2KeyboardUp(unsigned char key);
+void handlePhase2SpecialKey(int key, int x, int y); // Teclas especiais
 void handlePhase2MouseMove(int x, int y);
 void handlePhase2MouseClick(int button, int state, int x, int y);
 void spawnAsteroidP2();
