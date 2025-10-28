@@ -43,4 +43,10 @@ void setup();
 void updateScene();
 void changeState(int newState);
 
+// Story overlay when clicking phases
+extern bool showPhaseStory;
+extern int storyPhase; // 1,2,3 -> which phase's story is pending
+extern int storyPage; // pagination index (0-based, two paragraphs per page)
+void drawStoryOverlay();
+
 #endif // MENU_H
