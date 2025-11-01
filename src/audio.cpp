@@ -29,13 +29,11 @@ bool Audio::init() {
         return false;
     }
 
-    // Open audio: 44100 Hz, default format, stereo, 2048 chunk size
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
         std::cerr << "Mix_OpenAudio failed: " << Mix_GetError() << std::endl;
         return false;
     }
 
-    // Initialize support for different formats (optional)
     int flags = MIX_INIT_MP3 | MIX_INIT_OGG;
     int initted = Mix_Init(flags);
     (void)initted;
@@ -54,11 +52,9 @@ static Mix_Chunk* loadChunk(const char* path) {
 
 void Audio::loadAll() {
     if (!initialized) {
-        // try to init; if fails, we keep going but won't play sounds
         if (!init()) return;
     }
 
-    // Filenames used by the game. Place files at these paths.
     const char* names[SOUND_COUNT] = {
         "assets/sounds/laser.mp3",      // SOUND_LASER
         "assets/sounds/explosion.mp3",  // SOUND_EXPLOSION
@@ -79,7 +75,6 @@ void Audio::play(SoundId id) {
     if (id < 0 || id >= SOUND_COUNT) return;
     Mix_Chunk* c = (Mix_Chunk*)chunks[id];
     if (!c) return;
-    // channel -1 (use first free), no loops
     if (Mix_PlayChannel(-1, c, 0) == -1) {
         std::cerr << "Mix_PlayChannel failed: " << Mix_GetError() << std::endl;
     }
