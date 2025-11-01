@@ -8,6 +8,7 @@
 #include <ctime>
 #include <cmath>
 #include <string>
+#include "audio.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -622,6 +623,9 @@ void updatePhase3() {
                 setGameOver(true);
                 setVictory(false);
             }
+            // tocar som de explosão e dano
+            Audio::getInstance().play(Audio::SOUND_EXPLOSION);
+            Audio::getInstance().play(Audio::SOUND_DAMAGE);
         }
         
         glutPostRedisplay();
@@ -681,6 +685,10 @@ void handlePhase3MouseClick(int button, int state, int x, int y) {
                     if (answer == currentAmmoP3.correctAnswer) {
                         correctAnswersCountP3++;
                         
+                        // tocar som de tiro/sucesso
+                        Audio::getInstance().play(Audio::SOUND_LASER);
+                        Audio::getInstance().play(Audio::SOUND_VICTORY);
+
                         if (correctAnswersCountP3 >= correctAnswersTargetP3) {
                             setGameOver(true);
                             setVictory(true);
@@ -691,6 +699,8 @@ void handlePhase3MouseClick(int button, int state, int x, int y) {
                         currentAmmoP3.isHit = true;
                         currentAmmoP3.hitTimer = 30;
                         currentAmmoP3.inputAnswer = "";
+                        // tocar som de erro
+                        Audio::getInstance().play(Audio::SOUND_ERROR);
                     }
                 }
             } else if (btn.label == "DEL") {

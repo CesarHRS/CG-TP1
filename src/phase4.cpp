@@ -7,6 +7,7 @@
 #include <ctime>
 #include <cmath>
 #include <sstream>
+#include "audio.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -500,6 +501,8 @@ void fireLaserP4(float targetX, float targetY) {
     s.active = true;
     laserShotsP4.push_back(s);
     shotsRemainingP4--;
+    // tocar som de tiro
+    Audio::getInstance().play(Audio::SOUND_LASER);
 }
 
 void updatePhase4() {
@@ -573,6 +576,8 @@ void updatePhase4() {
                 // game over
                 setGameOver(true);
             }
+            // tocar som de dano
+            Audio::getInstance().play(Audio::SOUND_DAMAGE);
         }
     }
 
@@ -598,6 +603,8 @@ void updatePhase4() {
                 printf("GAME OVER TRIGGERED (asteroid)!\n");
                 setGameOver(true);
             }
+            // tocar som de dano por asteroid
+            Audio::getInstance().play(Audio::SOUND_DAMAGE);
         }
     }
 
@@ -621,6 +628,8 @@ void updatePhase4() {
                 bossP4.hitCount++;
                 bossP4.isHit = true;
                 bossP4.hitTimer = 18;
+                // tocar som de explosão/hit no boss
+                Audio::getInstance().play(Audio::SOUND_EXPLOSION);
                 // Aumentar velocidade gradualmente a cada acerto (incremento menor e mais frequente)
                 bossP4.baseSpeed += 0.15f; // aumenta 15% a cada hit (antes era 20% a cada 2 hits)
                 // reduzir cooldown para mais ataques gradualmente

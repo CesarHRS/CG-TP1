@@ -5,6 +5,7 @@
 #include "phase3.h"
 #include "phase4.h"
 #include "gameover.h"
+#include "audio.h"
 #include <string.h>
 #include <cmath>
 
@@ -417,6 +418,12 @@ void setup() {
     glMatrixMode(GL_MODELVIEW);
     // Menu usa cursor padrão do sistema
     glutSetCursor(GLUT_CURSOR_INHERIT);
+
+    // Initialize audio system (optional). Will print warnings if SDL or mixers aren't available.
+    Audio::getInstance().init();
+    Audio::getInstance().loadAll();
+    // Ensure cleanup on exit
+    atexit(audio_cleanup_at_exit);
 }
 
 void changeState(int newState) {

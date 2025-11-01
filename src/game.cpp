@@ -3,6 +3,7 @@
 #include "menu.h"
 #include "phase2.h"
 #include "gameover.h"
+#include "audio.h"
 #include <sstream>
 #include <algorithm>
 #include <cstdlib>
@@ -745,6 +746,9 @@ void updateGame() {
             }
             
             enemies.erase(enemies.begin() + i); // Remove o asteroide após colisão
+
+            // tocar som de dano/explosão
+            Audio::getInstance().play(Audio::SOUND_DAMAGE);
             
             // Atualizar índice da questão se necessário
             if (currentQuestion.active && currentQuestion.asteroidIndex > (int)i) {
@@ -905,6 +909,8 @@ void handleGameKeyboard(unsigned char key) {
                     laserShot.endY = asteroidCenterY;
                     laserShot.currentProgress = 0.0f;
                     laserShot.active = true;
+                    // tocar som de tiro
+                    Audio::getInstance().play(Audio::SOUND_LASER);
                     
                     // Criar explosão na posição do asteroide
                     Explosion explosion;
@@ -967,6 +973,9 @@ void handleGameKeyboard(unsigned char key) {
                 // Resposta errada - mostrar erro
                 currentQuestion.showError = true;
                 currentQuestion.errorTimer = 30; // 30 frames = 0.5 segundos a 60 FPS
+
+                // tocar som de erro
+                Audio::getInstance().play(Audio::SOUND_ERROR);
                 
                 // Asteroide continua
                 if (currentQuestion.asteroidIndex >= 0 && 

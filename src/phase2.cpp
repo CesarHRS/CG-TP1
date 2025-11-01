@@ -4,6 +4,7 @@
 #include "game.h"
 #include "menu.h"
 #include "gameover.h"
+#include "audio.h"
 #include <sstream>
 #include <algorithm>
 #include <cstdlib>
@@ -597,9 +598,12 @@ void checkTimeoutDamageP2() {
             }
         }
         
-        // Aplicar dano (10 de dano por asteroide restante)
-        int damage = remainingAsteroids * 10;
-        playerP2.health -= damage;
+    // Aplicar dano (10 de dano por asteroide restante)
+    int damage = remainingAsteroids * 10;
+    playerP2.health -= damage;
+
+    // tocar som de dano
+    Audio::getInstance().play(Audio::SOUND_DAMAGE);
         
         if (playerP2.health <= 0) {
             playerP2.health = 0;
@@ -731,6 +735,8 @@ void handlePhase2MouseClick(int button, int state, int x, int y) {
                 laser.currentProgress = 0.0f;
                 laser.active = true;
                 laserShotsP2.push_back(laser);
+                // tocar som de tiro
+                Audio::getInstance().play(Audio::SOUND_LASER);
                 
                 // Criar explosão
                 ExplosionPhase2 explosion;
@@ -761,6 +767,8 @@ void handlePhase2MouseClick(int button, int state, int x, int y) {
                 }
                 
                 explosionsP2.push_back(explosion);
+                // tocar som de explosão
+                Audio::getInstance().play(Audio::SOUND_EXPLOSION);
                 
                 // Decrementar tiros
                 shotsRemainingP2--;
