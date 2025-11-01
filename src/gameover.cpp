@@ -9,6 +9,7 @@ bool isVictory = false; // Se é vitória ou derrota
 RestartCallback onRestartCallback = nullptr;
 MenuCallback onMenuCallback = nullptr;
 NextPhaseCallback onNextPhaseCallback = nullptr; // Callback para próxima fase
+int victoryPhase = 0;
 
 void initGameOver(int windowWidth, int windowHeight) {
     windowWidth_gameover = windowWidth;
@@ -45,14 +46,27 @@ void drawGameOver() {
     glDisable(GL_BLEND);
     
     if (isVictory) {
-        // Tela de Vitória
-        glColor3f(0.0f, 1.0f, 0.0f); // Verde
-        drawGameOverText("FASE COMPLETA!", windowWidth_gameover/2.0f - 120, windowHeight_gameover/2.0f + 50, GLUT_BITMAP_TIMES_ROMAN_24);
-        
-        // Instruções em branco
-        glColor3f(1.0f, 1.0f, 1.0f);
-        drawGameOverText("Pressione 'N' para proxima fase", windowWidth_gameover/2.0f - 160, windowHeight_gameover/2.0f - 20, GLUT_BITMAP_HELVETICA_18);
-        drawGameOverText("Pressione 'M' para voltar ao menu", windowWidth_gameover/2.0f - 160, windowHeight_gameover/2.0f - 50, GLUT_BITMAP_HELVETICA_18);
+        // Vitória — se for a fase 4 mostramos uma tela de agradecimento/creditos
+        if (victoryPhase == 4) {
+            glColor3f(0.0f, 1.0f, 0.0f); // Verde
+            drawGameOverText("BOSS DERROTADO!", windowWidth_gameover/2.0f - 120, windowHeight_gameover/2.0f + 120, GLUT_BITMAP_TIMES_ROMAN_24);
+            glColor3f(0.9f, 0.9f, 0.2f);
+            drawGameOverText("OBRIGADO POR JOGAR", windowWidth_gameover/2.0f - 200, windowHeight_gameover/2.0f + 80, GLUT_BITMAP_TIMES_ROMAN_24);
+            glColor3f(1.0f, 1.0f, 1.0f);
+            drawGameOverText("Desenvolvedores:", windowWidth_gameover/2.0f - 60, windowHeight_gameover/2.0f + 30, GLUT_BITMAP_HELVETICA_18);
+            drawGameOverText("Lara", windowWidth_gameover/2.0f - 20, windowHeight_gameover/2.0f + 5, GLUT_BITMAP_HELVETICA_18);
+            drawGameOverText("Cesar", windowWidth_gameover/2.0f - 20, windowHeight_gameover/2.0f - 15, GLUT_BITMAP_HELVETICA_18);
+            drawGameOverText("Pressione 'M' para voltar ao menu", windowWidth_gameover/2.0f - 160, windowHeight_gameover/2.0f - 60, GLUT_BITMAP_HELVETICA_18);
+        } else {
+            // Tela de Vitória padrão
+            glColor3f(0.0f, 1.0f, 0.0f); // Verde
+            drawGameOverText("FASE COMPLETA!", windowWidth_gameover/2.0f - 120, windowHeight_gameover/2.0f + 50, GLUT_BITMAP_TIMES_ROMAN_24);
+            
+            // Instruções em branco
+            glColor3f(1.0f, 1.0f, 1.0f);
+            drawGameOverText("Pressione 'N' para proxima fase", windowWidth_gameover/2.0f - 160, windowHeight_gameover/2.0f - 20, GLUT_BITMAP_HELVETICA_18);
+            drawGameOverText("Pressione 'M' para voltar ao menu", windowWidth_gameover/2.0f - 160, windowHeight_gameover/2.0f - 50, GLUT_BITMAP_HELVETICA_18);
+        }
     } else {
         // Tela de Game Over (derrota)
         glColor3f(1.0f, 0.0f, 0.0f); // Vermelho
@@ -74,7 +88,8 @@ void handleGameOverKeyboard(unsigned char key) {
         case 'n':
         case 'N':
             // Ir para próxima fase (somente se for vitória)
-            if (isVictory && onNextPhaseCallback != nullptr) {
+            if (isVictory && victoryPhase != 4 && onNextPhaseCallback != nullptr) {
+                // somente permitir ir para próxima fase quando não for a última "vitória final"
                 isGameOver = false;
                 isVictory = false;
                 onNextPhaseCallback();
@@ -109,6 +124,10 @@ void setVictory(bool victory) {
     isVictory = victory;
 }
 
+void setVictoryPhase(int phase) {
+    victoryPhase = phase;
+}
+
 bool getGameOver() {
     return isGameOver;
 }
@@ -119,4 +138,8 @@ void registerRestartCallback(RestartCallback callback) {
 
 void registerMenuCallback(MenuCallback callback) {
     onMenuCallback = callback;
+}
+ 
+void registerNextPhaseCallback(NextPhaseCallback callback) {
+    onNextPhaseCallback = callback;
 }

@@ -25,6 +25,7 @@ int main(int argc, char **argv) {
     glutKeyboardFunc(handleKeyboard); 
     glutKeyboardUpFunc(handleKeyboardUp);
     glutSpecialFunc(handleSpecialKey); // Teclas especiais (setas)
+    glutSpecialUpFunc(handleSpecialKeyUp); // Teclas especiais up
     glutIdleFunc(updateScene); 
 
     glutMainLoop(); 
