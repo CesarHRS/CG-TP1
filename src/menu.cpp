@@ -1,7 +1,17 @@
 #include <GL/glut.h>
 #include "menu.h"
-#include "game.h" 
+#include "game.h"
+#include "phase2.h"
+#include "phase3.h"
+#include "phase4.h"
+#include "gameover.h"
+#include "audio.h"
 #include <string.h>
+#include <cmath>
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 
 
@@ -9,24 +19,70 @@
 GameState currentState = MAIN_MENU;
 int windowWidth = 800;
 int windowHeight = 600;
+// menu uses system cursor; custom pointer is drawn only in phase3
+int menuMouseX = 400;
+int menuMouseY = 300;
 
-Button startButton = {300, 350, 200, 50, "Iniciar", false};
-Button instructionsButton = {300, 280, 200, 50, "Como Jogar", false};
-Button backButton = {300, 150, 200, 50, "Voltar para o Menu", false};
+Button startButton = {300, 390, 200, 50, "Fase 1", false};
+Button phase2Button = {300, 320, 200, 50, "Fase 2", false};
+Button phase3Button = {300, 250, 200, 50, "Fase 3", false};
+Button phase4Button = {300, 180, 200, 50, "Fase 4", false};
+// moved instructions and exit down so they don't overlap with phase buttons
+Button instructionsButton = {300, 110, 200, 50, "Como Jogar", false};
+Button exitButton = {300, 40, 200, 50, "Sair", false};
+Button backButton = {300, 80, 200, 50, "Voltar para o Menu", false};
 
 void handleKeyboardUp(unsigned char key, int x, int y) {
+    (void)x;
+    (void)y;
     if (currentState == GAME_SCREEN) {
         handleGameKeyboardUp(key);
+        glutPostRedisplay();
+    } else if (currentState == PHASE2_SCREEN) {
+        handlePhase2KeyboardUp(key);
+        glutPostRedisplay();
+    } else if (currentState == PHASE3_SCREEN) {
+        handlePhase3KeyboardUp(key);
+        glutPostRedisplay();
+    } else if (currentState == PHASE4_SCREEN) {
+        handlePhase4KeyboardUp(key);
         glutPostRedisplay();
     }
 }
 
+
+// custom pointer removed from menu; phase3 draws its own pointer
 
 void drawText(float x, float y, const char *text) {
     glRasterPos2f(x, y);
     for (const char* c = text; *c != '\0'; c++) {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
     }
+}
+
+void drawMenuPointer(int mx, int my) {
+    float px = (float)mx;
+    float py = (float)(windowHeight - my);
+    float size = 10.0f;
+    // glow
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    glColor4f(0.0f, 0.7f, 1.0f, 0.12f);
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex2f(px, py);
+    for (int i = 0; i <= 20; ++i) {
+        float a = (float)i/20.0f * 2.0f * M_PI;
+        glVertex2f(px + cos(a) * (size+6.0f), py + sin(a) * (size+6.0f));
+    }
+    glEnd();
+    glDisable(GL_BLEND);
+
+    glColor3f(0.0f, 0.8f, 1.0f);
+    glBegin(GL_TRIANGLES);
+    glVertex2f(px, py);
+    glVertex2f(px + size, py - size * 0.6f);
+    glVertex2f(px + size * 0.2f, py + size * 0.2f);
+    glEnd();
 }
 
 void drawButton(Button &button) {
@@ -78,16 +134,21 @@ bool isMouseOverButton(int x, int y, Button &button) {
 void drawMainMenu() {
     drawText(320, 500, "Jogo de navinha mais legal da sua vida");
     drawButton(startButton);
+    drawButton(phase2Button);
+    drawButton(phase3Button);
+    drawButton(phase4Button);
     drawButton(instructionsButton);
+    drawButton(exitButton);
 }
 
 void drawInstructionsScreen() {
     drawText(330, 500, "Como Jogar");
-    drawText(150, 420, "Instrucao 1: Pressione 'A' para mover a nave para a esquerda.");
-    drawText(150, 390, "Instrucao 2: Pressione 'D' para mover a nave para a direita.");
-    drawText(150, 360, "Instrucao 3: Colete os itens de lixo espacial!");
-    drawText(150, 330, "Instrucao 4: Pressione 'ESC' no jogo para voltar ao menu.");
-    
+    drawText(150, 440, "Instrucao 1: Pressione 'A' para mover a nave para a esquerda.");
+    drawText(150, 420, "Instrucao 2: Pressione 'D' para mover a nave para a direita.");
+    drawText(150, 400, "Instrucao 3: Na fase 1, clique nos asteroides com o botao esquerdo do mouse.");
+    drawText(150, 380, "Instrucao 4: Digite o resultado da conta que aparecer no asteroide usando o teclado.");
+    drawText(150, 360, "Instrucao 5: Se o asteroide te atinge, voce tomara dano. Se o dano for muito alto, voce morre.");
+    drawText(150, 340, "Instrucao 6: Pressione 'ESC' no jogo para voltar ao menu.");
     drawButton(backButton);
 }
 
@@ -106,6 +167,16 @@ void renderScene() {
         case GAME_SCREEN:
             drawGame(); 
             break;
+        case PHASE2_SCREEN:
+            drawPhase2();
+            break;
+        case PHASE3_SCREEN:
+            drawPhase3();
+            break;
+        case PHASE4_SCREEN:
+            drawPhase4();
+            break;
+            break;
     }
 
     glutSwapBuffers();
@@ -115,27 +186,88 @@ void updateScene() {
     if (currentState == GAME_SCREEN) {
         updateGame();
         glutPostRedisplay(); 
+    } else if (currentState == PHASE2_SCREEN) {
+        updatePhase2();
+        glutPostRedisplay();
+    } else if (currentState == PHASE3_SCREEN) {
+        updatePhase3();
+        glutPostRedisplay();
+    } else if (currentState == PHASE4_SCREEN) {
+        updatePhase4();
+        glutPostRedisplay();
     }
 }
 
 
 void handleMouseClick(int button, int state, int x, int y) {
+    // Se estiver no jogo, passar clique para o handler do jogo
+    if (currentState == GAME_SCREEN) {
+        handleGameMouseClick(button, state, x, y);
+        return;
+    }
+    
+    // Se estiver na Fase 2, passar clique para o handler da Fase 2
+    if (currentState == PHASE2_SCREEN) {
+        handlePhase2MouseClick(button, state, x, y);
+        return;
+    }
+
+    // Se estiver na Fase 3, passar clique para o handler da Fase 3
+    if (currentState == PHASE3_SCREEN) {
+        handlePhase3MouseClick(button, state, x, y);
+        return;
+    }
+    
+    // Se estiver na Fase 4, passar clique para o handler da Fase 4
+    if (currentState == PHASE4_SCREEN) {
+        handlePhase4MouseClick(button, state, x, y);
+        return;
+    }
+    
     if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
         switch (currentState) {
             case MAIN_MENU:
                 if (isMouseOverButton(x, y, startButton)) {
                     currentState = GAME_SCREEN;
-                    initGame(); 
+                    initGame();
+                    // Registrar callback de movimento do mouse no jogo
+                    glutPassiveMotionFunc(handleGameMouseMove);
+                    glutMotionFunc(handleGameMouseMove);
+                } else if (isMouseOverButton(x, y, phase2Button)) {
+                    currentState = PHASE2_SCREEN;
+                    initPhase2();
+                    // Registrar callback de movimento do mouse na Fase 2
+                    glutPassiveMotionFunc(handlePhase2MouseMove);
+                    glutMotionFunc(handlePhase2MouseMove);
+                } else if (isMouseOverButton(x, y, phase3Button)) {
+                    currentState = PHASE3_SCREEN;
+                    initPhase3();
+                    // Registrar callback de movimento do mouse na Fase 3
+                    glutPassiveMotionFunc(handlePhase3MouseMove);
+                    glutMotionFunc(handlePhase3MouseMove);
+                } else if (isMouseOverButton(x, y, phase4Button)) {
+                    currentState = PHASE4_SCREEN;
+                    initPhase4();
+                    // Registrar callback de movimento do mouse na Fase 4
+                    glutPassiveMotionFunc(handlePhase4MouseMove);
+                    glutMotionFunc(handlePhase4MouseMove);
                 } else if (isMouseOverButton(x, y, instructionsButton)) {
                     currentState = INSTRUCTIONS_SCREEN;
+                } else if (isMouseOverButton(x, y, exitButton)) {
+                    exit(0); // Sair do jogo
                 }
                 break;
             case INSTRUCTIONS_SCREEN:
                 if (isMouseOverButton(x, y, backButton)) {
                     currentState = MAIN_MENU;
+                    glutSetCursor(GLUT_CURSOR_INHERIT);
+                    glutPassiveMotionFunc(handleMouseHover);
                 }
                 break;
             case GAME_SCREEN:
+            case PHASE2_SCREEN:
+            case PHASE3_SCREEN:
+            case PHASE4_SCREEN:
                 break;
         }
         glutPostRedisplay();
@@ -143,6 +275,9 @@ void handleMouseClick(int button, int state, int x, int y) {
 }
 
 void handleMouseHover(int x, int y) {
+    // update menu pointer
+    menuMouseX = x;
+    menuMouseY = y;
     bool needsRedraw = false;
     
     switch (currentState) {
@@ -151,8 +286,24 @@ void handleMouseHover(int x, int y) {
                 startButton.isHovered = !startButton.isHovered;
                 needsRedraw = true;
             }
+            if (phase2Button.isHovered != isMouseOverButton(x, y, phase2Button)) {
+                phase2Button.isHovered = !phase2Button.isHovered;
+                needsRedraw = true;
+            }
+            if (phase3Button.isHovered != isMouseOverButton(x, y, phase3Button)) {
+                phase3Button.isHovered = !phase3Button.isHovered;
+                needsRedraw = true;
+            }
+            if (phase4Button.isHovered != isMouseOverButton(x, y, phase4Button)) {
+                phase4Button.isHovered = !phase4Button.isHovered;
+                needsRedraw = true;
+            }
             if (instructionsButton.isHovered != isMouseOverButton(x, y, instructionsButton)) {
                 instructionsButton.isHovered = !instructionsButton.isHovered;
+                needsRedraw = true;
+            }
+            if (exitButton.isHovered != isMouseOverButton(x, y, exitButton)) {
+                exitButton.isHovered = !exitButton.isHovered;
                 needsRedraw = true;
             }
             break;
@@ -163,6 +314,9 @@ void handleMouseHover(int x, int y) {
             }
             break;
         case GAME_SCREEN:
+        case PHASE2_SCREEN:
+        case PHASE3_SCREEN:
+        case PHASE4_SCREEN:
             break;
     }
 
@@ -172,17 +326,89 @@ void handleMouseHover(int x, int y) {
 }
 
 
+
 void handleKeyboard(unsigned char key, int x, int y) {
+    (void)x;
+    (void)y;
     if (currentState == GAME_SCREEN) {
         if (key == 27) { 
             currentState = MAIN_MENU;
+            // Restaurar cursor normal e callback de hover do menu
+            glutSetCursor(GLUT_CURSOR_INHERIT);
+            glutPassiveMotionFunc(handleMouseHover);
         } else {
-            handleGameKeyboard(key);
+            // Se está em Game Over, usar handleGameOverKeyboard
+            if (getGameOver()) {
+                handleGameOverKeyboard(key);
+            } else {
+                handleGameKeyboard(key);
+            }
+        }
+        glutPostRedisplay();
+    } else if (currentState == PHASE2_SCREEN) {
+        if (key == 27) {
+            currentState = MAIN_MENU;
+            // Restaurar cursor normal e callback de hover do menu
+            glutSetCursor(GLUT_CURSOR_INHERIT);
+            glutPassiveMotionFunc(handleMouseHover);
+        } else {
+            // Se está em Game Over, usar handleGameOverKeyboard
+            if (getGameOver()) {
+                handleGameOverKeyboard(key);
+            } else {
+                handlePhase2Keyboard(key);
+            }
+        }
+        glutPostRedisplay();
+    } else if (currentState == PHASE3_SCREEN) {
+        if (key == 27) {
+            currentState = MAIN_MENU;
+            // Restaurar cursor normal e callback de hover do menu
+            glutSetCursor(GLUT_CURSOR_INHERIT);
+            glutPassiveMotionFunc(handleMouseHover);
+        } else {
+            if (getGameOver()) {
+                handleGameOverKeyboard(key);
+            } else {
+                handlePhase3Keyboard(key);
+            }
+        }
+        glutPostRedisplay();
+    } else if (currentState == PHASE4_SCREEN) {
+        if (key == 27) {
+            currentState = MAIN_MENU;
+            // Restaurar cursor normal e callback de hover do menu
+            glutSetCursor(GLUT_CURSOR_INHERIT);
+            glutPassiveMotionFunc(handleMouseHover);
+        } else {
+            if (getGameOver()) {
+                handleGameOverKeyboard(key);
+            } else {
+                handlePhase4Keyboard(key);
+            }
         }
         glutPostRedisplay();
     }
 }
 
+void handleSpecialKey(int key, int x, int y) {
+    if (currentState == GAME_SCREEN) {
+        handleGameSpecialKey(key, x, y);
+        glutPostRedisplay();
+    } else if (currentState == PHASE4_SCREEN) {
+        handlePhase4SpecialKey(key, x, y);
+        glutPostRedisplay();
+    }
+    // Adicionar para outras fases conforme necessário
+}
+
+void handleSpecialKeyUp(int key, int x, int y) {
+    if (currentState == PHASE4_SCREEN) {
+        handlePhase4SpecialKeyUp(key, x, y);
+        glutPostRedisplay();
+    }
+    // Adicionar para outras fases conforme necessário
+}
 
 void setup() {
     glClearColor(0.1f, 0.1f, 0.15f, 1.0f); 
@@ -190,5 +416,24 @@ void setup() {
     glLoadIdentity();
     gluOrtho2D(0, windowWidth, 0, windowHeight);
     glMatrixMode(GL_MODELVIEW);
+    // Menu usa cursor padrão do sistema
+    glutSetCursor(GLUT_CURSOR_INHERIT);
+
+    // Initialize audio system (optional). Will print warnings if SDL or mixers aren't available.
+    Audio::getInstance().init();
+    Audio::getInstance().loadAll();
+    // Ensure cleanup on exit
+    atexit(audio_cleanup_at_exit);
 }
 
+void changeState(int newState) {
+    currentState = (GameState)newState;
+    
+    // Se voltando ao menu, restaurar cursor e callbacks
+    if (newState == MAIN_MENU) {
+        glutSetCursor(GLUT_CURSOR_INHERIT);
+        glutPassiveMotionFunc(handleMouseHover);
+    }
+    
+    glutPostRedisplay();
+}

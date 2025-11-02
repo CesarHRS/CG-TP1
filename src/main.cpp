@@ -23,7 +23,9 @@ int main(int argc, char **argv) {
     glutMouseFunc(handleMouseClick);
     glutPassiveMotionFunc(handleMouseHover); 
     glutKeyboardFunc(handleKeyboard); 
-    glutKeyboardUpFunc(handleKeyboardUp); 
+    glutKeyboardUpFunc(handleKeyboardUp);
+    glutSpecialFunc(handleSpecialKey); // Teclas especiais (setas)
+    glutSpecialUpFunc(handleSpecialKeyUp); // Teclas especiais up
     glutIdleFunc(updateScene); 
 
     glutMainLoop(); 
