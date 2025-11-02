@@ -292,12 +292,19 @@ void drawStoryOverlay() {
 
     // Hint depending on whether there are more pages
     std::string hint;
-    if (storyPage < pages - 1) hint = "(Clique com o botao direito para mostrar mais)";
-    else hint = "(Clique com o botao direito para iniciar a fase)";
+    if (storyPage < pages - 1) hint = "(Clique para mostrar mais)";
+    else hint = "(Clique para iniciar a fase)";
     float hintW = hint.length() * 9.0f;
     glColor3f(0.8f, 0.8f, 0.8f);
     glRasterPos2f(windowWidth / 2.0f - hintW / 2.0f, pad + 20.0f);
     for (char c : hint) glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
+}
+
+void showStoryForPhase(int phase) {
+    showPhaseStory = true;
+    storyPhase = phase;
+    storyPage = 0;
+    currentState = MAIN_MENU; // Voltar para o menu para exibir a história
 }
 
 void drawInstructionsScreen() {
@@ -409,16 +416,15 @@ void handleMouseClick(int button, int state, int x, int y) {
         return;
     }
     
-    // Right click: if story overlay is shown, proceed to the pending phase; otherwise
-    // right-clicking the phase buttons proceeds immediately to the phase.
-    if (currentState == MAIN_MENU && button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN) {
+    // Sistema de história e fases - Qualquer clique (esquerdo ou direito)
+    if (currentState == MAIN_MENU && (button == GLUT_LEFT_BUTTON || button == GLUT_RIGHT_BUTTON) && state == GLUT_DOWN) {
         if (showPhaseStory && storyPhase != 0) {
-            // advance pagination: two paragraphs per page
+            // Se a história está sendo exibida, avançar para a próxima página
             std::vector<std::string> paras = getStoryParagraphs(storyPhase);
             int pages = (paras.size() + 1) / 2;
             storyPage++;
             if (storyPage >= pages) {
-                // reached the end -> start the pending phase
+                // Chegou ao fim da história -> iniciar a fase
                 if (storyPhase == 1) {
                      currentState = GAME_SCREEN;
                     initGame();
@@ -427,58 +433,24 @@ void handleMouseClick(int button, int state, int x, int y) {
                 } else if (storyPhase == 2) {
                     currentState = PHASE2_SCREEN;
                     initPhase2();
-                    // Registrar callback de movimento do mouse na Fase 2
                     glutPassiveMotionFunc(handlePhase2MouseMove);
                     glutMotionFunc(handlePhase2MouseMove);
                 } else if (storyPhase == 3) {
                     currentState = PHASE3_SCREEN;
                     initPhase3();
-                    // Registrar callback de movimento do mouse na Fase 3
                     glutPassiveMotionFunc(handlePhase3MouseMove);
                     glutMotionFunc(handlePhase3MouseMove);
                 } else if (storyPhase == 4) {
                     currentState = PHASE4_SCREEN;
                     initPhase4();
-                    // Registrar callback de movimento do mouse na Fase 4
                     glutPassiveMotionFunc(handlePhase4MouseMove);
                     glutMotionFunc(handlePhase4MouseMove);
                 }
-                // reset overlay state
+                // Resetar estado da história
                 showPhaseStory = false;
                 storyPhase = 0;
                 storyPage = 0;
             }
-            glutPostRedisplay();
-            return;
-        }
-
-        // No overlay active — right-click on buttons to enter immediately
-        if (isMouseOverButton(x, y, startButton)) {
-            currentState = GAME_SCREEN;
-            initGame();
-            glutPassiveMotionFunc(handleGameMouseMove);
-            glutMotionFunc(handleGameMouseMove);
-            glutPostRedisplay();
-            return;
-        } else if (isMouseOverButton(x, y, phase2Button)) {
-            currentState = PHASE2_SCREEN;
-            initPhase2();
-            glutPassiveMotionFunc(handlePhase2MouseMove);
-            glutMotionFunc(handlePhase2MouseMove);
-            glutPostRedisplay();
-            return;
-        } else if (isMouseOverButton(x, y, phase3Button)) {
-            currentState = PHASE3_SCREEN;
-            initPhase3();
-            glutPassiveMotionFunc(handlePhase3MouseMove);
-            glutMotionFunc(handlePhase3MouseMove);
-            glutPostRedisplay();
-            return;
-        } else if (isMouseOverButton(x, y, phase4Button)) {
-            currentState = PHASE4_SCREEN;
-            initPhase4();
-            glutPassiveMotionFunc(handlePhase4MouseMove);
-            glutMotionFunc(handlePhase4MouseMove);
             glutPostRedisplay();
             return;
         }
@@ -487,7 +459,7 @@ void handleMouseClick(int button, int state, int x, int y) {
     if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
         switch (currentState) {
             case MAIN_MENU:
-                // Left-click shows the story overlay for the clicked phase
+                // Clicar nas fases mostra a história
                 if (isMouseOverButton(x, y, startButton)) {
                     showPhaseStory = true;
                     storyPhase = 1;
@@ -507,7 +479,7 @@ void handleMouseClick(int button, int state, int x, int y) {
                 } else if (isMouseOverButton(x, y, instructionsButton)) {
                     currentState = INSTRUCTIONS_SCREEN;
                 } else if (isMouseOverButton(x, y, exitButton)) {      
-                    exit(0); // Sair do jogo
+                    exit(0);
                 }
                 break;
             case INSTRUCTIONS_SCREEN:

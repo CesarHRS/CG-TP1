@@ -780,11 +780,8 @@ void handlePhase2MouseClick(int button, int state, int x, int y) {
                     
                     // Verificar se completou os 10 acertos
                     if (correctAnswersCountP2 >= correctAnswersTargetP2) {
-                        // Completou a Fase 2! Ir para Fase 3
-                        currentState = PHASE3_SCREEN;
-                        initPhase3();
-                        glutPassiveMotionFunc(handlePhase3MouseMove);
-                        glutMotionFunc(handlePhase3MouseMove);
+                        // Completou a Fase 2! Mostrar história da Fase 3
+                        showStoryForPhase(3);
                         return;
                     } else {
                         // Resetar rodada para próxima pergunta

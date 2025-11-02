@@ -690,8 +690,8 @@ void handlePhase3MouseClick(int button, int state, int x, int y) {
                         Audio::getInstance().play(Audio::SOUND_VICTORY);
 
                         if (correctAnswersCountP3 >= correctAnswersTargetP3) {
-                            setGameOver(true);
-                            setVictory(true);
+                            // Completou a Fase 3! Mostrar história da Fase 4
+                            showStoryForPhase(4);
                         } else {
                             createNewAmmoP3();
                         }

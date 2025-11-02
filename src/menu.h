@@ -51,5 +51,6 @@ extern bool showPhaseStory;
 extern int storyPhase; // 1..4 -> which phase's story is pending
 extern int storyPage; // pagination index (0-based, two paragraphs per page)
 void drawStoryOverlay();
+void showStoryForPhase(int phase); // Mostrar história antes de iniciar fase
 
 #endif // MENU_H

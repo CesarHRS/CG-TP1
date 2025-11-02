@@ -958,12 +958,9 @@ void handleGameKeyboard(unsigned char key) {
                 // Incrementar contador de acertos e verificar vitória
                 correctAnswersCount++;
                 if (correctAnswersCount >= correctAnswersTarget) {
-                    // Completou a Fase 1! Ir para Fase 2
+                    // Completou a Fase 1! Mostrar história da Fase 2
                     phase1Completed = true;
-                    currentState = PHASE2_SCREEN;
-                    initPhase2();
-                    glutPassiveMotionFunc(handlePhase2MouseMove);
-                    glutMotionFunc(handlePhase2MouseMove);
+                    showStoryForPhase(2); // Mostrar história da Fase 2
                     return;
                 }
 
