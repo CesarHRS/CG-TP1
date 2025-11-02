@@ -176,46 +176,74 @@ void drawParallaxBackground() {
 }
 
 void drawPlayerP4() {
-    // Draw a small ship (top-down view) like Phase 2 style, but for top-down perspective
-        float shakeX = playerP4.isHit ? playerP4.shakeOffsetX : 0.0f;
-        float shakeY = playerP4.isHit ? playerP4.shakeOffsetY : 0.0f;
-        float px = playerP4.x + shakeX;
-        float py = playerP4.y + shakeY;
-
-    // Corpo simples (visão superior - triângulo apontando para cima)
+    // Nave EXATAMENTE igual à da Fase 2, mas ROTACIONADA 90 graus anti-horário
+    // Ponta agora aponta para CIMA (norte) em vez de direita (leste)
+    
+    float shakeX = playerP4.isHit ? playerP4.shakeOffsetX : 0.0f;
+    float shakeY = playerP4.isHit ? playerP4.shakeOffsetY : 0.0f;
+    
     float redIntensity = 0.0f;
-        if (playerP4.isHit) redIntensity = (playerP4.hitTimer % 8 < 4) ? 0.6f : 0.2f;
-    glColor3f(0.2f + redIntensity, 0.3f - redIntensity*0.2f, 0.9f - redIntensity*0.5f);
-    glBegin(GL_TRIANGLES);
-    // Nose pointing up
-        glVertex2f(px + playerP4.width/2.0f, py + playerP4.height); // top center (nose)
-    glVertex2f(px, py); // bottom left
-    glVertex2f(px + playerP4.width, py); // bottom right
-    glEnd();
-
-    // Wings (small triangles on sides)
-    glColor3f(0.15f + redIntensity, 0.15f, 0.5f - redIntensity * 0.5f);
-    // Left wing
-    glBegin(GL_TRIANGLES);
-    glVertex2f(px + playerP4.width * 0.2f, py + playerP4.height * 0.5f);
-    glVertex2f(px, py + player.height * 0.3f);
-    glVertex2f(px + playerP4.width * 0.1f, py + playerP4.height * 0.2f);
-    glEnd();
-    // Right wing
-    glBegin(GL_TRIANGLES);
-    glVertex2f(px + playerP4.width * 0.8f, py + playerP4.height * 0.5f);
-    glVertex2f(px + playerP4.width, py + playerP4.height * 0.3f);
-    glVertex2f(px + playerP4.width * 0.9f, py + playerP4.height * 0.2f);
-    glEnd();
-
-    // Cockpit (bright window in center)
-    glColor3f(0.3f + redIntensity, 0.8f - redIntensity*0.3f, 1.0f - redIntensity*0.7f);
+    if (playerP4.isHit) {
+        redIntensity = (playerP4.hitTimer % 10 < 5) ? 0.6f : 0.3f;
+    }
+    
+    // Centro da nave (ponto de rotação)
+    float centerX = playerP4.x + playerP4.width / 2.0f;
+    float centerY = playerP4.y + playerP4.height / 2.0f;
+    
+    // Salvar estado atual da matriz
+    glPushMatrix();
+    
+    // Aplicar tremor primeiro (antes da rotação)
+    glTranslatef(shakeX, shakeY, 0.0f);
+    
+    // Mover para o centro da nave
+    glTranslatef(centerX, centerY, 0.0f);
+    
+    // Rotacionar 90 graus anti-horário (ponta para cima)
+    glRotatef(90.0f, 0.0f, 0.0f, 1.0f);
+    
+    // Agora desenhar a nave com centro em (0,0) - será rotacionada automaticamente
+    float naveWidth = 80.0f;
+    float naveHeight = 60.0f;
+    
+    // Corpo principal da nave (visão lateral)
+    glColor3f(0.2f + redIntensity, 0.2f, 0.6f - redIntensity * 0.5f);
     glBegin(GL_POLYGON);
-    glVertex2f(px + playerP4.width*0.4f, py + playerP4.height*0.6f);
-    glVertex2f(px + playerP4.width*0.6f, py + playerP4.height*0.6f);
-    glVertex2f(px + playerP4.width*0.55f, py + playerP4.height*0.3f);
-    glVertex2f(px + playerP4.width*0.45f, py + playerP4.height*0.3f);
+    glVertex2f(0.0f, 0.0f); // Ponta frontal (centro)
+    glVertex2f(-naveWidth * 0.3f, naveHeight * 0.5f);
+    glVertex2f(-naveWidth * 0.5f, naveHeight * 0.4f);
+    glVertex2f(-naveWidth * 0.5f, -naveHeight * 0.4f);
+    glVertex2f(-naveWidth * 0.3f, -naveHeight * 0.5f);
     glEnd();
+    
+    // Asa superior
+    glColor3f(0.15f + redIntensity, 0.15f, 0.5f - redIntensity * 0.5f);
+    glBegin(GL_TRIANGLES);
+    glVertex2f(-naveWidth * 0.2f, naveHeight * 0.3f);
+    glVertex2f(-naveWidth * 0.4f, naveHeight * 0.3f);
+    glVertex2f(-naveWidth * 0.3f, naveHeight * 0.7f);
+    glEnd();
+    
+    // Asa inferior
+    glBegin(GL_TRIANGLES);
+    glVertex2f(-naveWidth * 0.2f, -naveHeight * 0.3f);
+    glVertex2f(-naveWidth * 0.4f, -naveHeight * 0.3f);
+    glVertex2f(-naveWidth * 0.3f, -naveHeight * 0.7f);
+    glEnd();
+    
+    // Cockpit/janela
+    glColor3f(0.3f + redIntensity, 0.7f - redIntensity * 0.3f, 0.9f - redIntensity * 0.7f);
+    glBegin(GL_POLYGON);
+    glVertex2f(-naveWidth * 0.1f, 0.0f);
+    glVertex2f(-naveWidth * 0.25f, naveHeight * 0.15f);
+    glVertex2f(-naveWidth * 0.35f, naveHeight * 0.1f);
+    glVertex2f(-naveWidth * 0.35f, -naveHeight * 0.1f);
+    glVertex2f(-naveWidth * 0.25f, -naveHeight * 0.15f);
+    glEnd();
+    
+    // Restaurar matriz
+    glPopMatrix();
 }
 
 void drawBossP4() {
