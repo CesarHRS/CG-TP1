@@ -96,6 +96,7 @@ void initPhase4() {
         playerP4.height = 60.0f;
         playerP4.x = windowWidthP4 / 2.0f - playerP4.width / 2.0f; // center horizontally at bottom
         playerP4.y = 50.0f; // slightly above bottom edge so it's visible
+        playerP4.speed = 5.0f; // movement speed for WASD
         playerP4.health = 100;
         playerP4.maxHealth = 100;
         playerP4.isHit = false;

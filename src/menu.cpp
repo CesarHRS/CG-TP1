@@ -154,29 +154,29 @@ static std::vector<std::string> getStoryParagraphs(int phase) {
     std::vector<std::string> p;
     if (phase == 1) {
         p.push_back("FASE 1");
-        p.push_back("[ AMEAÇA DE IMPACTO ]");
-        p.push_back("CONTROLE DE MISSÃO: Controle para Comandante. Solicita-se confirmação de escuta.");
+        p.push_back("[ AMEACA DE IMPACTO ]");
+        p.push_back("CONTROLE DE MISSAO: Controle para Comandante. Solicita-se confirmacao de escuta.");
         p.push_back("COMANDANTE: Confirmo a escuta.");
-        p.push_back("CONTROLE DE MISSÃO: Nossos sistemas de varredura profunda detectaram múltiplos objetos de alta massa.");
-        p.push_back("CONTROLE de MISSÃO: Análise de telemetria confirma: Assinatura de asteroides em trajetória de colisão direta. Janela de interceptação estimada: T-menos 15 minutos.");
-        p.push_back("CONTROLE DE MISSÃO: Diretriz: Decolagem imediata da nave Papa Alpha Romeo Gamma. Objetivo primário: Interceptar e neutralizar todas as ameaças antes da reentrada atmosférica.");
-        p.push_back("COMANDANTE: Confirmado, interceptar e neutralizar todas as ameaças antes da reentrada atmosférica.");
+        p.push_back("CONTROLE DE MISSAO: Nossos sistemas de varredura profunda detectaram multiplos objetos de alta massa.");
+        p.push_back("CONTROLE de MISSAO: Analise de telemetria confirma: Assinatura de asteroides em trajetoria de colisao direta. Janela de interceptacao estimada: T-menos 15 minutos.");
+        p.push_back("CONTROLE DE MISSAO: Diretriz: Decolagem imediata da nave Papa Alpha Romeo Gamma. Objetivo primario: Interceptar e neutralizar todas as ameacas antes da reentrada atmosferica.");
+        p.push_back("COMANDANTE: Confirmado, interceptar e neutralizar todas as ameacas antes da reentrada atmosferica.");
     } else if (phase == 2) {
         p.push_back("FASE 2");
         p.push_back("[ ANOMALIA DE SENSOR ]");
-        p.push_back("CONTROLE DE MISSÃO: Papa Alpha Romeo Gamma, mantenha posição.");
-        p.push_back("CONTROLE DE MISSÃO: Detectamos uma anomalia. O fluxo de asteroides persiste, porém os dados de telemetria dos alvos estão corrompidos. Suspeita de interferência externa.");
-        p.push_back("CONTROLE DE MISSÃO: O sistema de aquisição automática de alvos está inoperante.");
-        p.push_back("CONTROLE DE MISSÃO: Diretriz: Desative o bloqueio automático. Acione o sistema de mira manual. Utilize o visor de aquisição direta para calcular os vetores de interceptação. Prossiga com a missão.");
-        p.push_back("COMANDANTE: Confirmado, desabilitando sistema automático, e engajando modo manual.");
+        p.push_back("CONTROLE DE MISSAO: Papa Alpha Romeo Gamma, mantenha posicao.");
+        p.push_back("CONTROLE DE MISSAO: Detectamos uma anomalia. O fluxo de asteroides persiste, porem os dados de telemetria dos alvos estao corrompidos. Suspeita de interferencia externa.");
+        p.push_back("CONTROLE DE MISSAO: O sistema de aquisicao automatica de alvos esta inoperante.");
+        p.push_back("CONTROLE DE MISSAO: Diretriz: Desative o bloqueio automatico. Acione o sistema de mira manual. Utilize o visor de aquisicao direta para calcular os vetores de interceptacao. Prossiga com a missao.");
+        p.push_back("COMANDANTE: Confirmado, desabilitando sistema automatico, e engajando modo manual.");
     } else if (phase == 3) {
         p.push_back("FASE 3");
-        p.push_back("[ MUDANÇA DE DIRETRIZ ]");
-        p.push_back("CONTROLE DE MISSÃO: Papa Alpha Romeo Gamma, recebemos seu pedido de retorno à base para reabastecimento. Aguarde autorização.");
-        p.push_back("CONTROLE DE MISSÃO: ...Espere. Alerta. O radar foi restabelecido. A fonte da interferência foi localizada.");
-        p.push_back("CONTROLE DE MISSÃO: Detectamos um contato único, não identificado, em alta velocidade. Assinatura energética desconhecida. O contato viola o perímetro de defesa orbital.");
-        p.push_back("CONTROLE DE MISSÃO: Análise confirma: Este alvo é a fonte da anomalia e o ponto de origem dos asteroides.");
-        p.push_back("CONTROLE DE MISSÃO: Pedido de retorno à base negado. Nova diretriz: Reciclar a munição previamente gasta, e interceptar e identificar o contato hostil. Prioridade máxima.");
+        p.push_back("[ MUDANCA DE DIRETRIZ ]");
+        p.push_back("CONTROLE DE MISSAO: Papa Alpha Romeo Gamma, recebemos seu pedido de retorno a base para reabastecimento. Aguarde autorizacao.");
+        p.push_back("CONTROLE DE MISSAO: ...Espere. Alerta. O radar foi restabelecido. A fonte da interferencia foi localizada.");
+        p.push_back("CONTROLE DE MISSAO: Detectamos um contato unico, nao identificado, em alta velocidade. Assinatura energetica desconhecida. O contato viola o perimetro de defesa orbital.");
+        p.push_back("CONTROLE DE MISSAO: Analise confirma: Este alvo e a fonte da anomalia e o ponto de origem dos asteroides.");
+        p.push_back("CONTROLE DE MISSAO: Pedido de retorno a base negado. Nova diretriz: Reciclar a municao previamente gasta, e interceptar e identificar o contato hostil. Prioridade maxima.");
     } else if (phase == 4) {
         p.push_back("FASE 4");
         p.push_back("[ CONFRONTO FINAL ]");
