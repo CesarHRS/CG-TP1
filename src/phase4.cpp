@@ -674,13 +674,13 @@ void updatePhase4() {
     }
 
     // decrement hit timers
-    if (player.isHit) {
-        player.hitTimer--;
-        player.shakeOffsetX = (rand()%10 - 5) * 1.5f;
-        player.shakeOffsetY = (rand()%10 - 5) * 1.0f;
-        if (player.hitTimer <= 0) {
-            player.isHit = false;
-            player.shakeOffsetX = player.shakeOffsetY = 0.0f;
+    if (playerP4.isHit) {
+        playerP4.hitTimer--;
+        playerP4.shakeOffsetX = (rand()%10 - 5) * 1.5f;
+        playerP4.shakeOffsetY = (rand()%10 - 5) * 1.0f;
+        if (playerP4.hitTimer <= 0) {
+            playerP4.isHit = false;
+            playerP4.shakeOffsetX = playerP4.shakeOffsetY = 0.0f;
         }
     }
     if (bossP4.isHit) {
