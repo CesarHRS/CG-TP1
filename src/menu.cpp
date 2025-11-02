@@ -39,7 +39,7 @@ Button phase4Button = {300, 180, 200, 50, "Fase 4", false};
 // moved instructions and exit down so they don't overlap with phase buttons
 Button instructionsButton = {300, 110, 200, 50, "Como Jogar", false};
 Button exitButton = {300, 40, 200, 50, "Sair", false};
-Button backButton = {300, 80, 200, 50, "Voltar para o Menu", false};
+Button backButton = {300, 30, 200, 50, "Voltar para o Menu", false};
 
 void handleKeyboardUp(unsigned char key, int x, int y) {
     (void)x;
@@ -302,12 +302,34 @@ void drawStoryOverlay() {
 
 void drawInstructionsScreen() {
     drawText(330, 500, "Como Jogar");
-    drawText(150, 440, "Instrucao 1: Pressione 'A' para mover a nave para a esquerda.");
-    drawText(150, 420, "Instrucao 2: Pressione 'D' para mover a nave para a direita.");
-    drawText(150, 400, "Instrucao 3: Na fase 1, clique nos asteroides com o botao esquerdo do mouse.");
-    drawText(150, 380, "Instrucao 4: Digite o resultado da conta que aparecer no asteroide usando o teclado.");
-    drawText(150, 360, "Instrucao 5: Se o asteroide te atinge, voce tomara dano. Se o dano for muito alto, voce morre.");
-    drawText(150, 340, "Instrucao 6: Pressione 'ESC' no jogo para voltar ao menu.");
+    
+    // Controles gerais
+    drawText(150, 460, "CONTROLES GERAIS:");
+    drawText(150, 440, "- Pressione 'A' e 'D' (ou setas) para mover a nave horizontalmente.");
+    drawText(150, 420, "- Na Fase 4, use 'W' e 'S' para mover verticalmente tambem.");
+    drawText(150, 400, "- Pressione 'ESC' durante o jogo para voltar ao menu.");
+    
+    // Fase 1
+    drawText(150, 370, "FASE 1 - Destrua os Asteroides:");
+    drawText(150, 350, "- Clique nos asteroides com o botao esquerdo do mouse.");
+    drawText(150, 330, "- Digite o resultado da conta matematica que aparecer no asteroide.");
+    drawText(150, 310, "- Destrua todos os asteroides antes que atinjam sua nave.");
+    
+    // Fase 2
+    drawText(150, 280, "FASE 2 - Mira Manual:");
+    drawText(150, 260, "- Mova o mouse para mirar nos asteroides.");
+    drawText(150, 240, "- Clique para disparar e acertar o asteroide correto (10 acertos).");
+    
+    // Fase 3
+    drawText(150, 210, "FASE 3 - Reciclagem de Municao:");
+    drawText(150, 190, "- Destrua asteroides para coletar municao (triangulos vermelhos).");
+    drawText(150, 170, "- Use espaco para atirar no alvo hostil central.");
+    
+    // Fase 4
+    drawText(150, 140, "FASE 4 - Boss Final:");
+    drawText(150, 120, "- Desvie dos projeteis do boss e dos asteroides.");
+    drawText(150, 100, "- Clique para disparar lasers no boss (munição limitada).");
+    
     drawButton(backButton);
 }
 
