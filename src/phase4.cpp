@@ -92,17 +92,16 @@ void initPhase4() {
     // Use the same player representation as Phase 1/2 so the ship looks identical
     // Place player at bottom of the screen (y = 0 baseline in drawPlayer)
     // BUT use smaller size like Phase 2 (80x60) so the whole ship is visible
-    player.width = 80.0f;   // smaller ship like Phase 2
-    player.height = 60.0f;
-    player.x = windowWidthP4 / 2.0f - player.width / 2.0f; // center horizontally at bottom
-    player.y = 50.0f; // slightly above bottom edge so it's visible
-    player.speed = 5.0f; // movement speed per frame
-    player.health = 100;
-    player.maxHealth = 100;
-    player.isHit = false;
-    player.hitTimer = 0;
-    player.shakeOffsetX = 0.0f;
-    player.shakeOffsetY = 0.0f;
+        playerP4.width = 80.0f;   // smaller ship like Phase 2
+        playerP4.height = 60.0f;
+        playerP4.x = windowWidthP4 / 2.0f - playerP4.width / 2.0f; // center horizontally at bottom
+        playerP4.y = 50.0f; // slightly above bottom edge so it's visible
+        playerP4.health = 100;
+        playerP4.maxHealth = 100;
+        playerP4.isHit = false;
+        playerP4.hitTimer = 0;
+        playerP4.shakeOffsetX = 0.0f;
+        playerP4.shakeOffsetY = 0.0f;
 
     // Ensure the global game window sizes match phase4 so drawPlayer uses correct coords
     windowWidth_game = windowWidthP4;
@@ -177,44 +176,44 @@ void drawParallaxBackground() {
 
 void drawPlayerP4() {
     // Draw a small ship (top-down view) like Phase 2 style, but for top-down perspective
-    float shakeX = player.isHit ? player.shakeOffsetX : 0.0f;
-    float shakeY = player.isHit ? player.shakeOffsetY : 0.0f;
-    float px = player.x + shakeX;
-    float py = player.y + shakeY;
+        float shakeX = playerP4.isHit ? playerP4.shakeOffsetX : 0.0f;
+        float shakeY = playerP4.isHit ? playerP4.shakeOffsetY : 0.0f;
+        float px = playerP4.x + shakeX;
+        float py = playerP4.y + shakeY;
 
     // Corpo simples (visão superior - triângulo apontando para cima)
     float redIntensity = 0.0f;
-    if (player.isHit) redIntensity = (player.hitTimer % 8 < 4) ? 0.6f : 0.2f;
+        if (playerP4.isHit) redIntensity = (playerP4.hitTimer % 8 < 4) ? 0.6f : 0.2f;
     glColor3f(0.2f + redIntensity, 0.3f - redIntensity*0.2f, 0.9f - redIntensity*0.5f);
     glBegin(GL_TRIANGLES);
     // Nose pointing up
-    glVertex2f(px + player.width/2.0f, py + player.height); // top center (nose)
+        glVertex2f(px + playerP4.width/2.0f, py + playerP4.height); // top center (nose)
     glVertex2f(px, py); // bottom left
-    glVertex2f(px + player.width, py); // bottom right
+    glVertex2f(px + playerP4.width, py); // bottom right
     glEnd();
 
     // Wings (small triangles on sides)
     glColor3f(0.15f + redIntensity, 0.15f, 0.5f - redIntensity * 0.5f);
     // Left wing
     glBegin(GL_TRIANGLES);
-    glVertex2f(px + player.width * 0.2f, py + player.height * 0.5f);
+    glVertex2f(px + playerP4.width * 0.2f, py + playerP4.height * 0.5f);
     glVertex2f(px, py + player.height * 0.3f);
-    glVertex2f(px + player.width * 0.1f, py + player.height * 0.2f);
+    glVertex2f(px + playerP4.width * 0.1f, py + playerP4.height * 0.2f);
     glEnd();
     // Right wing
     glBegin(GL_TRIANGLES);
-    glVertex2f(px + player.width * 0.8f, py + player.height * 0.5f);
-    glVertex2f(px + player.width, py + player.height * 0.3f);
-    glVertex2f(px + player.width * 0.9f, py + player.height * 0.2f);
+    glVertex2f(px + playerP4.width * 0.8f, py + playerP4.height * 0.5f);
+    glVertex2f(px + playerP4.width, py + playerP4.height * 0.3f);
+    glVertex2f(px + playerP4.width * 0.9f, py + playerP4.height * 0.2f);
     glEnd();
 
     // Cockpit (bright window in center)
     glColor3f(0.3f + redIntensity, 0.8f - redIntensity*0.3f, 1.0f - redIntensity*0.7f);
     glBegin(GL_POLYGON);
-    glVertex2f(px + player.width*0.4f, py + player.height*0.6f);
-    glVertex2f(px + player.width*0.6f, py + player.height*0.6f);
-    glVertex2f(px + player.width*0.55f, py + player.height*0.3f);
-    glVertex2f(px + player.width*0.45f, py + player.height*0.3f);
+    glVertex2f(px + playerP4.width*0.4f, py + playerP4.height*0.6f);
+    glVertex2f(px + playerP4.width*0.6f, py + playerP4.height*0.6f);
+    glVertex2f(px + playerP4.width*0.55f, py + playerP4.height*0.3f);
+    glVertex2f(px + playerP4.width*0.45f, py + playerP4.height*0.3f);
     glEnd();
 }
 
@@ -332,7 +331,7 @@ void drawHealthBarP4() {
     glEnd();
     
     // Barra de vida
-    float healthPercent = (float)player.health / (float)player.maxHealth;
+    float healthPercent = (float)playerP4.health / (float)playerP4.maxHealth;
     float currentBarWidth = barWidth * healthPercent;
     
     if (healthPercent > 0.6f) {
@@ -364,7 +363,7 @@ void drawHealthBarP4() {
     // Texto de vida em preto
     glColor3f(0.0f, 0.0f, 0.0f);
     std::ostringstream oss;
-    oss << "Vida: " << player.health << "/" << player.maxHealth;
+    oss << "Vida: " << playerP4.health << "/" << playerP4.maxHealth;
     std::string healthText = oss.str();
     glRasterPos2f(barX + 5.0f, barY + 8.0f);
     for (char c : healthText) {
@@ -484,8 +483,8 @@ void fireLaserP4(float targetX, float targetY) {
     if (shotsRemainingP4 <= 0) return;
     LaserShotP4 s;
     // Posição inicial: centro do topo da nave do jogador
-    s.x = player.x + player.width*0.5f;
-    s.y = player.y + player.height;
+    s.x = playerP4.x + playerP4.width*0.5f;
+    s.y = playerP4.y + playerP4.height;
     
     // Calcular direção do tiro baseado no clique
     float dx = targetX - s.x;
@@ -512,24 +511,24 @@ void updatePhase4() {
 
     // Handle continuous player movement based on key state
     if (isMovingLeftP4) {
-        player.x -= player.speed;
-        if (player.x < 0) player.x = 0;
+        playerP4.x -= playerP4.speed;
+        if (playerP4.x < 0) playerP4.x = 0;
     }
     if (isMovingRightP4) {
-        player.x += player.speed;
-        if (player.x + player.width > windowWidthP4) player.x = windowWidthP4 - player.width;
+        playerP4.x += playerP4.speed;
+        if (playerP4.x + playerP4.width > windowWidthP4) playerP4.x = windowWidthP4 - playerP4.width;
     }
     if (isMovingUpP4) {
-        player.y += player.speed;
-        if (player.y + player.height > windowHeightP4 * 0.9f) player.y = windowHeightP4 * 0.9f - player.height; // don't go too high
+        playerP4.y += playerP4.speed;
+        if (playerP4.y + playerP4.height > windowHeightP4 * 0.9f) playerP4.y = windowHeightP4 * 0.9f - playerP4.height; // don't go too high
     }
     if (isMovingDownP4) {
-        player.y -= player.speed;
-        if (player.y < 10.0f) player.y = 10.0f; // keep above bottom edge
+        playerP4.y -= playerP4.speed;
+        if (playerP4.y < 10.0f) playerP4.y = 10.0f; // keep above bottom edge
     }
 
     // mover parallax baseado em jogador x (quem mexe é o fundo)
-    float moveX = (player.x + player.width*0.5f) - (windowWidthP4/2.0f);
+    float moveX = (playerP4.x + playerP4.width*0.5f) - (windowWidthP4/2.0f);
     for (auto &l : parallaxLayersP4) {
         l.offsetX += -moveX * (l.speedFactor) * 0.0015f; // sensibilidade
     }
@@ -564,14 +563,14 @@ void updatePhase4() {
         // fora da tela
         if (p.y > windowHeightP4 + 50 || p.y < -50 || p.x < -50 || p.x > windowWidthP4 + 50) p.active = false;
         // colisão com jogador
-        if (rectCircleCollision(player.x, player.y, player.width, player.height, p.x, p.y, p.radius)) {
+        if (rectCircleCollision(playerP4.x, playerP4.y, playerP4.width, playerP4.height, p.x, p.y, p.radius)) {
             p.active = false;
-            player.health -= 15;
-            player.isHit = true;
-            player.hitTimer = 24;
-            printf("Player health: %d\n", player.health);
-            if (player.health <= 0) {
-                player.health = 0;
+            playerP4.health -= 15;
+            playerP4.isHit = true;
+            playerP4.hitTimer = 24;
+            printf("Player health: %d\n", playerP4.health);
+            if (playerP4.health <= 0) {
+                playerP4.health = 0;
                 printf("GAME OVER TRIGGERED!\n");
                 // game over
                 setGameOver(true);
@@ -592,14 +591,14 @@ void updatePhase4() {
         a.x += a.vx / 60.0f;
         a.y += a.vy / 60.0f;
         if (a.y < -100.0f) a.active = false;
-        if (rectCircleCollision(player.x, player.y, player.width, player.height, a.x, a.y, a.radius)) {
+        if (rectCircleCollision(playerP4.x, playerP4.y, playerP4.width, playerP4.height, a.x, a.y, a.radius)) {
             a.active = false;
-            player.health -= 20;
-            player.isHit = true;
-            player.hitTimer = 24;
-            printf("Player health (asteroid): %d\n", player.health);
-            if (player.health <= 0) {
-                player.health = 0;
+            playerP4.health -= 20;
+            playerP4.isHit = true;
+            playerP4.hitTimer = 24;
+            printf("Player health (asteroid): %d\n", playerP4.health);
+            if (playerP4.health <= 0) {
+                playerP4.health = 0;
                 printf("GAME OVER TRIGGERED (asteroid)!\n");
                 setGameOver(true);
             }

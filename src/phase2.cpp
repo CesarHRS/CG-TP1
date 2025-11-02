@@ -376,7 +376,7 @@ void drawGameTimerP2() {
 
 void drawCorrectAnswersCountP2() {
     float x = 20.0f;
-    float y = windowHeightP2 - 40.0f;
+    float y = windowHeightP2 - 70.0f; // Abaixo da barra de vida
     
     glColor3f(0.0f, 1.0f, 0.0f); // Verde para acertos
     glRasterPos2f(x, y);

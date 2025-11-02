@@ -7,6 +7,7 @@
 // Estruturas para a fase 4 (boss fight com parallax)
 struct PlayerPhase4 {
     float x, y, width, height;
+    float speed;
     int health;
     int maxHealth;
     bool isHit;

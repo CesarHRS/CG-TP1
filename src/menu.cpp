@@ -177,6 +177,15 @@ static std::vector<std::string> getStoryParagraphs(int phase) {
         p.push_back("CONTROLE DE MISSÃO: Detectamos um contato único, não identificado, em alta velocidade. Assinatura energética desconhecida. O contato viola o perímetro de defesa orbital.");
         p.push_back("CONTROLE DE MISSÃO: Análise confirma: Este alvo é a fonte da anomalia e o ponto de origem dos asteroides.");
         p.push_back("CONTROLE DE MISSÃO: Pedido de retorno à base negado. Nova diretriz: Reciclar a munição previamente gasta, e interceptar e identificar o contato hostil. Prioridade máxima.");
+    } else if (phase == 4) {
+        p.push_back("FASE 4");
+        p.push_back("[ CONFRONTO FINAL ]");
+        p.push_back("CONTROLE DE MISSAO: Papa Alpha Romeo Gamma, confirmamos identificacao visual do contato hostil.");
+        p.push_back("CONTROLE DE MISSAO: Classificacao: Nave de guerra de origem desconhecida. Dimensoes compativeis com classe de cruzador pesado. Armamento ativo detectado.");
+        p.push_back("CONTROLE DE MISSAO: O contato esta em formacao de combate e disparando projeteis em sua direcao. Analise tatica: Este e o comandante da frota invasora.");
+        p.push_back("CONTROLE DE MISSAO: Diretriz final: Engajar o alvo hostil. Neutralizar a ameaca com extremo prejuizo. Esta e a unica chance de defender o perimetro.");
+        p.push_back("CONTROLE DE MISSAO: Boa sorte, Comandante. A humanidade conta com voce.");
+        p.push_back("COMANDANTE: Confirmado. Iniciando engajamento hostil.");
     }
     return p;
 }
@@ -242,6 +251,13 @@ void drawStoryOverlay() {
     // Paragraphs and pagination
     std::vector<std::string> paras = getStoryParagraphs(storyPhase);
     int pages = (paras.size() + 1) / 2;
+    if (pages == 0) {
+        // No story available for this phase: close overlay to avoid invalid indices
+        showPhaseStory = false;
+        storyPhase = 0;
+        storyPage = 0;
+        return;
+    }
     if (storyPage < 0) storyPage = 0;
     if (storyPage >= pages) storyPage = pages - 1;
 
@@ -276,8 +292,8 @@ void drawStoryOverlay() {
 
     // Hint depending on whether there are more pages
     std::string hint;
-    if (storyPage < pages - 1) hint = "(Clique com o botão direito para mostrar mais)";
-    else hint = "(Clique com o botão direito para iniciar a fase)";
+    if (storyPage < pages - 1) hint = "(Clique com o botao direito para mostrar mais)";
+    else hint = "(Clique com o botao direito para iniciar a fase)";
     float hintW = hint.length() * 9.0f;
     glColor3f(0.8f, 0.8f, 0.8f);
     glRasterPos2f(windowWidth / 2.0f - hintW / 2.0f, pad + 20.0f);
@@ -398,6 +414,12 @@ void handleMouseClick(int button, int state, int x, int y) {
                     // Registrar callback de movimento do mouse na Fase 3
                     glutPassiveMotionFunc(handlePhase3MouseMove);
                     glutMotionFunc(handlePhase3MouseMove);
+                } else if (storyPhase == 4) {
+                    currentState = PHASE4_SCREEN;
+                    initPhase4();
+                    // Registrar callback de movimento do mouse na Fase 4
+                    glutPassiveMotionFunc(handlePhase4MouseMove);
+                    glutMotionFunc(handlePhase4MouseMove);
                 }
                 // reset overlay state
                 showPhaseStory = false;
@@ -428,6 +450,13 @@ void handleMouseClick(int button, int state, int x, int y) {
             initPhase3();
             glutPassiveMotionFunc(handlePhase3MouseMove);
             glutMotionFunc(handlePhase3MouseMove);
+            glutPostRedisplay();
+            return;
+        } else if (isMouseOverButton(x, y, phase4Button)) {
+            currentState = PHASE4_SCREEN;
+            initPhase4();
+            glutPassiveMotionFunc(handlePhase4MouseMove);
+            glutMotionFunc(handlePhase4MouseMove);
             glutPostRedisplay();
             return;
         }
@@ -596,6 +625,9 @@ void handleKeyboard(unsigned char key, int x, int y) {
 void handleSpecialKey(int key, int x, int y) {
     if (currentState == GAME_SCREEN) {
         handleGameSpecialKey(key, x, y);
+        glutPostRedisplay();
+    } else if (currentState == PHASE2_SCREEN) {
+        handlePhase2SpecialKey(key, x, y);
         glutPostRedisplay();
     } else if (currentState == PHASE4_SCREEN) {
         handlePhase4SpecialKey(key, x, y);
