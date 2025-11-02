@@ -7,7 +7,6 @@ César Henrique Resende Soares | 20223006601
 
 Lara Loures Costa França | 201712040154
 
-
 ## Estrutura de Arquivos
 
 O projeto está organizado com a seguinte hierarquia de diretórios, conforme a imagem fornecida:
