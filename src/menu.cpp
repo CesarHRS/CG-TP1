@@ -4,6 +4,7 @@
 #include "phase2.h"
 #include "phase3.h"
 #include "phase4.h"
+#include "phase5.h"
 #include "gameover.h"
 #include "audio.h"
 #include <string.h>
@@ -32,13 +33,16 @@ int storyPhase = 0; // 1,2,3
 int storyPage = 0; // pagination index (0-based, two paragraphs per page)
 
 
-Button startButton = {300, 390, 200, 50, "Fase 1", false};
-Button phase2Button = {300, 320, 200, 50, "Fase 2", false};
-Button phase3Button = {300, 250, 200, 50, "Fase 3", false};
-Button phase4Button = {300, 180, 200, 50, "Fase 4", false};
-// moved instructions and exit down so they don't overlap with phase buttons
-Button instructionsButton = {300, 110, 200, 50, "Como Jogar", false};
-Button exitButton = {300, 40, 200, 50, "Sair", false};
+// Arrange menu buttons with uniform vertical spacing
+// Start near the top and step down by 60 px between buttons
+Button startButton = {300, 420, 200, 50, "Fase 1", false};
+Button phase2Button = {300, 360, 200, 50, "Fase 2", false};
+Button phase3Button = {300, 300, 200, 50, "Fase 3", false};
+Button phase4Button = {300, 240, 200, 50, "Fase 4", false};
+Button phase5Button = {300, 180, 200, 50, "Fase 5", false};
+// moved instructions and exit down with the same spacing
+Button instructionsButton = {300, 120, 200, 50, "Como Jogar", false};
+Button exitButton = {300, 60, 200, 50, "Sair", false};
 Button backButton = {300, 30, 200, 50, "Voltar para o Menu", false};
 
 void handleKeyboardUp(unsigned char key, int x, int y) {
@@ -55,6 +59,9 @@ void handleKeyboardUp(unsigned char key, int x, int y) {
         glutPostRedisplay();
     } else if (currentState == PHASE4_SCREEN) {
         handlePhase4KeyboardUp(key);
+        glutPostRedisplay();
+    } else if (currentState == PHASE5_SCREEN) {
+        handlePhase5KeyboardUp(key);
         glutPostRedisplay();
     }
 }
@@ -146,6 +153,7 @@ void drawMainMenu() {
     drawButton(phase2Button);
     drawButton(phase3Button);
     drawButton(phase4Button);
+    drawButton(phase5Button);
     drawButton(instructionsButton);
     drawButton(exitButton);
 }
@@ -186,9 +194,21 @@ static std::vector<std::string> getStoryParagraphs(int phase) {
         p.push_back("CONTROLE DE MISSAO: Diretriz final: Engajar o alvo hostil. Neutralizar a ameaca com extremo prejuizo. Esta e a unica chance de defender o perimetro.");
         p.push_back("CONTROLE DE MISSAO: Boa sorte, Comandante. A humanidade conta com voce.");
         p.push_back("COMANDANTE: Confirmado. Iniciando engajamento hostil.");
+    }else if (phase == 5) {
+        p.push_back("FASE 5");
+        p.push_back("[ ASAS QUEBRADAS ]");
+        p.push_back("APOS O CONFRONTO FINAL, A NAVE DO COMANDANTE SOFREU DANOS.");
+        p.push_back("CONTROLE DE MISSAO: Controle para Comandante. Solicita-se confirmacao de escuta");
+        p.push_back("COMANDANTE: Confirmo a escuta.");
+        p.push_back("CONTROLE DE MISSAO: Sistemas de varredura indicam danos estruturais severos nas asas e na iluminação.");
+        p.push_back("CONTROLE DE MISSAO: Iniciar sequencia de reparos o mais rapido possivel.");
+        p.push_back("COMANDANTE: Confirmado, iniciando sequencia de reparos.");
     }
     return p;
+
 }
+
+    
 
 static std::vector<std::string> wrapText(const std::string &text, int maxChars) {
     std::vector<std::string> lines;
@@ -368,6 +388,9 @@ void renderScene() {
         case PHASE4_SCREEN:
             drawPhase4();
             break;
+        case PHASE5_SCREEN:
+            drawPhase5();
+            break;
             break;
     }
 
@@ -386,6 +409,9 @@ void updateScene() {
         glutPostRedisplay();
     } else if (currentState == PHASE4_SCREEN) {
         updatePhase4();
+        glutPostRedisplay();
+    } else if (currentState == PHASE5_SCREEN) {
+        updatePhase5();
         glutPostRedisplay();
     }
 }
@@ -413,6 +439,11 @@ void handleMouseClick(int button, int state, int x, int y) {
     // Se estiver na Fase 4, passar clique para o handler da Fase 4
     if (currentState == PHASE4_SCREEN) {
         handlePhase4MouseClick(button, state, x, y);
+        return;
+    }
+    // Se estiver na Fase 5, passar clique para o handler da Fase 5
+    if (currentState == PHASE5_SCREEN) {
+        handlePhase5MouseClick(button, state, x, y);
         return;
     }
     
@@ -445,6 +476,11 @@ void handleMouseClick(int button, int state, int x, int y) {
                     initPhase4();
                     glutPassiveMotionFunc(handlePhase4MouseMove);
                     glutMotionFunc(handlePhase4MouseMove);
+                } else if (storyPhase == 5) {
+                    currentState = PHASE5_SCREEN;
+                    initPhase5();
+                    glutPassiveMotionFunc(handlePhase5MouseMove);
+                    glutMotionFunc(handlePhase5MouseMove);
                 }
                 // Resetar estado da história
                 showPhaseStory = false;
@@ -475,6 +511,10 @@ void handleMouseClick(int button, int state, int x, int y) {
                 } else if (isMouseOverButton(x, y, phase4Button)) {
                     showPhaseStory = true;
                     storyPhase = 4;
+                    storyPage = 0;
+                } else if (isMouseOverButton(x, y, phase5Button)) {
+                    showPhaseStory = true;
+                    storyPhase = 5;
                     storyPage = 0;
                 } else if (isMouseOverButton(x, y, instructionsButton)) {
                     currentState = INSTRUCTIONS_SCREEN;
@@ -521,6 +561,10 @@ void handleMouseHover(int x, int y) {
             }
             if (phase4Button.isHovered != isMouseOverButton(x, y, phase4Button)) {
                 phase4Button.isHovered = !phase4Button.isHovered;
+                needsRedraw = true;
+            }
+            if (phase5Button.isHovered != isMouseOverButton(x, y, phase5Button)) {
+                phase5Button.isHovered = !phase5Button.isHovered;
                 needsRedraw = true;
             }
             if (instructionsButton.isHovered != isMouseOverButton(x, y, instructionsButton)) {
@@ -613,6 +657,20 @@ void handleKeyboard(unsigned char key, int x, int y) {
             }
         }
         glutPostRedisplay();
+    } else if (currentState == PHASE5_SCREEN) {
+        if (key == 27) {
+            currentState = MAIN_MENU;
+            // Restaurar cursor normal e callback de hover do menu
+            glutSetCursor(GLUT_CURSOR_INHERIT);
+            glutPassiveMotionFunc(handleMouseHover);
+        } else {
+            if (getGameOver()) {
+                handleGameOverKeyboard(key);
+            } else {
+                handlePhase5Keyboard(key);
+            }
+        }
+        glutPostRedisplay();
     }
 }
 
@@ -626,6 +684,9 @@ void handleSpecialKey(int key, int x, int y) {
     } else if (currentState == PHASE4_SCREEN) {
         handlePhase4SpecialKey(key, x, y);
         glutPostRedisplay();
+    } else if (currentState == PHASE5_SCREEN) {
+        handlePhase5SpecialKey(key, x, y);
+        glutPostRedisplay();
     }
     // Adicionar para outras fases conforme necessário
 }
@@ -633,6 +694,10 @@ void handleSpecialKey(int key, int x, int y) {
 void handleSpecialKeyUp(int key, int x, int y) {
     if (currentState == PHASE4_SCREEN) {
         handlePhase4SpecialKeyUp(key, x, y);
+        glutPostRedisplay();
+    }
+    if (currentState == PHASE5_SCREEN) {
+        handlePhase5SpecialKeyUp(key, x, y);
         glutPostRedisplay();
     }
     // Adicionar para outras fases conforme necessário
