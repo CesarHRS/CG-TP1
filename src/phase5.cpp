@@ -1,9 +1,6 @@
 #include <GL/glut.h>
-#include <vector>
-#include <string>
 #include <cmath>
-#include <cstdlib>
-#include <ctime>
+#include <string>
 #include "phase5.h"
 #include "menu.h"
 #include "game.h"
@@ -15,260 +12,215 @@
 static int windowW = 800;
 static int windowH = 600;
 
-static int mouseX5 = 400;
-static int mouseY5 = 300;
-
-static int frameCounter5 = 0;
-
-enum ShapeType { SHAPE_CUBE=0, SHAPE_SPHERE=1, SHAPE_CONE=2 };
-static const char* shapeNames[] = { "Cubo", "Esfera", "Cone" };
-
-struct Option {
-    int shape;
-    float x, y;
-    float size;
-};
-
-static std::vector<Option> options;
-static int targetShape = 0;
-static int correctCount5 = 0;
-static int correctTarget5 = 5;
-
-static void generateQuestion() {
-    options.clear();
-    // choose target among first three types
-    targetShape = rand() % 3; // 0..2
-
-    // build pool with target first then others
-    std::vector<int> pool = {SHAPE_CUBE, SHAPE_SPHERE, SHAPE_CONE};
-    // shuffle pool
-    for (int i = 0; i < 3; ++i) {
-        int j = rand() % 3;
-        std::swap(pool[i], pool[j]);
-    }
-    // ensure target is present at pool[0]
-    int idx = 0;
-    for (int i = 0; i < 3; ++i) if (pool[i] == targetShape) { idx = i; break; }
-    std::swap(pool[0], pool[idx]);
-
-    // positions (upper part of screen, above cockpit)
-    float areaYMin = windowH * 0.35f;
-    float areaYMax = windowH * 0.75f;
-    for (int i = 0; i < 3; ++i) {
-        Option o;
-        o.shape = pool[i];
-        o.size = 40.0f + (rand() % 30);
-        float segment = (float)(i+1) / 4.0f;
-        o.x = windowW * segment + (rand() % 40 - 20);
-        o.y = areaYMin + (rand() % (int)(areaYMax - areaYMin));
-        options.push_back(o);
-    }
-}
-
-static void drawParallaxBackground() {
-    // three layers of moving stars
-    glPointSize(2.0f);
-    for (int layer = 0; layer < 3; ++layer) {
-        int count = 40 + layer * 20;
-        glBegin(GL_POINTS);
-        for (int i = 0; i < count; ++i) {
-            int sx = (i * 37 * (layer+1) + frameCounter5 * (layer+1) * 3) % windowW;
-            int sy = (i * 91 + frameCounter5 * (layer+1) * 2) % windowH;
-            float bright = 0.3f + 0.7f * ((i % (5+layer)) / (float)(5+layer));
-            glColor3f(bright*0.8f, bright*0.9f, bright);
-            glVertex2f(sx, sy);
-        }
-        glEnd();
-    }
-}
-
-static void drawShapeAt(const Option &o, bool lit) {
-    float bx = o.x;
-    float by = o.y;
-    float s = o.size;
-
-    glPushMatrix();
-    glTranslatef(bx, by, 0.0f);
-    if (lit) glColor3f(0.9f, 0.9f, 0.6f);
-    else glColor3f(0.4f, 0.45f, 0.5f);
-
-    switch (o.shape) {
-        case SHAPE_CUBE:
-            glPushMatrix();
-            glScalef(s, s, s);
-            glutSolidCube(1.0);
-            glPopMatrix();
-            break;
-        case SHAPE_SPHERE:
-            glutSolidSphere(s*0.4f, 16, 12);
-            break;
-        case SHAPE_CONE:
-            glPushMatrix();
-            glRotatef(-90, 1, 0, 0);
-            glutSolidCone(s*0.45f, s*0.9f, 16, 8);
-            glPopMatrix();
-            break;
-        default:
-            glutSolidSphere(s*0.4f, 12, 8);
-            break;
-    }
-    glPopMatrix();
-}
-
-static void drawProgressBar5() {
-    float barWidth = 30.0f;
-    float barHeight = windowH * 0.6f;
-    float barX = windowW - 40.0f;
-    float barY = (windowH - barHeight) / 2.0f;
-
-    glColor3f(0.15f, 0.15f, 0.15f);
-    glBegin(GL_QUADS);
-    glVertex2f(barX, barY);
-    glVertex2f(barX + barWidth, barY);
-    glVertex2f(barX + barWidth, barY + barHeight);
-    glVertex2f(barX, barY + barHeight);
-    glEnd();
-
-    float fill = (float)correctCount5 / (float)correctTarget5;
-    if (fill > 1.0f) fill = 1.0f;
-    float filledH = barHeight * fill;
-    float r = 1.0f - fill;
-    float g = 0.2f + 0.8f * fill;
-    glColor3f(r, g, 0.0f);
-    glBegin(GL_QUADS);
-    glVertex2f(barX, barY);
-    glVertex2f(barX + barWidth, barY);
-    glVertex2f(barX + barWidth, barY + filledH);
-    glVertex2f(barX, barY + filledH);
-    glEnd();
-
-    glColor3f(1,1,1);
-    glLineWidth(2.0f);
-    glBegin(GL_LINE_LOOP);
-    glVertex2f(barX, barY);
-    glVertex2f(barX + barWidth, barY);
-    glVertex2f(barX + barWidth, barY + barHeight);
-    glVertex2f(barX, barY + barHeight);
-    glEnd();
-    glLineWidth(1.0f);
-}
-
 void initPhase5() {
-    srand((unsigned)time(NULL));
     windowW = windowWidth;
     windowH = windowHeight;
-    // Ensure drawPlayer sees same window vars
+    // ensure drawPlayer (if ever used) sees correct values
     windowWidth_game = windowW;
     windowHeight_game = windowH;
-    // Init player for panel drawing
+
+    // initialize a basic player state to keep panel consistent
     player.width = 200.0f;
-    player.height = 90.0f;
-    player.x = windowWidth_game / 2.0f;
+    player.height = windowH * 0.30f; // panel height matches 30% target
+    player.x = windowW / 2.0f;
     player.y = 0.0f;
-    player.speed = 15.0f;
-    player.health = 100;
-    player.maxHealth = 100;
+    player.speed = 0.0f;
+    player.health = player.maxHealth = 100;
     player.isHit = false;
     player.hitTimer = 0;
-    player.shakeOffsetX = 0.0f;
-    player.shakeOffsetY = 0.0f;
+    player.shakeOffsetX = player.shakeOffsetY = 0.0f;
 
-    correctCount5 = 0;
-    frameCounter5 = 0;
-    generateQuestion();
+    // hide cursor for this phase (like other phases)
     glutSetCursor(GLUT_CURSOR_NONE);
 }
 
+// draw a simple 3D panel occupying the bottom 30% of the screen
 void drawPhase5() {
-    // Clear color and depth
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // 1) background: draw without affecting depth buffer
-    glDisable(GL_DEPTH_TEST);
-    drawParallaxBackground();
+    // Uniform illumination: just use solid colors (no lighting) and no vignette
+    glDisable(GL_LIGHTING);
 
-    // 2) ship panel under objects
-    drawPlayer();
-
-    // 3) draw 3D objects with depth testing so they render in front
+    // Enable depth so the panel looks slightly 3D
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
-    glDepthMask(GL_TRUE);
-    glDisable(GL_LIGHTING);
-    glDisable(GL_LIGHT0);
 
-    float fx = (float)mouseX5;
-    float fy = (float)(windowH - mouseY5);
+    float panelH = windowH * 0.30f; // 30% of display height
+    float panelW = windowW * 0.98f; // almost full width
+    float marginX = (windowW - panelW) * 0.5f;
+    float frontZ = 0.0f;
+    float backZ = -panelH * 0.2f;
 
-    for (const auto &o : options) {
-        float dx = fx - o.x;
-        float dy = fy - o.y;
-        float dist = sqrtf(dx*dx + dy*dy);
-        bool lit = (dist <= 120.0f); // optional: used to color brighter when near cursor
-        drawShapeAt(o, lit);
+    float x0 = marginX;
+    float x1 = marginX + panelW;
+    float y0 = 0.0f;
+    float y1 = panelH;
+
+    // Front face - polygonal, with angled sides to match the provided reference
+    glColor3f(0.22f, 0.28f, 0.55f);
+    glBegin(GL_POLYGON);
+    glVertex3f(x0 + panelW*0.02f, y0 + panelH*0.15f, frontZ);
+    glVertex3f(x0 + panelW*0.18f, y0 + panelH*0.88f, frontZ);
+    glVertex3f(windowW*0.5f - panelW*0.02f, y0 + panelH*0.98f, frontZ);
+    glVertex3f(windowW*0.5f + panelW*0.02f, y0 + panelH*0.98f, frontZ);
+    glVertex3f(x1 - panelW*0.18f, y0 + panelH*0.88f, frontZ);
+    glVertex3f(x1 - panelW*0.02f, y0 + panelH*0.15f, frontZ);
+    glVertex3f(x1, y0, frontZ);
+    glVertex3f(x0, y0, frontZ);
+    glEnd();
+
+    // Top slanted surface (give subtle extrusion)
+    glColor3f(0.18f, 0.22f, 0.42f);
+    glBegin(GL_QUADS);
+    glVertex3f(x0 + panelW*0.18f, y0 + panelH*0.88f, frontZ);
+    glVertex3f(x1 - panelW*0.18f, y0 + panelH*0.88f, frontZ);
+    glVertex3f(x1 - panelW*0.12f, y0 + panelH*0.98f, backZ);
+    glVertex3f(x0 + panelW*0.12f, y0 + panelH*0.98f, backZ);
+    glEnd();
+
+    // Side fins (left/right)
+    glColor3f(0.16f, 0.18f, 0.36f);
+    glBegin(GL_TRIANGLES);
+    glVertex3f(x0, y0, frontZ);
+    glVertex3f(x0 + panelW*0.02f, y0 + panelH*0.15f, frontZ);
+    glVertex3f(x0 + panelW*0.06f, y0 + panelH*0.05f, backZ);
+    glEnd();
+    glBegin(GL_TRIANGLES);
+    glVertex3f(x1, y0, frontZ);
+    glVertex3f(x1 - panelW*0.02f, y0 + panelH*0.15f, frontZ);
+    glVertex3f(x1 - panelW*0.06f, y0 + panelH*0.05f, backZ);
+    glEnd();
+
+    // Cockpit glass - polygonal reflective patch
+    float glassW = panelW * 0.36f;
+    float gx0 = windowW*0.5f - glassW*0.5f;
+    float gx1 = gx0 + glassW;
+    float gy0 = panelH*0.3f;
+    float gy1 = panelH*0.78f;
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(0.65f, 0.92f, 0.98f, 0.95f);
+    glBegin(GL_POLYGON);
+    glVertex3f(gx0, gy0, frontZ + 0.6f);
+    glVertex3f(gx1, gy0, frontZ + 0.6f);
+    glVertex3f(gx1 - panelW*0.02f, gy1, frontZ + 0.6f);
+    glVertex3f(gx0 + panelW*0.02f, gy1, frontZ + 0.6f);
+    glEnd();
+    glDisable(GL_BLEND);
+
+    // subtle rim highlight along top edge
+    glColor3f(0.12f, 0.16f, 0.32f);
+    glLineWidth(2.0f);
+    glBegin(GL_LINE_STRIP);
+    glVertex3f(x0 + panelW*0.02f, y0 + panelH*0.15f, frontZ + 0.1f);
+    glVertex3f(x0 + panelW*0.18f, y0 + panelH*0.88f, frontZ + 0.1f);
+    glVertex3f(windowW*0.5f, y0 + panelH*0.98f, frontZ + 0.1f);
+    glVertex3f(x1 - panelW*0.18f, y0 + panelH*0.88f, frontZ + 0.1f);
+    glVertex3f(x1 - panelW*0.02f, y0 + panelH*0.15f, frontZ + 0.1f);
+    glEnd();
+
+    // =================================================================
+    // 3D keyboard keys placed on top of the panel
+    // Draw a centered grid of small extruded keys (top face + thin sides)
+    // =================================================================
+    glPushAttrib(GL_CURRENT_BIT | GL_ENABLE_BIT);
+    glEnable(GL_DEPTH_TEST);
+    // key grid parameters: use 4x8 and place INSIDE the glass rectangle (gx0..gx1, gy0..gy1)
+    const int rows = 4;
+    const int cols = 8;
+    // make the keys area fit comfortably inside the glass patch
+    float glassH = gy1 - gy0;
+    float keysAreaW = glassW * 0.92f; // slightly inset from glass edges
+    float keysAreaH = glassH * 0.60f; // occupy ~60% of glass height
+    float keysOriginX = gx0 + (glassW - keysAreaW) * 0.5f;
+    float keysOriginY = gy0 + (glassH - keysAreaH) * 0.5f;
+
+    float keyGapX = keysAreaW * 0.012f;
+    float keyGapY = keysAreaH * 0.10f;
+    float keyW = (keysAreaW - (cols+1)*keyGapX) / cols;
+    float keyH = (keysAreaH - (rows+1)*keyGapY) / rows;
+
+    // Use small Z offsets inside the orthographic near/far (-1..1)
+    // Keep keys in front of the glass but within [-1,1]
+    float keyTopZ = frontZ + 0.78f; // slightly in front of glass (~+0.6f)
+    float keyDepth = 0.26f; // increased extrusion depth (keys appear taller)
+    float keyBottomZ = keyTopZ - keyDepth;
+
+    for (int r = 0; r < rows; ++r) {
+        for (int c = 0; c < cols; ++c) {
+            float kx0 = keysOriginX + keyGapX + c * (keyW + keyGapX);
+            float kx1 = kx0 + keyW;
+            float ky0 = keysOriginY + keyGapY + r * (keyH + keyGapY);
+            float ky1 = ky0 + keyH;
+
+            // key top face
+            glColor3f(0.92f, 0.92f, 0.94f); // light key top
+            glBegin(GL_QUADS);
+            glVertex3f(kx0, ky0, keyTopZ);
+            glVertex3f(kx1, ky0, keyTopZ);
+            glVertex3f(kx1, ky1, keyTopZ);
+            glVertex3f(kx0, ky1, keyTopZ);
+            glEnd();
+
+            // key sides (4 quads) - give a slightly darker rim
+            glColor3f(0.55f, 0.56f, 0.60f);
+            // front face (towards the viewer)
+            glBegin(GL_QUADS);
+            glVertex3f(kx0, ky0, keyTopZ);
+            glVertex3f(kx1, ky0, keyTopZ);
+            glVertex3f(kx1, ky0, keyBottomZ);
+            glVertex3f(kx0, ky0, keyBottomZ);
+            glEnd();
+
+            // back face
+            glBegin(GL_QUADS);
+            glVertex3f(kx0, ky1, keyTopZ);
+            glVertex3f(kx1, ky1, keyTopZ);
+            glVertex3f(kx1, ky1, keyBottomZ);
+            glVertex3f(kx0, ky1, keyBottomZ);
+            glEnd();
+
+            // left face
+            glBegin(GL_QUADS);
+            glVertex3f(kx0, ky0, keyTopZ);
+            glVertex3f(kx0, ky1, keyTopZ);
+            glVertex3f(kx0, ky1, keyBottomZ);
+            glVertex3f(kx0, ky0, keyBottomZ);
+            glEnd();
+
+            // right face
+            glBegin(GL_QUADS);
+            glVertex3f(kx1, ky0, keyTopZ);
+            glVertex3f(kx1, ky1, keyTopZ);
+            glVertex3f(kx1, ky1, keyBottomZ);
+            glVertex3f(kx1, ky0, keyBottomZ);
+            glEnd();
+
+            // small inset label (dark rectangle) to simulate key cap legend
+            float inset = 0.14f * keyW;
+            glColor3f(0.12f, 0.14f, 0.18f);
+            glBegin(GL_QUADS);
+            float labelZ = keyTopZ + 0.05f; // keep within clip range
+            glVertex3f(kx0 + inset, ky0 + inset, labelZ);
+            glVertex3f(kx1 - inset, ky0 + inset, labelZ);
+            glVertex3f(kx1 - inset, ky1 - inset, labelZ);
+            glVertex3f(kx0 + inset, ky1 - inset, labelZ);
+            glEnd();
+        }
     }
+    glPopAttrib();
 
-    // 4) HUD overlays
-    glDisable(GL_DEPTH_TEST);
-    glColor3f(1.0f, 1.0f, 1.0f);
-    std::string goal = "Encontre: ";
-    goal += shapeNames[targetShape];
-    glRasterPos2f(windowW/2 - goal.size()*6, windowH - 30);
-    for (char c : goal) glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
-
-    drawProgressBar5();
-
+    // Done: HUD overlays removed for a clean panel-only view
     glutSwapBuffers();
 }
 
 void updatePhase5() {
-    frameCounter5++;
+    // nothing dynamic yet
 }
 
-void handlePhase5MouseMove(int x, int y) {
-    mouseX5 = x;
-    mouseY5 = y;
-    glutPostRedisplay();
-}
-
-void handlePhase5MouseClick(int button, int state, int x, int y) {
-    if (button != GLUT_LEFT_BUTTON || state != GLUT_DOWN) return;
-    float clickX = (float)x;
-    float clickY = (float)(windowH - y);
-    for (size_t i = 0; i < options.size(); ++i) {
-        Option &o = options[i];
-        float dx = clickX - o.x;
-        float dy = clickY - o.y;
-        float dist = sqrtf(dx*dx + dy*dy);
-        if (dist <= o.size) {
-            if (o.shape == targetShape) {
-                correctCount5++;
-                generateQuestion();
-                if (correctCount5 >= correctTarget5) {
-                    changeState(MAIN_MENU);
-                    glutSetCursor(GLUT_CURSOR_INHERIT);
-                }
-            }
-            break;
-        }
-    }
-}
-
-void handlePhase5Keyboard(unsigned char key) {
-    if (key == 27) {
-        changeState(MAIN_MENU);
-        glutSetCursor(GLUT_CURSOR_INHERIT);
-    }
-}
-
-void handlePhase5KeyboardUp(unsigned char key) {
-    (void)key;
-}
-
-void handlePhase5SpecialKey(int key, int x, int y) {
-    (void)key; (void)x; (void)y;
-}
-
-void handlePhase5SpecialKeyUp(int key, int x, int y) {
-    (void)key; (void)x; (void)y;
-}
+void handlePhase5MouseMove(int x, int y) { (void)x; (void)y; }
+void handlePhase5MouseClick(int button, int state, int x, int y) { (void)button; (void)state; (void)x; (void)y; }
+void handlePhase5Keyboard(unsigned char key) { if (key == 27) { changeState(MAIN_MENU); glutSetCursor(GLUT_CURSOR_INHERIT); } }
+void handlePhase5KeyboardUp(unsigned char key) { (void)key; }
+void handlePhase5SpecialKey(int key, int x, int y) { (void)key; (void)x; (void)y; }
+void handlePhase5SpecialKeyUp(int key, int x, int y) { (void)key; (void)x; (void)y; }
