@@ -487,8 +487,8 @@ void initPhase5() {
 
     playerP5.x = 0.0f;
     playerP5.y = 1.6f; // Altura dos olhos
-    playerP5.z = -3.0f; // Começa no corredor central traseiro
-    playerP5.angle = 0.0f; // Olhando para frente (norte)
+    playerP5.z = 3.0f; // Começa de frente para o painel
+    playerP5.angle = 0.0f; // Olhando para frente (norte - direção do painel)
     playerP5.pitch = 0.0f;
     
     lastMouseXP5 = -1;
@@ -497,17 +497,17 @@ void initPhase5() {
     // 4 objetos escondidos em diferentes cômodos da nave
     numObjectsP5 = 4;
     
-    // CUBO - Escondido na Cozinha (direita)
-    objectsP5[0] = (Collectible){6.5f, 0.2f, -6.0f, SHAPE_CUBE, false, false};
+    // CUBO - Cozinha (dentro do quarto lateral direito traseiro)
+    objectsP5[0] = (Collectible){8.0f, 0.2f, -7.0f, SHAPE_CUBE, false, false};
     
-    // ESFERA - Escondida no Quarto (esquerda)
-    objectsP5[1] = (Collectible){-6.5f, 0.2f, -6.5f, SHAPE_SPHERE, false, false};
+    // ESFERA - Quarto (dentro do quarto lateral esquerdo traseiro)
+    objectsP5[1] = (Collectible){-8.0f, 0.2f, -7.0f, SHAPE_SPHERE, false, false};
     
-    // PIRÂMIDE - Escondida na Sala de Munição (trás-esquerda)
-    objectsP5[2] = (Collectible){-7.0f, 0.2f, 6.5f, SHAPE_PYRAMID, false, false};
+    // PIRÂMIDE - Sala de Munição (lateral esquerda frontal, no centro do quarto)
+    objectsP5[2] = (Collectible){-8.0f, 0.2f, 6.0f, SHAPE_PYRAMID, false, false};
     
-    // CILINDRO - Escondido perto do console auxiliar (trás-direita)
-    objectsP5[3] = (Collectible){7.0f, 0.2f, 6.0f, SHAPE_CYLINDER, false, false};
+    // CILINDRO - Área de console (lateral direita frontal, no centro do quarto)
+    objectsP5[3] = (Collectible){8.0f, 0.2f, 6.0f, SHAPE_CYLINDER, false, false};
     
     // Zonas de depósito no painel de controle frontal
     numDepositsP5 = 4;
@@ -678,150 +678,282 @@ void drawPhase5(int windowWidth, int windowHeight) {
     drawCommandChairP5(0.0f, 6.0f, 0.0f);
     
     // ===================================================================
-    // DIVISÓRIAS INTERNAS E CÔMODOS
+    // DIVISÓRIAS INTERNAS (paredes menores - altura 2.0)
     // ===================================================================
     
     glColor3f(0.35f, 0.35f, 0.4f);
     
-    // Divisória horizontal esquerda (separa quarto da frente)
+    // Divisória horizontal esquerda (separa quarto da frente) - PAREDE ÚNICA
     glBegin(GL_QUADS);
     glNormal3f(0.0, 0.0, 1.0);
-    glVertex3f(-10.0f, 0.0f, -0.2f);
-    glVertex3f(-5.0f, 0.0f, -0.2f);
-    glVertex3f(-5.0f, 3.0f, -0.2f);
-    glVertex3f(-10.0f, 3.0f, -0.2f);
+    glVertex3f(-10.0f, 0.0f, 0.0f);
+    glVertex3f(-5.0f, 0.0f, 0.0f);
+    glVertex3f(-5.0f, 2.0f, 0.0f);
+    glVertex3f(-10.0f, 2.0f, 0.0f);
     glEnd();
     
     glBegin(GL_QUADS);
     glNormal3f(0.0, 0.0, -1.0);
-    glVertex3f(-10.0f, 0.0f, 0.2f);
-    glVertex3f(-10.0f, 3.0f, 0.2f);
-    glVertex3f(-5.0f, 3.0f, 0.2f);
-    glVertex3f(-5.0f, 0.0f, 0.2f);
+    glVertex3f(-10.0f, 0.0f, 0.0f);
+    glVertex3f(-10.0f, 2.0f, 0.0f);
+    glVertex3f(-5.0f, 2.0f, 0.0f);
+    glVertex3f(-5.0f, 0.0f, 0.0f);
     glEnd();
     
-    // Divisória horizontal direita (separa cozinha da frente)
+    // Divisória horizontal direita (separa cozinha da frente) - PAREDE ÚNICA
     glBegin(GL_QUADS);
     glNormal3f(0.0, 0.0, 1.0);
-    glVertex3f(5.0f, 0.0f, -0.2f);
-    glVertex3f(10.0f, 0.0f, -0.2f);
-    glVertex3f(10.0f, 3.0f, -0.2f);
-    glVertex3f(5.0f, 3.0f, -0.2f);
+    glVertex3f(5.0f, 0.0f, 0.0f);
+    glVertex3f(10.0f, 0.0f, 0.0f);
+    glVertex3f(10.0f, 2.0f, 0.0f);
+    glVertex3f(5.0f, 2.0f, 0.0f);
     glEnd();
     
     glBegin(GL_QUADS);
     glNormal3f(0.0, 0.0, -1.0);
-    glVertex3f(5.0f, 0.0f, 0.2f);
-    glVertex3f(5.0f, 3.0f, 0.2f);
-    glVertex3f(10.0f, 3.0f, 0.2f);
-    glVertex3f(10.0f, 0.0f, 0.2f);
+    glVertex3f(5.0f, 0.0f, 0.0f);
+    glVertex3f(5.0f, 2.0f, 0.0f);
+    glVertex3f(10.0f, 2.0f, 0.0f);
+    glVertex3f(10.0f, 0.0f, 0.0f);
     glEnd();
     
-    // Divisória vertical traseira (separa quarto da munição)
+    // Divisória vertical traseira removida para não aparecer no quarto
+    
+    // ===================================================================
+    // PAREDES LATERAIS DOS QUARTOS (cercam áreas laterais, começam após o parabrisa)
+    // ===================================================================
+    
+    // PAREDE LATERAL ESQUERDA - TRASEIRA (fecha o quarto)
+    // De X=-6.5 (fim do parabrisa) até X=-10 (parede externa), em Z=-10 até Z=10
+    glBegin(GL_QUADS);
+    glNormal3f(0.0, 0.0, -1.0); // Face virada para dentro
+    glVertex3f(-10.0f, 0.0f, -10.0f);
+    glVertex3f(-10.0f, 2.0f, -10.0f);
+    glVertex3f(-6.5f, 2.0f, -10.0f);
+    glVertex3f(-6.5f, 0.0f, -10.0f);
+    glEnd();
+    
+    glBegin(GL_QUADS);
+    glNormal3f(0.0, 0.0, 1.0); // Face virada para fora
+    glVertex3f(-10.0f, 0.0f, -10.0f);
+    glVertex3f(-6.5f, 0.0f, -10.0f);
+    glVertex3f(-6.5f, 2.0f, -10.0f);
+    glVertex3f(-10.0f, 2.0f, -10.0f);
+    glEnd();
+    
+    // PAREDE LATERAL ESQUERDA - FRONTAL (fecha a sala de munição)
+    // De X=-6.5 até X=-10, em Z=10 (parede frontal da nave)
+    glBegin(GL_QUADS);
+    glNormal3f(0.0, 0.0, -1.0);
+    glVertex3f(-10.0f, 0.0f, 10.0f);
+    glVertex3f(-10.0f, 2.0f, 10.0f);
+    glVertex3f(-6.5f, 2.0f, 10.0f);
+    glVertex3f(-6.5f, 0.0f, 10.0f);
+    glEnd();
+    
+    glBegin(GL_QUADS);
+    glNormal3f(0.0, 0.0, 1.0);
+    glVertex3f(-10.0f, 0.0f, 10.0f);
+    glVertex3f(-6.5f, 0.0f, 10.0f);
+    glVertex3f(-6.5f, 2.0f, 10.0f);
+    glVertex3f(-10.0f, 2.0f, 10.0f);
+    glEnd();
+    
+    // PAREDE LATERAL ESQUERDA - CONECTORA COM PORTAS (X=-6.5)
+    // Seção traseira (quarto): Z=-10 até Z=-2 (antes da porta)
     glBegin(GL_QUADS);
     glNormal3f(1.0, 0.0, 0.0);
-    glVertex3f(-0.2f, 0.0f, -10.0f);
-    glVertex3f(-0.2f, 3.0f, -10.0f);
-    glVertex3f(-0.2f, 3.0f, -5.0f);
-    glVertex3f(-0.2f, 0.0f, -5.0f);
+    glVertex3f(-6.5f, 0.0f, -10.0f);
+    glVertex3f(-6.5f, 2.0f, -10.0f);
+    glVertex3f(-6.5f, 2.0f, -2.0f);
+    glVertex3f(-6.5f, 0.0f, -2.0f);
     glEnd();
     
-    glBegin(GL_QUADS);
-    glNormal3f(-1.0, 0.0, 0.0);
-    glVertex3f(0.2f, 0.0f, -10.0f);
-    glVertex3f(0.2f, 0.0f, -5.0f);
-    glVertex3f(0.2f, 3.0f, -5.0f);
-    glVertex3f(0.2f, 3.0f, -10.0f);
-    glEnd();
-    
-    // Divisória vertical frontal (separa munição do console)
+    // Seção frontal (sala munição): Z=2 até Z=10 (depois da porta)
     glBegin(GL_QUADS);
     glNormal3f(1.0, 0.0, 0.0);
-    glVertex3f(-0.2f, 0.0f, 5.0f);
-    glVertex3f(-0.2f, 3.0f, 5.0f);
-    glVertex3f(-0.2f, 3.0f, 10.0f);
-    glVertex3f(-0.2f, 0.0f, 10.0f);
+    glVertex3f(-6.5f, 0.0f, 2.0f);
+    glVertex3f(-6.5f, 2.0f, 2.0f);
+    glVertex3f(-6.5f, 2.0f, 10.0f);
+    glVertex3f(-6.5f, 0.0f, 10.0f);
+    glEnd();
+    
+    // Verga acima da porta esquerda
+    glBegin(GL_QUADS);
+    glNormal3f(1.0, 0.0, 0.0);
+    glVertex3f(-6.5f, 1.8f, -2.0f);
+    glVertex3f(-6.5f, 2.0f, -2.0f);
+    glVertex3f(-6.5f, 2.0f, 2.0f);
+    glVertex3f(-6.5f, 1.8f, 2.0f);
+    glEnd();
+    
+    // PAREDE LATERAL DIREITA - TRASEIRA (fecha a cozinha)
+    // De X=6.5 (fim do parabrisa) até X=10 (parede externa), em Z=-10
+    glBegin(GL_QUADS);
+    glNormal3f(0.0, 0.0, -1.0);
+    glVertex3f(6.5f, 0.0f, -10.0f);
+    glVertex3f(6.5f, 2.0f, -10.0f);
+    glVertex3f(10.0f, 2.0f, -10.0f);
+    glVertex3f(10.0f, 0.0f, -10.0f);
     glEnd();
     
     glBegin(GL_QUADS);
+    glNormal3f(0.0, 0.0, 1.0);
+    glVertex3f(6.5f, 0.0f, -10.0f);
+    glVertex3f(10.0f, 0.0f, -10.0f);
+    glVertex3f(10.0f, 2.0f, -10.0f);
+    glVertex3f(6.5f, 2.0f, -10.0f);
+    glEnd();
+    
+    // PAREDE LATERAL DIREITA - FRONTAL (fecha a área de console)
+    // De X=6.5 até X=10, em Z=10
+    glBegin(GL_QUADS);
+    glNormal3f(0.0, 0.0, -1.0);
+    glVertex3f(6.5f, 0.0f, 10.0f);
+    glVertex3f(6.5f, 2.0f, 10.0f);
+    glVertex3f(10.0f, 2.0f, 10.0f);
+    glVertex3f(10.0f, 0.0f, 10.0f);
+    glEnd();
+    
+    glBegin(GL_QUADS);
+    glNormal3f(0.0, 0.0, 1.0);
+    glVertex3f(6.5f, 0.0f, 10.0f);
+    glVertex3f(10.0f, 0.0f, 10.0f);
+    glVertex3f(10.0f, 2.0f, 10.0f);
+    glVertex3f(6.5f, 2.0f, 10.0f);
+    glEnd();
+    
+    // PAREDE LATERAL DIREITA - CONECTORA COM PORTAS (X=6.5)
+    // Seção traseira (cozinha): Z=-10 até Z=-2 (antes da porta)
+    glBegin(GL_QUADS);
     glNormal3f(-1.0, 0.0, 0.0);
-    glVertex3f(0.2f, 0.0f, 5.0f);
-    glVertex3f(0.2f, 0.0f, 10.0f);
-    glVertex3f(0.2f, 3.0f, 10.0f);
-    glVertex3f(0.2f, 3.0f, 5.0f);
+    glVertex3f(6.5f, 0.0f, -10.0f);
+    glVertex3f(6.5f, 0.0f, -2.0f);
+    glVertex3f(6.5f, 2.0f, -2.0f);
+    glVertex3f(6.5f, 2.0f, -10.0f);
+    glEnd();
+    
+    // Seção frontal (área console): Z=2 até Z=10 (depois da porta)
+    glBegin(GL_QUADS);
+    glNormal3f(-1.0, 0.0, 0.0);
+    glVertex3f(6.5f, 0.0f, 2.0f);
+    glVertex3f(6.5f, 0.0f, 10.0f);
+    glVertex3f(6.5f, 2.0f, 10.0f);
+    glVertex3f(6.5f, 2.0f, 2.0f);
+    glEnd();
+    
+    // Verga acima da porta direita
+    glBegin(GL_QUADS);
+    glNormal3f(-1.0, 0.0, 0.0);
+    glVertex3f(6.5f, 1.8f, -2.0f);
+    glVertex3f(6.5f, 1.8f, 2.0f);
+    glVertex3f(6.5f, 2.0f, 2.0f);
+    glVertex3f(6.5f, 2.0f, -2.0f);
     glEnd();
     
     // ===================================================================
-    // PAREDES INTERNAS DOS CÔMODOS
+    // PAREDES INTERNAS DOS CÔMODOS COM PORTAS
     // ===================================================================
     
     // Parede interna do QUARTO (parede traseira entre corredor e quarto)
     glBegin(GL_QUADS);
     glNormal3f(0.0, 0.0, 1.0);
     glVertex3f(-10.0f, 0.0f, -5.0f);
-    glVertex3f(-5.5f, 0.0f, -5.0f); // Abertura para porta
-    glVertex3f(-5.5f, 3.0f, -5.0f);
-    glVertex3f(-10.0f, 3.0f, -5.0f);
+    glVertex3f(-6.0f, 0.0f, -5.0f); // Antes da porta
+    glVertex3f(-6.0f, 2.0f, -5.0f);
+    glVertex3f(-10.0f, 2.0f, -5.0f);
     glEnd();
     
     glBegin(GL_QUADS);
     glNormal3f(0.0, 0.0, 1.0);
-    glVertex3f(-4.5f, 0.0f, -5.0f); // Depois da porta
-    glVertex3f(-0.2f, 0.0f, -5.0f);
-    glVertex3f(-0.2f, 3.0f, -5.0f);
-    glVertex3f(-4.5f, 3.0f, -5.0f);
+    glVertex3f(-4.0f, 0.0f, -5.0f); // Depois da porta
+    glVertex3f(0.0f, 0.0f, -5.0f);
+    glVertex3f(0.0f, 2.0f, -5.0f);
+    glVertex3f(-4.0f, 2.0f, -5.0f);
     glEnd();
+    
+    // Verga da porta do quarto (parte superior)
+    glBegin(GL_QUADS);
+    glNormal3f(0.0, 0.0, 1.0);
+    glVertex3f(-6.0f, 1.8f, -5.0f);
+    glVertex3f(-4.0f, 1.8f, -5.0f);
+    glVertex3f(-4.0f, 2.0f, -5.0f);
+    glVertex3f(-6.0f, 2.0f, -5.0f);
+    glEnd();
+    
+    // Moldura da porta do quarto
+    glColor3f(0.25f, 0.25f, 0.28f);
+    glBegin(GL_QUADS);
+    glNormal3f(0.0, 0.0, 1.0);
+    glVertex3f(-6.1f, 0.0f, -5.01f);
+    glVertex3f(-5.9f, 0.0f, -5.01f);
+    glVertex3f(-5.9f, 1.9f, -5.01f);
+    glVertex3f(-6.1f, 1.9f, -5.01f);
+    glEnd();
+    glBegin(GL_QUADS);
+    glVertex3f(-4.1f, 0.0f, -5.01f);
+    glVertex3f(-3.9f, 0.0f, -5.01f);
+    glVertex3f(-3.9f, 1.9f, -5.01f);
+    glVertex3f(-4.1f, 1.9f, -5.01f);
+    glEnd();
+    glBegin(GL_QUADS);
+    glVertex3f(-6.0f, 1.7f, -5.01f);
+    glVertex3f(-4.0f, 1.7f, -5.01f);
+    glVertex3f(-4.0f, 1.9f, -5.01f);
+    glVertex3f(-6.0f, 1.9f, -5.01f);
+    glEnd();
+    
+    glColor3f(0.35f, 0.35f, 0.4f);
     
     // Parede interna da COZINHA (parede traseira entre corredor e cozinha)
     glBegin(GL_QUADS);
     glNormal3f(0.0, 0.0, 1.0);
-    glVertex3f(0.2f, 0.0f, -5.0f);
-    glVertex3f(4.5f, 0.0f, -5.0f); // Antes da porta
-    glVertex3f(4.5f, 3.0f, -5.0f);
-    glVertex3f(0.2f, 3.0f, -5.0f);
+    glVertex3f(0.0f, 0.0f, -5.0f);
+    glVertex3f(4.0f, 0.0f, -5.0f); // Antes da porta
+    glVertex3f(4.0f, 2.0f, -5.0f);
+    glVertex3f(0.0f, 2.0f, -5.0f);
     glEnd();
     
     glBegin(GL_QUADS);
     glNormal3f(0.0, 0.0, 1.0);
-    glVertex3f(5.5f, 0.0f, -5.0f); // Depois da porta
+    glVertex3f(6.0f, 0.0f, -5.0f); // Depois da porta
     glVertex3f(10.0f, 0.0f, -5.0f);
-    glVertex3f(10.0f, 3.0f, -5.0f);
-    glVertex3f(5.5f, 3.0f, -5.0f);
+    glVertex3f(10.0f, 2.0f, -5.0f);
+    glVertex3f(6.0f, 2.0f, -5.0f);
     glEnd();
     
-    // Parede interna da SALA DE MUNIÇÃO (parede frontal entre corredor e sala)
+    // Verga da porta da cozinha
     glBegin(GL_QUADS);
-    glNormal3f(0.0, 0.0, -1.0);
-    glVertex3f(-10.0f, 0.0f, 5.0f);
-    glVertex3f(-10.0f, 3.0f, 5.0f);
-    glVertex3f(-5.5f, 3.0f, 5.0f); // Antes da porta
-    glVertex3f(-5.5f, 0.0f, 5.0f);
+    glNormal3f(0.0, 0.0, 1.0);
+    glVertex3f(4.0f, 1.8f, -5.0f);
+    glVertex3f(6.0f, 1.8f, -5.0f);
+    glVertex3f(6.0f, 2.0f, -5.0f);
+    glVertex3f(4.0f, 2.0f, -5.0f);
     glEnd();
     
+    // Moldura da porta da cozinha
+    glColor3f(0.25f, 0.25f, 0.28f);
     glBegin(GL_QUADS);
-    glNormal3f(0.0, 0.0, -1.0);
-    glVertex3f(-4.5f, 0.0f, 5.0f); // Depois da porta
-    glVertex3f(-4.5f, 3.0f, 5.0f);
-    glVertex3f(-0.2f, 3.0f, 5.0f);
-    glVertex3f(-0.2f, 0.0f, 5.0f);
+    glNormal3f(0.0, 0.0, 1.0);
+    glVertex3f(3.9f, 0.0f, -5.01f);
+    glVertex3f(4.1f, 0.0f, -5.01f);
+    glVertex3f(4.1f, 1.9f, -5.01f);
+    glVertex3f(3.9f, 1.9f, -5.01f);
+    glEnd();
+    glBegin(GL_QUADS);
+    glVertex3f(5.9f, 0.0f, -5.01f);
+    glVertex3f(6.1f, 0.0f, -5.01f);
+    glVertex3f(6.1f, 1.9f, -5.01f);
+    glVertex3f(5.9f, 1.9f, -5.01f);
+    glEnd();
+    glBegin(GL_QUADS);
+    glVertex3f(4.0f, 1.7f, -5.01f);
+    glVertex3f(6.0f, 1.7f, -5.01f);
+    glVertex3f(6.0f, 1.9f, -5.01f);
+    glVertex3f(4.0f, 1.9f, -5.01f);
     glEnd();
     
-    // Parede interna da ÁREA DE CONSOLE (parede frontal entre corredor e console)
-    glBegin(GL_QUADS);
-    glNormal3f(0.0, 0.0, -1.0);
-    glVertex3f(0.2f, 0.0f, 5.0f);
-    glVertex3f(0.2f, 3.0f, 5.0f);
-    glVertex3f(4.5f, 3.0f, 5.0f); // Antes da porta
-    glVertex3f(4.5f, 0.0f, 5.0f);
-    glEnd();
-    
-    glBegin(GL_QUADS);
-    glNormal3f(0.0, 0.0, -1.0);
-    glVertex3f(5.5f, 0.0f, 5.0f); // Depois da porta
-    glVertex3f(5.5f, 3.0f, 5.0f);
-    glVertex3f(10.0f, 3.0f, 5.0f);
-    glVertex3f(10.0f, 0.0f, 5.0f);
-    glEnd();
+    glColor3f(0.35f, 0.35f, 0.4f);
     
     // ===================================================================
     // QUARTO (Canto traseiro-esquerdo)
@@ -990,19 +1122,8 @@ void drawPhase5(int windowWidth, int windowHeight) {
         glPopMatrix();
     }
 
-    // Desenhar mãos do traje espacial (em primeiro plano, sobre tudo)
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
-    gluPerspective(60.0, (double)windowWidth / (double)windowHeight, 0.01, 10.0);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    
-    drawSpaceGlovesP5();
-    
     // Voltar para HUD 2D
     glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
     glLoadIdentity();
     gluOrtho2D(0, windowWidth, 0, windowHeight);
     glMatrixMode(GL_MODELVIEW);
@@ -1042,50 +1163,53 @@ void drawPhase5(int windowWidth, int windowHeight) {
 
 // Verificar colisão com obstáculos (paredes da nave e móveis)
 bool checkCollisionP5(float x, float z) {
-    // Paredes externas da nave (limites -10 a 10)
-    if (x < -9.5f || x > 9.5f || z < -9.5f || z > 9.5f) return true;
+    float radius = 0.3f; // Raio de colisão do jogador
     
-    // Divisória horizontal esquerda (separa quarto da frente)
-    if (x < -5.0f && z > -0.3f && z < 0.3f) return true;
+    // PAREDES EXTERNAS da nave (limites -10 a 10)
+    if (x < -9.5f + radius || x > 9.5f - radius || z < -9.5f + radius || z > 9.5f - radius) return true;
     
-    // Divisória horizontal direita (separa cozinha da frente)  
-    if (x > 5.0f && z > -0.3f && z < 0.3f) return true;
+    // PAREDES LATERAIS COM PORTAS (X = -6.5 e X = 6.5)
+    // Parede lateral esquerda - seção traseira (Z de -10 até -2)
+    if (fabs(x + 6.5f) < 0.15f && z < -2.0f + radius && z > -10.0f - radius) return true;
+    // Parede lateral esquerda - seção frontal (Z de 2 até 10)
+    if (fabs(x + 6.5f) < 0.15f && z > 2.0f - radius && z < 10.0f + radius) return true;
     
-    // Divisória vertical traseira (separa quarto da cozinha)
-    if (z < -5.0f && x > -0.3f && x < 0.3f) return true;
+    // Parede lateral direita - seção traseira (Z de -10 até -2)
+    if (fabs(x - 6.5f) < 0.15f && z < -2.0f + radius && z > -10.0f - radius) return true;
+    // Parede lateral direita - seção frontal (Z de 2 até 10)
+    if (fabs(x - 6.5f) < 0.15f && z > 2.0f - radius && z < 10.0f + radius) return true;
     
-    // Divisória vertical frontal (separa munição do console)
-    if (z > 5.0f && x > -0.3f && x < 0.3f) return true;
+    // PAREDES DE FUNDO DOS QUARTOS LATERAIS (Z = -10 e Z = 10, entre X = ±6.5 e X = ±10)
+    // Parede fundo esquerda traseira (Z=-10, X de -10 a -6.5)
+    if (fabs(z + 10.0f) < 0.15f && x < -6.5f + radius && x > -10.0f) return true;
+    // Parede fundo esquerda frontal (Z=10, X de -10 a -6.5)
+    if (fabs(z - 10.0f) < 0.15f && x < -6.5f + radius && x > -10.0f) return true;
+    // Parede fundo direita traseira (Z=-10, X de 6.5 a 10)
+    if (fabs(z + 10.0f) < 0.15f && x > 6.5f - radius && x < 10.0f) return true;
+    // Parede fundo direita frontal (Z=10, X de 6.5 a 10)
+    if (fabs(z - 10.0f) < 0.15f && x > 6.5f - radius && x < 10.0f) return true;
     
-    // Colisão com cama no quarto
-    if (x < -5.5f && x > -8.5f && z < -5.5f && z > -8.5f) return true;
+    // CAMA no quarto (canto traseiro esquerdo)
+    if (x > -8.5f - radius && x < -5.5f + radius && z > -8.5f - radius && z < -5.5f + radius) return true;
     
-    // Colisão com bancada da cozinha
-    if (x > 5.5f && x < 8.5f && z < -5.5f && z > -8.5f) return true;
+    // BANCADA DA COZINHA (canto traseiro direito)
+    if (x > 5.5f - radius && x < 8.5f + radius && z > -8.5f - radius && z < -5.5f + radius) return true;
     
-    // Colisão com geladeira
-    if (x > 7.8f && x < 9.2f && z < -6.8f && z > -8.2f) return true;
+    // GELADEIRA na cozinha
+    if (x > 7.8f - radius && x < 9.2f + radius && z > -8.2f - radius && z < -6.8f + radius) return true;
     
-    // Colisão com caixas de munição
-    if (x < -5.5f && z > 4.5f && z < 8.0f) {
-        if ((fabs(x + 7.5f) < 0.6f && fabs(z - 7.0f) < 0.6f) ||
-            (fabs(x + 7.0f) < 0.6f && fabs(z - 7.0f) < 0.6f) ||
-            (fabs(x + 8.0f) < 0.6f && fabs(z - 5.5f) < 0.6f) ||
-            (fabs(x + 6.5f) < 0.6f && fabs(z - 5.5f) < 0.6f)) {
-            return true;
-        }
-    }
+    // CAIXAS DE MUNIÇÃO (sala de munição - canto frontal esquerdo)
+    if (fabs(x + 7.5f) < 1.0f && fabs(z - 7.0f) < 1.0f) return true;
+    if (fabs(x + 8.0f) < 1.0f && fabs(z - 5.5f) < 1.0f) return true;
     
-    // Colisão com console auxiliar (direita-frente)
-    if (x > 5.5f && x < 8.5f && z > 5.0f && z < 8.0f) return true;
+    // CONSOLE AUXILIAR (área de console - canto frontal direito)
+    if (x > 5.5f - radius && x < 8.5f + radius && z > 5.0f - radius && z < 8.0f + radius) return true;
     
-    // Colisão com estante
-    if (x > 7.8f && x < 9.2f && z > 6.0f && z < 8.0f) return true;
+    // ESTANTE na área de console
+    if (x > 7.8f - radius && x < 9.2f + radius && z > 6.0f - radius && z < 8.0f + radius) return true;
     
-    // Colisão com console principal e cadeira (frente)
-    if (z > 5.5f && z < 8.5f) {
-        if (fabs(x) < 1.5f) return true; // Console e cadeira centrais
-    }
+    // PAINEL DE CONTROLE PRINCIPAL e CADEIRA (centro frontal)
+    if (fabs(x) < 1.5f + radius && z > 6.0f - radius && z < 8.0f + radius) return true;
     
     return false;
 }
