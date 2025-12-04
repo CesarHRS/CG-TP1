@@ -94,7 +94,176 @@ void drawText3DP5(float x, float y, float z, const char *string, void* font) {
     }
 }
 
-// Desenhar árvore 3D
+// ===================================================================
+// Funções para desenhar o interior da nave
+// ===================================================================
+
+// Desenhar parede metálica
+void drawMetalWallP5(float x, float z, float width, float height, float depth, float r, float g, float b) {
+    glPushMatrix();
+    glTranslatef(x, height/2, z);
+    glColor3f(r, g, b);
+    glScalef(width, height, depth);
+    glutSolidCube(1.0f);
+    glPopMatrix();
+}
+
+// Desenhar porta deslizante
+void drawDoorP5(float x, float z, float rotation) {
+    glPushMatrix();
+    glTranslatef(x, 1.0f, z);
+    glRotatef(rotation, 0, 1, 0);
+    
+    // Frame da porta
+    glColor3f(0.3f, 0.3f, 0.3f);
+    glPushMatrix();
+    glScalef(1.2f, 2.2f, 0.1f);
+    glutSolidCube(1.0f);
+    glPopMatrix();
+    
+    // Porta em si (mais clara)
+    glColor3f(0.5f, 0.5f, 0.5f);
+    glPushMatrix();
+    glScalef(1.0f, 2.0f, 0.08f);
+    glutSolidCube(1.0f);
+    glPopMatrix();
+    
+    glPopMatrix();
+}
+
+// Desenhar cama do quarto
+void drawBedP5(float x, float z, float rotation) {
+    glPushMatrix();
+    glTranslatef(x, 0.3f, z);
+    glRotatef(rotation, 0, 1, 0);
+    
+    // Base da cama
+    glColor3f(0.4f, 0.4f, 0.4f);
+    glPushMatrix();
+    glScalef(2.0f, 0.3f, 1.2f);
+    glutSolidCube(1.0f);
+    glPopMatrix();
+    
+    // Colchão
+    glColor3f(0.2f, 0.3f, 0.6f);
+    glPushMatrix();
+    glTranslatef(0.0f, 0.25f, 0.0f);
+    glScalef(1.9f, 0.2f, 1.1f);
+    glutSolidCube(1.0f);
+    glPopMatrix();
+    
+    glPopMatrix();
+}
+
+// Desenhar bancada da cozinha
+void drawKitchenCounterP5(float x, float z, float rotation) {
+    glPushMatrix();
+    glTranslatef(x, 0.5f, z);
+    glRotatef(rotation, 0, 1, 0);
+    
+    // Base
+    glColor3f(0.5f, 0.5f, 0.5f);
+    glPushMatrix();
+    glScalef(2.5f, 1.0f, 0.8f);
+    glutSolidCube(1.0f);
+    glPopMatrix();
+    
+    // Pia
+    glColor3f(0.7f, 0.7f, 0.8f);
+    glPushMatrix();
+    glTranslatef(-0.5f, 0.4f, 0.0f);
+    glScalef(0.6f, 0.2f, 0.5f);
+    glutSolidCube(1.0f);
+    glPopMatrix();
+    
+    glPopMatrix();
+}
+
+// Desenhar caixa de munição
+void drawAmmoBoxP5(float x, float z) {
+    glPushMatrix();
+    glTranslatef(x, 0.3f, z);
+    
+    glColor3f(0.3f, 0.4f, 0.2f); // Verde militar
+    glPushMatrix();
+    glScalef(0.6f, 0.4f, 0.4f);
+    glutSolidCube(1.0f);
+    glPopMatrix();
+    
+    // Detalhes
+    glColor3f(0.8f, 0.7f, 0.0f);
+    glPushMatrix();
+    glTranslatef(0.0f, 0.0f, 0.21f);
+    glScalef(0.3f, 0.05f, 0.01f);
+    glutSolidCube(1.0f);
+    glPopMatrix();
+    
+    glPopMatrix();
+}
+
+// Desenhar rack de armas
+void drawWeaponRackP5(float x, float z, float rotation) {
+    glPushMatrix();
+    glTranslatef(x, 1.0f, z);
+    glRotatef(rotation, 0, 1, 0);
+    
+    glColor3f(0.2f, 0.2f, 0.2f);
+    glPushMatrix();
+    glScalef(0.1f, 2.0f, 1.5f);
+    glutSolidCube(1.0f);
+    glPopMatrix();
+    
+    glPopMatrix();
+}
+
+// Desenhar console/painel de controle
+void drawControlConsoleP5(float x, float z, float rotation) {
+    glPushMatrix();
+    glTranslatef(x, 0.8f, z);
+    glRotatef(rotation, 0, 1, 0);
+    
+    // Base
+    glColor3f(0.3f, 0.3f, 0.35f);
+    glPushMatrix();
+    glScalef(1.5f, 0.8f, 0.6f);
+    glutSolidCube(1.0f);
+    glPopMatrix();
+    
+    // Tela
+    glColor3f(0.1f, 0.3f, 0.5f);
+    glPushMatrix();
+    glTranslatef(0.0f, 0.3f, 0.2f);
+    glScalef(1.0f, 0.6f, 0.05f);
+    glutSolidCube(1.0f);
+    glPopMatrix();
+    
+    glPopMatrix();
+}
+
+// Desenhar cadeira de comando
+void drawCommandChairP5(float x, float z, float rotation) {
+    glPushMatrix();
+    glTranslatef(x, 0.5f, z);
+    glRotatef(rotation, 0, 1, 0);
+    
+    // Assento
+    glColor3f(0.2f, 0.2f, 0.3f);
+    glPushMatrix();
+    glScalef(0.6f, 0.2f, 0.6f);
+    glutSolidCube(1.0f);
+    glPopMatrix();
+    
+    // Encosto
+    glPushMatrix();
+    glTranslatef(0.0f, 0.4f, -0.2f);
+    glScalef(0.6f, 0.8f, 0.1f);
+    glutSolidCube(1.0f);
+    glPopMatrix();
+    
+    glPopMatrix();
+}
+
+// Desenhar árvore 3D (REMOVIDO - não será mais usado)
 void drawTreeP5(float x, float z, float scale) {
     glPushMatrix();
     glTranslatef(x, 0.0f, z);
@@ -306,68 +475,46 @@ void drawSpaceGlovesP5() {
 // ===================================================================
 
 void initPhase5() {
-    printf("Initializing Phase 5 (3D Geometric Planet)...\n");
+    printf("Initializing Phase 5 (Inside the Spaceship)...\n");
     srand((unsigned int)time(NULL));
 
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
     glEnable(GL_COLOR_MATERIAL);
-    GLfloat light_pos[] = {2.0, 8.0, 2.0, 0.0};
+    GLfloat light_pos[] = {0.0, 3.0, 0.0, 1.0}; // Luz no centro da nave
     glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
     glEnable(GL_DEPTH_TEST);
 
     playerP5.x = 0.0f;
-    playerP5.y = 0.6f; // Altura dos olhos do astronauta
-    playerP5.z = 8.0f;
-    playerP5.angle = 0.0f;
+    playerP5.y = 1.6f; // Altura dos olhos
+    playerP5.z = -3.0f; // Começa no corredor central traseiro
+    playerP5.angle = 0.0f; // Olhando para frente (norte)
     playerP5.pitch = 0.0f;
     
     lastMouseXP5 = -1;
     for(int i = 0; i < 256; i++) keyStateP5[i] = false;
 
-    // Objetos menores em posições aleatórias evitando obstáculos
+    // 4 objetos escondidos em diferentes cômodos da nave
     numObjectsP5 = 4;
     
-    // Gerar posições aleatórias evitando centro, rochas e vegetação
-    float posX[4], posZ[4];
-    for (int i = 0; i < 4; i++) {
-        bool validPos = false;
-        int attempts = 0;
-        do {
-            posX[i] = ((rand() % 180) - 90) / 10.0f; // -9 a 9
-            posZ[i] = ((rand() % 180) - 90) / 10.0f;
-            
-            // Verifica se não está no centro (torre)
-            if (fabs(posX[i]) < 4.5f && fabs(posZ[i]) < 4.5f) continue;
-            
-            // Verifica se não está nas paredes de rochas principais
-            if ((fabs(posX[i] - 4.0f) < 2.0f || fabs(posX[i] + 4.0f) < 2.0f) && 
-                (posZ[i] < -5.5f || posZ[i] > 5.5f)) continue;
-            if ((fabs(posZ[i] - 4.0f) < 2.0f || fabs(posZ[i] + 4.0f) < 2.0f) && 
-                (posX[i] < -5.5f || posX[i] > 5.5f)) continue;
-            
-            // Verifica se não está nas paredes internas
-            if ((fabs(posX[i] - 8.0f) < 1.5f || fabs(posX[i] + 8.0f) < 1.5f) && 
-                fabs(posZ[i]) > 6.5f) continue;
-            if ((fabs(posZ[i] - 8.0f) < 1.5f || fabs(posZ[i] + 8.0f) < 1.5f) && 
-                fabs(posX[i]) > 6.5f) continue;
-            
-            validPos = true;
-            attempts++;
-        } while (!validPos && attempts < 100);
-    }
+    // CUBO - Escondido na Cozinha (direita)
+    objectsP5[0] = (Collectible){6.5f, 0.2f, -6.0f, SHAPE_CUBE, false, false};
     
-    objectsP5[0] = (Collectible){posX[0], 0.2f, posZ[0], SHAPE_CUBE, false, false};
-    objectsP5[1] = (Collectible){posX[1], 0.2f, posZ[1], SHAPE_SPHERE, false, false};
-    objectsP5[2] = (Collectible){posX[2], 0.2f, posZ[2], SHAPE_PYRAMID, false, false};
-    objectsP5[3] = (Collectible){posX[3], 0.2f, posZ[3], SHAPE_CYLINDER, false, false};
+    // ESFERA - Escondida no Quarto (esquerda)
+    objectsP5[1] = (Collectible){-6.5f, 0.2f, -6.5f, SHAPE_SPHERE, false, false};
     
-    // Zonas de depósito ao redor do painel central
+    // PIRÂMIDE - Escondida na Sala de Munição (trás-esquerda)
+    objectsP5[2] = (Collectible){-7.0f, 0.2f, 6.5f, SHAPE_PYRAMID, false, false};
+    
+    // CILINDRO - Escondido perto do console auxiliar (trás-direita)
+    objectsP5[3] = (Collectible){7.0f, 0.2f, 6.0f, SHAPE_CYLINDER, false, false};
+    
+    // Zonas de depósito no painel de controle frontal
     numDepositsP5 = 4;
-    depositsP5[0] = (DepositZone){-2.5f, 0.0f, 0.0f, SHAPE_CUBE, false}; // Esquerda
-    depositsP5[1] = (DepositZone){2.5f, 0.0f, 0.0f, SHAPE_SPHERE, false}; // Direita
-    depositsP5[2] = (DepositZone){0.0f, 0.0f, -2.5f, SHAPE_PYRAMID, false}; // Frente
-    depositsP5[3] = (DepositZone){0.0f, 0.0f, 2.5f, SHAPE_CYLINDER, false}; // Trás
+    depositsP5[0] = (DepositZone){-1.5f, 0.0f, 7.5f, SHAPE_CUBE, false}; // Slot vermelho
+    depositsP5[1] = (DepositZone){-0.5f, 0.0f, 7.5f, SHAPE_SPHERE, false}; // Slot verde
+    depositsP5[2] = (DepositZone){0.5f, 0.0f, 7.5f, SHAPE_PYRAMID, false}; // Slot azul
+    depositsP5[3] = (DepositZone){1.5f, 0.0f, 7.5f, SHAPE_CYLINDER, false}; // Slot amarelo
     
     scoreP5 = 0;
     phase5_won = false;
@@ -375,7 +522,7 @@ void initPhase5() {
 }
 
 void drawPhase5(int windowWidth, int windowHeight) {
-    glClearColor(0.53f, 0.81f, 0.92f, 1.0f); // Céu azul claro
+    glClearColor(0.1f, 0.1f, 0.15f, 1.0f); // Escuro - interior da nave
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glMatrixMode(GL_PROJECTION);
@@ -392,17 +539,19 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glEnable(GL_LIGHTING);
     glEnable(GL_DEPTH_TEST);
 
-    // Chão de terra e grama
+    // ===================================================================
+    // ESTRUTURA DA NAVE
+    // ===================================================================
+    
+    // Chão metálico da nave (placas com padrão)
     glBegin(GL_QUADS);
-    for (int x = -15; x < 15; x++) {
-        for (int z = -15; z < 15; z++) {
-            // Alterna entre tons de verde e marrom para parecer natural
-            if ((x + z) % 3 == 0) {
-                glColor3f(0.34f, 0.52f, 0.19f); // Verde escuro
-            } else if ((x + z) % 3 == 1) {
-                glColor3f(0.42f, 0.61f, 0.24f); // Verde médio
+    for (int x = -10; x < 10; x++) {
+        for (int z = -10; z < 10; z++) {
+            // Padrão de placas metálicas
+            if ((x + z) % 2 == 0) {
+                glColor3f(0.35f, 0.35f, 0.4f); // Cinza metálico claro
             } else {
-                glColor3f(0.55f, 0.42f, 0.23f); // Marrom (terra)
+                glColor3f(0.3f, 0.3f, 0.35f); // Cinza metálico escuro
             }
             
             glNormal3f(0.0, 1.0, 0.0);
@@ -414,99 +563,333 @@ void drawPhase5(int windowWidth, int windowHeight) {
     }
     glEnd();
     
-    // Desenhar árvores espalhadas
-    drawTreeP5(-10.0f, 8.0f, 1.0f);
-    drawTreeP5(-8.0f, -6.0f, 0.9f);
-    drawTreeP5(9.0f, -9.0f, 1.1f);
-    drawTreeP5(11.0f, 7.0f, 0.95f);
-    drawTreeP5(-6.0f, 10.0f, 1.05f);
-    drawTreeP5(6.0f, -12.0f, 0.85f);
-    drawTreeP5(-12.0f, -10.0f, 1.0f);
-    drawTreeP5(8.0f, 10.0f, 0.9f);
+    // Teto da nave
+    glBegin(GL_QUADS);
+    glColor3f(0.25f, 0.25f, 0.28f);
+    glNormal3f(0.0, -1.0, 0.0);
+    glVertex3f(-10.0f, 3.0f, -10.0f);
+    glVertex3f(10.0f, 3.0f, -10.0f);
+    glVertex3f(10.0f, 3.0f, 10.0f);
+    glVertex3f(-10.0f, 3.0f, 10.0f);
+    glEnd();
     
-    // Desenhar arbustos
-    drawBushP5(-7.0f, 3.0f, 1.0f);
-    drawBushP5(8.5f, -5.0f, 0.9f);
-    drawBushP5(-4.0f, -8.0f, 1.1f);
-    drawBushP5(10.0f, 9.0f, 0.95f);
-    drawBushP5(-9.0f, -3.0f, 1.05f);
-    drawBushP5(5.0f, 6.0f, 0.85f);
-    drawBushP5(-11.0f, 5.0f, 1.0f);
-    drawBushP5(4.0f, -10.0f, 0.9f);
-    drawBushP5(-3.0f, 11.0f, 1.0f);
-    drawBushP5(11.0f, -7.0f, 0.95f);
+    // Paredes externas da nave
+    glColor3f(0.3f, 0.3f, 0.35f);
     
-    // Desenhar flores coloridas
-    drawFlowerP5(-5.5f, -9.5f, 1.0f, 0.2f, 0.8f); // Roxas perto da pirâmide
-    drawFlowerP5(-4.8f, -8.8f, 0.9f, 0.2f, 0.9f);
-    drawFlowerP5(-5.2f, -9.0f, 1.0f, 0.3f, 0.7f);
+    // Parede esquerda
+    glBegin(GL_QUADS);
+    glNormal3f(1.0, 0.0, 0.0);
+    glVertex3f(-10.0f, 0.0f, -10.0f);
+    glVertex3f(-10.0f, 3.0f, -10.0f);
+    glVertex3f(-10.0f, 3.0f, 10.0f);
+    glVertex3f(-10.0f, 0.0f, 10.0f);
+    glEnd();
     
-    drawFlowerP5(7.5f, -7.5f, 1.0f, 1.0f, 0.3f); // Amarelas
-    drawFlowerP5(9.5f, -6.8f, 0.8f, 1.0f, 0.5f);
-    drawFlowerP5(8.8f, -7.2f, 1.0f, 0.9f, 0.4f);
+    // Parede direita
+    glBegin(GL_QUADS);
+    glNormal3f(-1.0, 0.0, 0.0);
+    glVertex3f(10.0f, 0.0f, -10.0f);
+    glVertex3f(10.0f, 0.0f, 10.0f);
+    glVertex3f(10.0f, 3.0f, 10.0f);
+    glVertex3f(10.0f, 3.0f, -10.0f);
+    glEnd();
     
-    drawFlowerP5(-7.5f, 5.5f, 1.0f, 1.0f, 0.1f); // Vermelhas
-    drawFlowerP5(-8.2f, 6.2f, 0.9f, 0.9f, 0.2f);
-    drawFlowerP5(-8.5f, 5.8f, 1.0f, 1.0f, 0.15f);
+    // Parede traseira
+    glBegin(GL_QUADS);
+    glNormal3f(0.0, 0.0, 1.0);
+    glVertex3f(-10.0f, 0.0f, -10.0f);
+    glVertex3f(10.0f, 0.0f, -10.0f);
+    glVertex3f(10.0f, 3.0f, -10.0f);
+    glVertex3f(-10.0f, 3.0f, -10.0f);
+    glEnd();
     
-    drawFlowerP5(6.5f, 7.8f, 0.9f, 1.0f, 0.8f); // Rosas
-    drawFlowerP5(7.2f, 8.2f, 1.0f, 1.0f, 0.6f);
-    drawFlowerP5(7.5f, 7.5f, 0.95f, 0.9f, 0.7f);
+    // ===================================================================
+    // PAREDE FRONTAL COM PARABRISA E PAINEL DE CONTROLE
+    // ===================================================================
     
-    // Desenhar labirinto de rochas
-    // Paredes horizontais
-    for (float x = -12.0f; x <= -6.0f; x += 1.2f) {
-        drawRockP5(x, -4.0f, 1.5f);
-        drawRockP5(x, 4.0f, 1.4f);
-    }
-    for (float x = 6.0f; x <= 12.0f; x += 1.2f) {
-        drawRockP5(x, -4.0f, 1.5f);
-        drawRockP5(x, 4.0f, 1.4f);
-    }
+    // Parede frontal esquerda (lateral do parabrisa)
+    glBegin(GL_QUADS);
+    glNormal3f(0.0, 0.0, -1.0);
+    glVertex3f(-10.0f, 0.0f, 10.0f);
+    glVertex3f(-10.0f, 3.0f, 10.0f);
+    glVertex3f(-6.5f, 3.0f, 10.0f);
+    glVertex3f(-6.5f, 0.0f, 10.0f);
+    glEnd();
     
-    // Paredes verticais
-    for (float z = -12.0f; z <= -6.0f; z += 1.2f) {
-        drawRockP5(-4.0f, z, 1.4f);
-        drawRockP5(4.0f, z, 1.5f);
-    }
-    for (float z = 6.0f; z <= 12.0f; z += 1.2f) {
-        drawRockP5(-4.0f, z, 1.4f);
-        drawRockP5(4.0f, z, 1.5f);
-    }
+    // Parede frontal direita (lateral do parabrisa)
+    glBegin(GL_QUADS);
+    glNormal3f(0.0, 0.0, -1.0);
+    glVertex3f(6.5f, 0.0f, 10.0f);
+    glVertex3f(6.5f, 3.0f, 10.0f);
+    glVertex3f(10.0f, 3.0f, 10.0f);
+    glVertex3f(10.0f, 0.0f, 10.0f);
+    glEnd();
     
-    // Paredes internas formando caminhos
-    for (float x = -10.0f; x <= -7.0f; x += 1.2f) {
-        drawRockP5(x, -8.0f, 1.3f);
-        drawRockP5(x, 8.0f, 1.3f);
-    }
-    for (float x = 7.0f; x <= 10.0f; x += 1.2f) {
-        drawRockP5(x, -8.0f, 1.3f);
-        drawRockP5(x, 8.0f, 1.3f);
-    }
+    // Parede frontal inferior (abaixo do parabrisa)
+    glBegin(GL_QUADS);
+    glNormal3f(0.0, 0.0, -1.0);
+    glVertex3f(-6.5f, 0.0f, 10.0f);
+    glVertex3f(-6.5f, 1.0f, 10.0f);
+    glVertex3f(6.5f, 1.0f, 10.0f);
+    glVertex3f(6.5f, 0.0f, 10.0f);
+    glEnd();
     
-    for (float z = -10.0f; z <= -7.0f; z += 1.2f) {
-        drawRockP5(-8.0f, z, 1.3f);
-        drawRockP5(8.0f, z, 1.3f);
-    }
-    for (float z = 7.0f; z <= 10.0f; z += 1.2f) {
-        drawRockP5(-8.0f, z, 1.3f);
-        drawRockP5(8.0f, z, 1.3f);
-    }
+    // Parabrisa (vidro transparente/azulado mostrando o espaço) - MAIOR
+    glColor3f(0.1f, 0.15f, 0.3f); // Azul escuro do espaço
+    glBegin(GL_QUADS);
+    glNormal3f(0.0, 0.0, -1.0);
+    glVertex3f(-6.5f, 1.0f, 10.0f);
+    glVertex3f(-6.5f, 3.0f, 10.0f);
+    glVertex3f(6.5f, 3.0f, 10.0f);
+    glVertex3f(6.5f, 1.0f, 10.0f);
+    glEnd();
     
-    // Algumas rochas decorativas no meio
-    drawRockP5(-6.5f, -6.5f, 1.2f);
-    drawRockP5(6.5f, -6.5f, 1.2f);
-    drawRockP5(-6.5f, 6.5f, 1.2f);
-    drawRockP5(6.5f, 6.5f, 1.2f);
-
-    // Desenhar painel central (torre com livro)
-    drawCentralPanelP5();
+    // Estrelas vistas através do parabrisa (fixas)
+    glDisable(GL_LIGHTING);
+    glPointSize(3.0f);
+    glBegin(GL_POINTS);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    // Estrelas em posições fixas (distribuídas pelo parabrisa maior)
+    glVertex3f(-6.0f, 2.8f, 9.95f);
+    glVertex3f(-5.2f, 1.5f, 9.95f);
+    glVertex3f(-4.3f, 2.4f, 9.95f);
+    glVertex3f(-3.5f, 2.8f, 9.95f);
+    glVertex3f(-2.8f, 2.2f, 9.95f);
+    glVertex3f(-1.5f, 2.9f, 9.95f);
+    glVertex3f(-0.3f, 2.5f, 9.95f);
+    glVertex3f(0.8f, 2.7f, 9.95f);
+    glVertex3f(2.2f, 2.3f, 9.95f);
+    glVertex3f(3.3f, 2.8f, 9.95f);
+    glVertex3f(4.5f, 1.8f, 9.95f);
+    glVertex3f(5.5f, 2.5f, 9.95f);
+    glVertex3f(6.0f, 1.3f, 9.95f);
+    glVertex3f(-5.8f, 1.2f, 9.95f);
+    glVertex3f(-3.0f, 1.8f, 9.95f);
+    glVertex3f(-1.8f, 1.4f, 9.95f);
+    glVertex3f(0.5f, 1.9f, 9.95f);
+    glVertex3f(1.9f, 1.7f, 9.95f);
+    glVertex3f(3.8f, 1.5f, 9.95f);
+    glVertex3f(5.2f, 2.0f, 9.95f);
+    glEnd();
+    glEnable(GL_LIGHTING);
     
-    // Desenhar zonas de depósito (plataformas simples ao redor da torre)
+    // Painel de controle principal (console grande na frente)
+    drawControlConsoleP5(0.0f, 7.5f, 0.0f);
+    drawCommandChairP5(0.0f, 6.0f, 0.0f);
+    
+    // ===================================================================
+    // DIVISÓRIAS INTERNAS E CÔMODOS
+    // ===================================================================
+    
+    glColor3f(0.35f, 0.35f, 0.4f);
+    
+    // Divisória horizontal esquerda (separa quarto da frente)
+    glBegin(GL_QUADS);
+    glNormal3f(0.0, 0.0, 1.0);
+    glVertex3f(-10.0f, 0.0f, -0.2f);
+    glVertex3f(-5.0f, 0.0f, -0.2f);
+    glVertex3f(-5.0f, 3.0f, -0.2f);
+    glVertex3f(-10.0f, 3.0f, -0.2f);
+    glEnd();
+    
+    glBegin(GL_QUADS);
+    glNormal3f(0.0, 0.0, -1.0);
+    glVertex3f(-10.0f, 0.0f, 0.2f);
+    glVertex3f(-10.0f, 3.0f, 0.2f);
+    glVertex3f(-5.0f, 3.0f, 0.2f);
+    glVertex3f(-5.0f, 0.0f, 0.2f);
+    glEnd();
+    
+    // Divisória horizontal direita (separa cozinha da frente)
+    glBegin(GL_QUADS);
+    glNormal3f(0.0, 0.0, 1.0);
+    glVertex3f(5.0f, 0.0f, -0.2f);
+    glVertex3f(10.0f, 0.0f, -0.2f);
+    glVertex3f(10.0f, 3.0f, -0.2f);
+    glVertex3f(5.0f, 3.0f, -0.2f);
+    glEnd();
+    
+    glBegin(GL_QUADS);
+    glNormal3f(0.0, 0.0, -1.0);
+    glVertex3f(5.0f, 0.0f, 0.2f);
+    glVertex3f(5.0f, 3.0f, 0.2f);
+    glVertex3f(10.0f, 3.0f, 0.2f);
+    glVertex3f(10.0f, 0.0f, 0.2f);
+    glEnd();
+    
+    // Divisória vertical traseira (separa quarto da munição)
+    glBegin(GL_QUADS);
+    glNormal3f(1.0, 0.0, 0.0);
+    glVertex3f(-0.2f, 0.0f, -10.0f);
+    glVertex3f(-0.2f, 3.0f, -10.0f);
+    glVertex3f(-0.2f, 3.0f, -5.0f);
+    glVertex3f(-0.2f, 0.0f, -5.0f);
+    glEnd();
+    
+    glBegin(GL_QUADS);
+    glNormal3f(-1.0, 0.0, 0.0);
+    glVertex3f(0.2f, 0.0f, -10.0f);
+    glVertex3f(0.2f, 0.0f, -5.0f);
+    glVertex3f(0.2f, 3.0f, -5.0f);
+    glVertex3f(0.2f, 3.0f, -10.0f);
+    glEnd();
+    
+    // Divisória vertical frontal (separa munição do console)
+    glBegin(GL_QUADS);
+    glNormal3f(1.0, 0.0, 0.0);
+    glVertex3f(-0.2f, 0.0f, 5.0f);
+    glVertex3f(-0.2f, 3.0f, 5.0f);
+    glVertex3f(-0.2f, 3.0f, 10.0f);
+    glVertex3f(-0.2f, 0.0f, 10.0f);
+    glEnd();
+    
+    glBegin(GL_QUADS);
+    glNormal3f(-1.0, 0.0, 0.0);
+    glVertex3f(0.2f, 0.0f, 5.0f);
+    glVertex3f(0.2f, 0.0f, 10.0f);
+    glVertex3f(0.2f, 3.0f, 10.0f);
+    glVertex3f(0.2f, 3.0f, 5.0f);
+    glEnd();
+    
+    // ===================================================================
+    // PAREDES INTERNAS DOS CÔMODOS
+    // ===================================================================
+    
+    // Parede interna do QUARTO (parede traseira entre corredor e quarto)
+    glBegin(GL_QUADS);
+    glNormal3f(0.0, 0.0, 1.0);
+    glVertex3f(-10.0f, 0.0f, -5.0f);
+    glVertex3f(-5.5f, 0.0f, -5.0f); // Abertura para porta
+    glVertex3f(-5.5f, 3.0f, -5.0f);
+    glVertex3f(-10.0f, 3.0f, -5.0f);
+    glEnd();
+    
+    glBegin(GL_QUADS);
+    glNormal3f(0.0, 0.0, 1.0);
+    glVertex3f(-4.5f, 0.0f, -5.0f); // Depois da porta
+    glVertex3f(-0.2f, 0.0f, -5.0f);
+    glVertex3f(-0.2f, 3.0f, -5.0f);
+    glVertex3f(-4.5f, 3.0f, -5.0f);
+    glEnd();
+    
+    // Parede interna da COZINHA (parede traseira entre corredor e cozinha)
+    glBegin(GL_QUADS);
+    glNormal3f(0.0, 0.0, 1.0);
+    glVertex3f(0.2f, 0.0f, -5.0f);
+    glVertex3f(4.5f, 0.0f, -5.0f); // Antes da porta
+    glVertex3f(4.5f, 3.0f, -5.0f);
+    glVertex3f(0.2f, 3.0f, -5.0f);
+    glEnd();
+    
+    glBegin(GL_QUADS);
+    glNormal3f(0.0, 0.0, 1.0);
+    glVertex3f(5.5f, 0.0f, -5.0f); // Depois da porta
+    glVertex3f(10.0f, 0.0f, -5.0f);
+    glVertex3f(10.0f, 3.0f, -5.0f);
+    glVertex3f(5.5f, 3.0f, -5.0f);
+    glEnd();
+    
+    // Parede interna da SALA DE MUNIÇÃO (parede frontal entre corredor e sala)
+    glBegin(GL_QUADS);
+    glNormal3f(0.0, 0.0, -1.0);
+    glVertex3f(-10.0f, 0.0f, 5.0f);
+    glVertex3f(-10.0f, 3.0f, 5.0f);
+    glVertex3f(-5.5f, 3.0f, 5.0f); // Antes da porta
+    glVertex3f(-5.5f, 0.0f, 5.0f);
+    glEnd();
+    
+    glBegin(GL_QUADS);
+    glNormal3f(0.0, 0.0, -1.0);
+    glVertex3f(-4.5f, 0.0f, 5.0f); // Depois da porta
+    glVertex3f(-4.5f, 3.0f, 5.0f);
+    glVertex3f(-0.2f, 3.0f, 5.0f);
+    glVertex3f(-0.2f, 0.0f, 5.0f);
+    glEnd();
+    
+    // Parede interna da ÁREA DE CONSOLE (parede frontal entre corredor e console)
+    glBegin(GL_QUADS);
+    glNormal3f(0.0, 0.0, -1.0);
+    glVertex3f(0.2f, 0.0f, 5.0f);
+    glVertex3f(0.2f, 3.0f, 5.0f);
+    glVertex3f(4.5f, 3.0f, 5.0f); // Antes da porta
+    glVertex3f(4.5f, 0.0f, 5.0f);
+    glEnd();
+    
+    glBegin(GL_QUADS);
+    glNormal3f(0.0, 0.0, -1.0);
+    glVertex3f(5.5f, 0.0f, 5.0f); // Depois da porta
+    glVertex3f(5.5f, 3.0f, 5.0f);
+    glVertex3f(10.0f, 3.0f, 5.0f);
+    glVertex3f(10.0f, 0.0f, 5.0f);
+    glEnd();
+    
+    // ===================================================================
+    // QUARTO (Canto traseiro-esquerdo)
+    // ===================================================================
+    drawBedP5(-7.0f, -7.0f, 0.0f);
+    
+    // Mesa de cabeceira
+    glPushMatrix();
+    glTranslatef(-8.5f, 0.3f, -7.0f);
+    glColor3f(0.4f, 0.35f, 0.3f);
+    glScalef(0.5f, 0.6f, 0.5f);
+    glutSolidCube(1.0f);
+    glPopMatrix();
+    
+    // ===================================================================
+    // COZINHA (Canto traseiro-direito)
+    // ===================================================================
+    drawKitchenCounterP5(7.0f, -7.0f, 0.0f);
+    
+    // Geladeira
+    glPushMatrix();
+    glTranslatef(8.5f, 1.0f, -7.5f);
+    glColor3f(0.8f, 0.8f, 0.85f);
+    glScalef(0.8f, 2.0f, 0.7f);
+    glutSolidCube(1.0f);
+    glPopMatrix();
+    
+    // Mesa pequena
+    glPushMatrix();
+    glTranslatef(6.0f, 0.4f, -5.5f);
+    glColor3f(0.45f, 0.4f, 0.35f);
+    glScalef(1.2f, 0.1f, 0.8f);
+    glutSolidCube(1.0f);
+    glPopMatrix();
+    
+    // ===================================================================
+    // SALA DE MUNIÇÃO (Canto frontal-esquerdo)
+    // ===================================================================
+    drawWeaponRackP5(-8.5f, 6.0f, 90.0f);
+    
+    // Caixas de munição empilhadas
+    drawAmmoBoxP5(-7.5f, 7.0f);
+    drawAmmoBoxP5(-7.0f, 7.0f);
+    drawAmmoBoxP5(-7.3f, 7.35f); // Segunda camada
+    drawAmmoBoxP5(-8.0f, 5.5f);
+    drawAmmoBoxP5(-6.5f, 5.5f);
+    
+    // ===================================================================
+    // ÁREA DE CONSOLE AUXILIAR (Canto frontal-direito)
+    // ===================================================================
+    drawControlConsoleP5(7.0f, 6.5f, 180.0f);
+    drawCommandChairP5(6.5f, 5.5f, 180.0f);
+    
+    // Estante com equipamentos
+    glPushMatrix();
+    glTranslatef(8.5f, 1.0f, 7.0f);
+    glColor3f(0.3f, 0.3f, 0.35f);
+    glScalef(0.8f, 2.0f, 1.5f);
+    glutSolidCube(1.0f);
+    glPopMatrix();
+    
+    // ===================================================================
+    // PAINEL DE DEPÓSITO (Slots no console principal - horizontal)
+    // ===================================================================
     glDisable(GL_LIGHTING);
     for (int i = 0; i < numDepositsP5; i++) {
         glPushMatrix();
-        glTranslatef(depositsP5[i].x, 0.01f, depositsP5[i].z);
+        glTranslatef(depositsP5[i].x, 1.25f, depositsP5[i].z);
         
         if (depositsP5[i].filled) {
             glColor3f(0.2f, 0.8f, 0.2f); // Verde quando preenchida
@@ -520,14 +903,11 @@ void drawPhase5(int windowWidth, int windowHeight) {
             }
         }
         
-        // Plataforma circular no chão
-        glBegin(GL_TRIANGLE_FAN);
-        glVertex3f(0.0f, 0.0f, 0.0f);
-        for (int j = 0; j <= 20; j++) {
-            float angle = j * 2.0f * M_PI / 20.0f;
-            glVertex3f(cos(angle) * 0.8f, 0.0f, sin(angle) * 0.8f);
-        }
-        glEnd();
+        // Slot retangular no painel (horizontal - plataforma no topo do console)
+        glPushMatrix();
+        glScalef(0.6f, 0.05f, 0.6f); // Achatado horizontalmente
+        glutSolidCube(1.0f);
+        glPopMatrix();
         
         // Texto indicando qual forma colocar (só se não estiver preenchida)
         if (!depositsP5[i].filled) {
@@ -644,15 +1024,15 @@ void drawPhase5(int windowWidth, int windowHeight) {
         glColor3f(1.0, 1.0, 0.3);
         const char* heldName = "";
         switch(objectsP5[heldObjectIndex].type) {
-            case SHAPE_CUBE: heldName = "Segurando: CUBO - Leve ao pedestal VERMELHO"; break;
-            case SHAPE_SPHERE: heldName = "Segurando: ESFERA - Leve ao pedestal VERDE"; break;
-            case SHAPE_PYRAMID: heldName = "Segurando: PIRAMIDE - Leve ao pedestal AZUL"; break;
-            case SHAPE_CYLINDER: heldName = "Segurando: CILINDRO - Leve ao pedestal AMARELO"; break;
+            case SHAPE_CUBE: heldName = "Segurando: CUBO - Leve ao slot VERMELHO no painel"; break;
+            case SHAPE_SPHERE: heldName = "Segurando: ESFERA - Leve ao slot VERDE no painel"; break;
+            case SHAPE_PYRAMID: heldName = "Segurando: PIRAMIDE - Leve ao slot AZUL no painel"; break;
+            case SHAPE_CYLINDER: heldName = "Segurando: CILINDRO - Leve ao slot AMARELO no painel"; break;
         }
         drawTextP5(10, windowHeight - 45, heldName);
     } else {
         glColor3f(1.0, 1.0, 1.0);
-        drawTextP5(10, windowHeight - 45, "E para pegar | Procure formas escondidas | Leve ao painel central");
+        drawTextP5(10, windowHeight - 45, "E para pegar | Explore os comodos da nave | Deposite no painel frontal");
     }
 
     glMatrixMode(GL_PROJECTION);
@@ -660,77 +1040,52 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glMatrixMode(GL_MODELVIEW);
 }
 
-// Verificar colisão com obstáculos
+// Verificar colisão com obstáculos (paredes da nave e móveis)
 bool checkCollisionP5(float x, float z) {
-    // Colisão com plataforma central (quadrado 1.5x1.5)
-    if (fabs(x) < 1.2f && fabs(z) < 1.2f) return true;
+    // Paredes externas da nave (limites -10 a 10)
+    if (x < -9.5f || x > 9.5f || z < -9.5f || z > 9.5f) return true;
     
-    // Colisão com árvores (posições fixas)
-    float trees[][2] = {
-        {-10.0f, 8.0f}, {-8.0f, -6.0f}, {9.0f, -9.0f}, {11.0f, 7.0f},
-        {-6.0f, 10.0f}, {6.0f, -12.0f}, {-12.0f, -10.0f}, {8.0f, 10.0f}
-    };
-    for (int i = 0; i < 8; i++) {
-        float dx = x - trees[i][0];
-        float dz = z - trees[i][1];
-        if (sqrt(dx*dx + dz*dz) < 0.8f) return true;
-    }
+    // Divisória horizontal esquerda (separa quarto da frente)
+    if (x < -5.0f && z > -0.3f && z < 0.3f) return true;
     
-    // Colisão com arbustos
-    float bushes[][2] = {
-        {-7.0f, 3.0f}, {8.5f, -5.0f}, {-4.0f, -8.0f}, {10.0f, 9.0f},
-        {-9.0f, -3.0f}, {5.0f, 6.0f}, {-11.0f, 5.0f}, {4.0f, -10.0f},
-        {-3.0f, 11.0f}, {11.0f, -7.0f}
-    };
-    for (int i = 0; i < 10; i++) {
-        float dx = x - bushes[i][0];
-        float dz = z - bushes[i][1];
-        if (sqrt(dx*dx + dz*dz) < 0.6f) return true;
-    }
+    // Divisória horizontal direita (separa cozinha da frente)  
+    if (x > 5.0f && z > -0.3f && z < 0.3f) return true;
     
-    // Colisão com paredes de rochas horizontais
-    for (float rx = -12.0f; rx <= -6.0f; rx += 1.2f) {
-        if (sqrt(pow(x - rx, 2) + pow(z + 4.0f, 2)) < 0.9f) return true;
-        if (sqrt(pow(x - rx, 2) + pow(z - 4.0f, 2)) < 0.9f) return true;
-    }
-    for (float rx = 6.0f; rx <= 12.0f; rx += 1.2f) {
-        if (sqrt(pow(x - rx, 2) + pow(z + 4.0f, 2)) < 0.9f) return true;
-        if (sqrt(pow(x - rx, 2) + pow(z - 4.0f, 2)) < 0.9f) return true;
+    // Divisória vertical traseira (separa quarto da cozinha)
+    if (z < -5.0f && x > -0.3f && x < 0.3f) return true;
+    
+    // Divisória vertical frontal (separa munição do console)
+    if (z > 5.0f && x > -0.3f && x < 0.3f) return true;
+    
+    // Colisão com cama no quarto
+    if (x < -5.5f && x > -8.5f && z < -5.5f && z > -8.5f) return true;
+    
+    // Colisão com bancada da cozinha
+    if (x > 5.5f && x < 8.5f && z < -5.5f && z > -8.5f) return true;
+    
+    // Colisão com geladeira
+    if (x > 7.8f && x < 9.2f && z < -6.8f && z > -8.2f) return true;
+    
+    // Colisão com caixas de munição
+    if (x < -5.5f && z > 4.5f && z < 8.0f) {
+        if ((fabs(x + 7.5f) < 0.6f && fabs(z - 7.0f) < 0.6f) ||
+            (fabs(x + 7.0f) < 0.6f && fabs(z - 7.0f) < 0.6f) ||
+            (fabs(x + 8.0f) < 0.6f && fabs(z - 5.5f) < 0.6f) ||
+            (fabs(x + 6.5f) < 0.6f && fabs(z - 5.5f) < 0.6f)) {
+            return true;
+        }
     }
     
-    // Colisão com paredes de rochas verticais
-    for (float rz = -12.0f; rz <= -6.0f; rz += 1.2f) {
-        if (sqrt(pow(x + 4.0f, 2) + pow(z - rz, 2)) < 0.9f) return true;
-        if (sqrt(pow(x - 4.0f, 2) + pow(z - rz, 2)) < 0.9f) return true;
-    }
-    for (float rz = 6.0f; rz <= 12.0f; rz += 1.2f) {
-        if (sqrt(pow(x + 4.0f, 2) + pow(z - rz, 2)) < 0.9f) return true;
-        if (sqrt(pow(x - 4.0f, 2) + pow(z - rz, 2)) < 0.9f) return true;
-    }
+    // Colisão com console auxiliar (direita-frente)
+    if (x > 5.5f && x < 8.5f && z > 5.0f && z < 8.0f) return true;
     
-    // Colisão com paredes internas
-    for (float rx = -10.0f; rx <= -7.0f; rx += 1.2f) {
-        if (sqrt(pow(x - rx, 2) + pow(z + 8.0f, 2)) < 0.9f) return true;
-        if (sqrt(pow(x - rx, 2) + pow(z - 8.0f, 2)) < 0.9f) return true;
-    }
-    for (float rx = 7.0f; rx <= 10.0f; rx += 1.2f) {
-        if (sqrt(pow(x - rx, 2) + pow(z + 8.0f, 2)) < 0.9f) return true;
-        if (sqrt(pow(x - rx, 2) + pow(z - 8.0f, 2)) < 0.9f) return true;
-    }
-    for (float rz = -10.0f; rz <= -7.0f; rz += 1.2f) {
-        if (sqrt(pow(x + 8.0f, 2) + pow(z - rz, 2)) < 0.9f) return true;
-        if (sqrt(pow(x - 8.0f, 2) + pow(z - rz, 2)) < 0.9f) return true;
-    }
-    for (float rz = 7.0f; rz <= 10.0f; rz += 1.2f) {
-        if (sqrt(pow(x + 8.0f, 2) + pow(z - rz, 2)) < 0.9f) return true;
-        if (sqrt(pow(x - 8.0f, 2) + pow(z - rz, 2)) < 0.9f) return true;
-    }
+    // Colisão com estante
+    if (x > 7.8f && x < 9.2f && z > 6.0f && z < 8.0f) return true;
     
-    // Rochas decorativas
-    if (sqrt(pow(x + 6.5f, 2) + pow(z + 6.5f, 2)) < 0.8f) return true;
-    if (sqrt(pow(x - 6.5f, 2) + pow(z + 6.5f, 2)) < 0.8f) return true;
-    if (sqrt(pow(x + 6.5f, 2) + pow(z - 6.5f, 2)) < 0.8f) return true;
-    if (sqrt(pow(x - 6.5f, 2) + pow(z - 6.5f, 2)) < 0.8f) return true;
+    // Colisão com console principal e cadeira (frente)
+    if (z > 5.5f && z < 8.5f) {
+        if (fabs(x) < 1.5f) return true; // Console e cadeira centrais
+    }
     
     return false;
 }
