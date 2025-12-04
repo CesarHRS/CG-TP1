@@ -665,9 +665,9 @@ void updatePhase4() {
                 if (bossP4.hitCount >= hitsNeededP4) {
                     bossP4.active = false;
                     bossDefeatedP4 = true;
-                    setVictory(true);
-                    setVictoryPhase(4);
-                    setGameOver(true); // marcar para mostrar gameover/vitória
+                    // Completou a Fase 4! Mostrar história da Fase 5 (3D)
+                    showStoryForPhase(5);
+                    return;
                 }
             }
         }

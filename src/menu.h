@@ -15,9 +15,7 @@ enum GameState {
     PHASE2_SCREEN,
     PHASE3_SCREEN,
     PHASE4_SCREEN,
-    PHASE5_SCREEN,
-    PHASE6_SCREEN,
-    PHASE7_SCREEN
+    PHASE5_SCREEN
 };
 
 extern GameState currentState;
