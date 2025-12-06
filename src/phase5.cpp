@@ -1,6 +1,7 @@
 #include "phase5.h"
 #include "audio.h"
 #include "gameover.h"
+#include "menu.h"
 #include <GL/glut.h>
 #include <stdio.h>
 #include <math.h>
@@ -1828,8 +1829,8 @@ void updatePhase5(int value) {
                     if (scoreP5 >= 4) {
                         phase5_won = true;
                         printf("Fase 5 completa!\n");
-                        // Retornar ao menu após 3 segundos
-                        setVictory(true);
+                        // Ir para a próxima fase (Fase 6)
+                        setCurrentPhase(6);
                     }
                 } else {
                     // Errado - tipo incorreto
@@ -1900,8 +1901,8 @@ void handlePhase5Keyboard(unsigned char key, int x, int y) {
                     if (scoreP5 >= 4) {
                         phase5_won = true;
                         printf("Fase 5 completa!\n");
-                        // Retornar ao menu após 3 segundos
-                        setVictory(true);
+                        // Ir para a próxima fase (Fase 6)
+                        setCurrentPhase(6);
                     }
                 } else {
                     // Errado - tipo incorreto

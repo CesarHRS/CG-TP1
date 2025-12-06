@@ -15,7 +15,8 @@ enum GameState {
     PHASE2_SCREEN,
     PHASE3_SCREEN,
     PHASE4_SCREEN,
-    PHASE5_SCREEN
+    PHASE5_SCREEN,
+    PHASE6_SCREEN
 };
 
 extern GameState currentState;
@@ -46,6 +47,7 @@ void handleSpecialKeyUp(int key, int x, int y); // Teclas especiais up
 void setup();
 void updateScene();
 void changeState(int newState);
+void setCurrentPhase(int phase);
 
 // Story overlay when clicking phases
 extern bool showPhaseStory;

@@ -7,7 +7,7 @@ SDL_LIBS = $(shell pkg-config --libs sdl2 SDL2_mixer 2>/dev/null)
 LDFLAGS = -lglut -lGLU -lGL $(SDL_LIBS)
 CXXFLAGS += $(SDL_CFLAGS)
 TARGET = jogo_educativo
-SRCS = src/main.cpp src/menu.cpp src/game.cpp src/gameover.cpp src/phase2.cpp src/phase3.cpp src/phase4.cpp src/phase5.cpp src/audio.cpp
+SRCS = src/main.cpp src/menu.cpp src/game.cpp src/gameover.cpp src/phase2.cpp src/phase3.cpp src/phase4.cpp src/phase5.cpp src/phase6.cpp src/audio.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 # Windows-specific variables
