@@ -59,6 +59,7 @@ Question currentQuestionP6;
 float fieldSpawnZ = 80.0f;
 float fieldSpeed = 0.2f;
 int fieldSetCount = 0;
+bool fieldSetPassed = false;  // Flag para detectar se passou pelo conjunto de campos
 
 // Estrelas de fundo
 struct Star {
@@ -70,8 +71,17 @@ std::vector<Star> stars;
 // Timer para próxima pergunta
 int questionCooldown = 0;
 
+// Countdown variables
+bool showCountdownP6 = false;
+int countdownTimerP6 = 0;
+int countdownValueP6 = 3;
+
 // Histórico de raios já usados
 std::vector<int> usedRadii;
+
+// Declarações de funções
+void restartPhase6();
+void returnToMenuFromPhase6();
 
 // ===================================================================
 // FUNÇÕES AUXILIARES
@@ -535,6 +545,11 @@ void initPhase6() {
     questionCooldown = 0;
     damageFlashP6 = 0;
     
+    // Initialize countdown
+    showCountdownP6 = true;
+    countdownTimerP6 = 0;
+    countdownValueP6 = 3;
+    
     magneticFields.clear();
     usedRadii.clear();
     initStars();
@@ -544,6 +559,8 @@ void initPhase6() {
     
     setGameOver(false);
     initGameOver(800, 600);
+    registerRestartCallback(restartPhase6);
+    registerMenuCallback(returnToMenuFromPhase6);
 }
 
 void drawPhase6(int windowWidth, int windowHeight) {
@@ -558,10 +575,12 @@ void drawPhase6(int windowWidth, int windowHeight) {
     
     // Configurar perspectiva
     glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
     glLoadIdentity();
     gluPerspective(60.0, (double)windowWidth / (double)windowHeight, 0.1, 1000.0);
     
     glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
     glLoadIdentity();
     
     // Câmera segue a nave (cockpit se move com WASD)
@@ -601,49 +620,63 @@ void drawPhase6(int windowWidth, int windowHeight) {
     drawCockpitFrame();
     drawControlPanel();
     
-    // Mensagens de vitória/game over
-    if (victoryP6 || gameOverP6) {
-        glDisable(GL_DEPTH_TEST);
-        glMatrixMode(GL_PROJECTION);
-        glPushMatrix();
-        glLoadIdentity();
-        glOrtho(0, windowWidth, 0, windowHeight, -1, 1);
+    // Configurar para overlay 2D
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+    
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0, windowWidth, 0, windowHeight);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    
+    glDisable(GL_DEPTH_TEST);
+    
+    // Draw countdown if active
+    if (showCountdownP6 && countdownValueP6 > 0) {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glColor4f(0.0f, 0.0f, 0.0f, 0.7f);
+        glBegin(GL_QUADS);
+        glVertex2f(0, 0);
+        glVertex2f(windowWidth, 0);
+        glVertex2f(windowWidth, windowHeight);
+        glVertex2f(0, windowHeight);
+        glEnd();
+        glDisable(GL_BLEND);
         
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-        glLoadIdentity();
-        
-        if (victoryP6) {
-            glColor3f(0.2f, 1.0f, 0.3f);
-            const char* msg = "MISSAO COMPLETA!";
-            glRasterPos2f(300, 350);
-            for (const char* p = msg; *p; p++) {
-                glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *p);
-            }
-            
-            glColor3f(1.0f, 1.0f, 1.0f);
-            msg = "Pressione ESC para voltar ao menu";
-            glRasterPos2f(250, 320);
-            for (const char* p = msg; *p; p++) {
-                glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *p);
-            }
+        char countText[10];
+        sprintf(countText, "%d", countdownValueP6);
+        glColor3f(1.0f, 1.0f, 1.0f);
+        glRasterPos2f(windowWidth / 2.0f - 20.0f, windowHeight / 2.0f);
+        for (char* p = countText; *p; p++) {
+            glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *p);
         }
-        
-        glPopMatrix();
-        glMatrixMode(GL_PROJECTION);
-        glPopMatrix();
-        glMatrixMode(GL_MODELVIEW);
-        glEnable(GL_DEPTH_TEST);
     }
     
-    // Mostrar tela de game over quando perder
-    if (gameOverP6) {
-        drawGameOver();
-    }
+    // Draw game over screen if needed
+    drawGameOver();
 }
 
 void updatePhase6(int value) {
     (void)value;
+    
+    // Update countdown
+    if (showCountdownP6) {
+        countdownTimerP6++;
+        if (countdownTimerP6 >= 60) {
+            countdownTimerP6 = 0;
+            countdownValueP6--;
+            if (countdownValueP6 <= 0) {
+                showCountdownP6 = false;
+            }
+        }
+        glutPostRedisplay();
+        glutTimerFunc(16, updatePhase6, 0);
+        return;
+    }
     
     if (gameOverP6 || victoryP6) {
         glutPostRedisplay();
@@ -663,8 +696,11 @@ void updatePhase6(int value) {
     
     // Mover campos magnéticos em direção à nave
     bool allFieldsPassed = true;
+    bool anyFieldActive = false;
+    
     for (size_t i = 0; i < magneticFields.size(); i++) {
         if (magneticFields[i].active) {
+            anyFieldActive = true;
             magneticFields[i].z -= fieldSpeed;
             
             // Verificar colisão com nave
@@ -674,17 +710,16 @@ void updatePhase6(int value) {
             float dist = sqrt(dx*dx + dy*dy + dz*dz);
             
             if (dist < 3.5f && magneticFields[i].z < shipZ + 2.0f && magneticFields[i].z > shipZ - 5.0f) {
-                // Passou pelo campo
+                // Colidiu com o campo
+                fieldSetPassed = true;
                 if (magneticFields[i].isCorrect) {
-                    printf("Resposta correta!\n");
                     Audio::getInstance().play(Audio::SOUND_VICTORY);
                     scoreP6 += 10;
                     questionsAnsweredP6++;
                 } else {
-                    printf("Resposta errada!\n");
                     Audio::getInstance().play(Audio::SOUND_ERROR);
                     livesP6--;
-                    damageFlashP6 = 20; // Ativar efeito de flash vermelho
+                    damageFlashP6 = 20;
                     
                     if (livesP6 <= 0) {
                         gameOverP6 = true;
@@ -695,14 +730,28 @@ void updatePhase6(int value) {
                 magneticFields[i].active = false;
             }
             
-            // Remover campos que passaram muito para trás
-            if (magneticFields[i].z < shipZ - 20.0f) {
+            // Se o campo passou completamente pela nave sem colisão (detecção imediata após passar)
+            if (magneticFields[i].active && magneticFields[i].z < shipZ - 3.0f) {
                 magneticFields[i].active = false;
             }
             
             if (magneticFields[i].z > shipZ) {
                 allFieldsPassed = false;
             }
+        }
+    }
+    
+    // Se todos os campos passaram (não há mais campos ativos) e não colidiu com nenhum
+    if (!anyFieldActive && magneticFields.size() > 0 && !fieldSetPassed) {
+        fieldSetPassed = true;
+        Audio::getInstance().play(Audio::SOUND_ERROR);
+        livesP6--;
+        damageFlashP6 = 20;
+        
+        if (livesP6 <= 0) {
+            gameOverP6 = true;
+            setGameOver(true);
+            setVictory(false);
         }
     }
     
@@ -718,15 +767,16 @@ void updatePhase6(int value) {
         }
     }
     
-    // Gerar novo conjunto de campos
-    if (allFieldsPassed && questionCooldown <= 0 && !gameOverP6 && !victoryP6) {
+    // Gerar novo conjunto de campos SOMENTE se passou por algum campo ou já aplicou o dano
+    if (allFieldsPassed && questionCooldown <= 0 && !gameOverP6 && !victoryP6 && fieldSetPassed) {
         if (questionsAnsweredP6 >= totalQuestionsP6) {
             victoryP6 = true;
             setVictory(true);
-            printf("Fase 6 completa!\n");
+            Audio::getInstance().play(Audio::SOUND_VICTORY);
         } else {
             generateQuestion();
             spawnFieldSet();
+            fieldSetPassed = false;  // Resetar flag para o novo conjunto
             questionCooldown = 60; // Cooldown de 1 segundo
         }
     }
@@ -753,9 +803,15 @@ void handlePhase6Keyboard(unsigned char key, int x, int y) {
     }
     
     if (key == 27) { // ESC
-        if (victoryP6 || gameOverP6) {
-            setCurrentPhase(0);
-        }
+        damageFlashP6 = 0;
+        gameOverP6 = false;
+        victoryP6 = false;
+        magneticFields.clear();
+        usedRadii.clear();
+        setGameOver(false);
+        setVictory(false);
+        glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
+        setCurrentPhase(0);
         return;
     }
     
@@ -775,4 +831,20 @@ void handlePhase6Special(int key, int x, int y) {
 void handlePhase6SpecialUp(int key, int x, int y) {
     (void)x; (void)y;
     specialKeysP6[key] = false;
+}
+
+void restartPhase6() {
+    initPhase6();
+}
+
+void returnToMenuFromPhase6() {
+    damageFlashP6 = 0;
+    gameOverP6 = false;
+    victoryP6 = false;
+    magneticFields.clear();
+    usedRadii.clear();
+    setGameOver(false);
+    setVictory(false);
+    glClearColor(0.1f, 0.1f, 0.15f, 1.0f); // Restaurar cor de fundo do menu
+    setCurrentPhase(0);
 }

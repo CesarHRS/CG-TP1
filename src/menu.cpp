@@ -549,9 +549,9 @@ void handleMouseClick(int button, int state, int x, int y) {
                     storyPhase = 5;
                     storyPage = 0;
                 } else if (isMouseOverButton(x, y, phase6Button)) {
-                    currentState = PHASE6_SCREEN;
-                    initPhase6();
-                    glutTimerFunc(16, updatePhase6, 0);
+                    showPhaseStory = true;
+                    storyPhase = 6;
+                    storyPage = 0;
                 } else if (isMouseOverButton(x, y, instructionsButton)) {
                     currentState = INSTRUCTIONS_SCREEN;
                 } else if (isMouseOverButton(x, y, exitButton)) {      

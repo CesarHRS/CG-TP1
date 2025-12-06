@@ -25,6 +25,11 @@ int heldObjectIndex = -1; // Índice do objeto sendo segurado (-1 = nenhum)
 float timeRemainingP5 = 15.0f; // 15 seconds
 bool gameOverP5 = false;
 
+// Countdown variables
+bool showCountdownP5 = false;
+int countdownTimerP5 = 0;
+int countdownValueP5 = 3;
+
 // Keyboard state for smooth movement
 bool keyStateP5[256];
 
@@ -763,6 +768,11 @@ void initPhase5() {
     heldObjectIndex = -1;
     timeRemainingP5 = 15.0f;
     gameOverP5 = false;
+    
+    // Initialize countdown
+    showCountdownP5 = true;
+    countdownTimerP5 = 0;
+    countdownValueP5 = 3;
     
     // Initialize game over screen
     setGameOver(false);
@@ -1614,6 +1624,28 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
     
+    // Draw countdown if active
+    if (showCountdownP5 && countdownValueP5 > 0) {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glColor4f(0.0f, 0.0f, 0.0f, 0.7f);
+        glBegin(GL_QUADS);
+        glVertex2f(0, 0);
+        glVertex2f(windowWidth, 0);
+        glVertex2f(windowWidth, windowHeight);
+        glVertex2f(0, windowHeight);
+        glEnd();
+        glDisable(GL_BLEND);
+        
+        char countText[10];
+        sprintf(countText, "%d", countdownValueP5);
+        glColor3f(1.0f, 1.0f, 1.0f);
+        glRasterPos2f(windowWidth / 2.0f - 20.0f, windowHeight / 2.0f);
+        for (char* p = countText; *p; p++) {
+            glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *p);
+        }
+    }
+    
     // Draw game over screen if needed
     drawGameOver();
 }
@@ -1758,6 +1790,22 @@ bool checkCollisionP5(float x, float z) {
 
 void updatePhase5(int value) {
     (void)value;
+    
+    // Update countdown
+    if (showCountdownP5) {
+        countdownTimerP5++;
+        if (countdownTimerP5 >= 60) {
+            countdownTimerP5 = 0;
+            countdownValueP5--;
+            if (countdownValueP5 <= 0) {
+                showCountdownP5 = false;
+            }
+        }
+        glutPostRedisplay();
+        glutTimerFunc(16, updatePhase5, 0);
+        return;
+    }
+    
     float speed = 0.08f;
     float lookX = sin(playerP5.angle);
     float lookZ = -cos(playerP5.angle);
@@ -1851,6 +1899,17 @@ void updatePhase5(int value) {
 void handlePhase5Keyboard(unsigned char key, int x, int y) {
     (void)x;
     (void)y;
+    
+    // Handle ESC key to return to menu
+    if (key == 27) { // ESC
+        gameOverP5 = false;
+        phase5_won = false;
+        setGameOver(false);
+        setVictory(false);
+        glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
+        setCurrentPhase(0);
+        return;
+    }
     
     // Handle game over screen input
     if (getGameOver()) {
