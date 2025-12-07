@@ -22,7 +22,7 @@ std::vector<LaserShotP4> laserShotsP4;
 std::vector<ParallaxLayer> parallaxLayersP4;
 
 int windowWidthP4 = 800;
-int windowHeightP4 = 600;
+int windowHeightP4 = 700;
 int mouseXP4 = 400;
 int mouseYP4 = 300;
 
@@ -84,7 +84,7 @@ void resetPhase4State() {
 void initPhase4() {
     srand((unsigned int)time(0));
     windowWidthP4 = 800;
-    windowHeightP4 = 600;
+    windowHeightP4 = 700;
     mouseXP4 = windowWidthP4 / 2;
     mouseYP4 = windowHeightP4 / 2;
 

@@ -477,9 +477,10 @@ void drawMagneticField(const MagneticField& field) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glutSolidSphere(5.0 * pulse, 24, 24);
+    glDisable(GL_BLEND);
     
     // Esfera interna branca brilhante
-    glColor4f(1.0f, 1.0f, 1.0f, 0.9f);
+    glColor3f(1.0f, 1.0f, 1.0f);
     glutSolidSphere(4.2, 20, 20);
     
     glPopMatrix();
@@ -558,7 +559,7 @@ void initPhase6() {
     spawnFieldSet();
     
     setGameOver(false);
-    initGameOver(800, 600);
+    initGameOver(800, 700);
     registerRestartCallback(restartPhase6);
     registerMenuCallback(returnToMenuFromPhase6);
 }

@@ -19,7 +19,7 @@ std::vector<ExplosionPhase2> explosionsP2;
 std::vector<LaserShotPhase2> laserShotsP2;
 EquationPhase2 currentEquationP2;
 int windowWidthP2 = 800;
-int windowHeightP2 = 600;
+int windowHeightP2 = 700;
 int mouseXP2 = 400;
 int mouseYP2 = 300;
 int shotsRemainingP2 = 5;

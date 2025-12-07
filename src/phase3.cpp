@@ -15,7 +15,7 @@
 #endif
 
 int windowWidthP3 = 800;
-int windowHeightP3 = 600;
+int windowHeightP3 = 700;
 int mouseXP3 = 400;
 int mouseYP3 = 300;
 
@@ -113,7 +113,7 @@ void createNewAmmoP3() {
 void initPhase3() {
     srand(time(0));
     windowWidthP3 = 800;
-    windowHeightP3 = 600;
+    windowHeightP3 = 700;
     mouseXP3 = windowWidthP3/2;
     mouseYP3 = windowHeightP3/2;
     

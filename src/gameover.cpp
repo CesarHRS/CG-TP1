@@ -3,7 +3,7 @@
 
 // Variáveis globais
 int windowWidth_gameover = 800;
-int windowHeight_gameover = 600;
+int windowHeight_gameover = 700;
 bool isGameOver = false;
 bool isVictory = false; // Se é vitória ou derrota
 RestartCallback onRestartCallback = nullptr;
@@ -46,12 +46,12 @@ void drawGameOver() {
     glDisable(GL_BLEND);
     
     if (isVictory) {
-        // Vitória — se for a fase 4 mostramos uma tela de agradecimento/creditos
-        if (victoryPhase == 4) {
+        // Vitória — se for a fase 7 mostramos uma tela de jogo finalizado
+        if (victoryPhase == 7) {
             glColor3f(0.0f, 1.0f, 0.0f); // Verde
-            drawGameOverText("BOSS DERROTADO!", windowWidth_gameover/2.0f - 120, windowHeight_gameover/2.0f + 120, GLUT_BITMAP_TIMES_ROMAN_24);
+            drawGameOverText("JOGO FINALIZADO COM SUCESSO!", windowWidth_gameover/2.0f - 200, windowHeight_gameover/2.0f + 120, GLUT_BITMAP_TIMES_ROMAN_24);
             glColor3f(0.9f, 0.9f, 0.2f);
-            drawGameOverText("OBRIGADO POR JOGAR", windowWidth_gameover/2.0f - 200, windowHeight_gameover/2.0f + 80, GLUT_BITMAP_TIMES_ROMAN_24);
+            drawGameOverText("PARABENS!", windowWidth_gameover/2.0f - 80, windowHeight_gameover/2.0f + 80, GLUT_BITMAP_TIMES_ROMAN_24);
             glColor3f(1.0f, 1.0f, 1.0f);
             drawGameOverText("Desenvolvedores:", windowWidth_gameover/2.0f - 60, windowHeight_gameover/2.0f + 30, GLUT_BITMAP_HELVETICA_18);
             drawGameOverText("Lara", windowWidth_gameover/2.0f - 20, windowHeight_gameover/2.0f + 5, GLUT_BITMAP_HELVETICA_18);
@@ -87,8 +87,8 @@ void handleGameOverKeyboard(unsigned char key) {
     switch (key) {
         case 'n':
         case 'N':
-            // Ir para próxima fase (somente se for vitória)
-            if (isVictory && victoryPhase != 4 && onNextPhaseCallback != nullptr) {
+            // Ir para próxima fase (somente se for vitória e não for fase 7)
+            if (isVictory && victoryPhase != 7 && onNextPhaseCallback != nullptr) {
                 // somente permitir ir para próxima fase quando não for a última "vitória final"
                 isGameOver = false;
                 isVictory = false;

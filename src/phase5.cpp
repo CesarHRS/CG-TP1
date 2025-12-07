@@ -776,7 +776,7 @@ void initPhase5() {
     
     // Initialize game over screen
     setGameOver(false);
-    initGameOver(800, 600);
+    initGameOver(800, 700);
     registerRestartCallback(initPhase5);
 }
 

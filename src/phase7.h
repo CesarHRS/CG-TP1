@@ -43,7 +43,9 @@ typedef struct {
 
 typedef struct {
     float x, y, z;
-    float dirX, dirZ;
+    float startX, startY, startZ;
+    float dirX, dirY, dirZ;
+    float distanceTraveled;
     bool active;
 } ProjectileP7;
 
@@ -67,12 +69,10 @@ extern int numEnemiesP7;
 extern ProjectileP7 enemyProjectiles[];
 extern int maxProjectilesP7;
 
-// NOVAS VARIÁVEIS PARA ANIMAÇÃO DO TIRO
-extern int laserAnimTimer;
-extern float laserEndX, laserEndY, laserEndZ;
-
 // Declarações de Funções
 void initPhase7();
+void resetEnemyAI();
+void returnToMenuFromPhase7();
 void drawPhase7(int windowWidth, int windowHeight);
 void drawPhase7();
 void updatePhase7(int value);

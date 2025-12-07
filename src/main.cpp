@@ -13,7 +13,7 @@ int main(int argc, char **argv) {
     glutInit(&argc, argv);
     // Request a depth buffer so 3D GLUT solids render correctly
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-    glutInitWindowSize(800, 600);
+    glutInitWindowSize(800, 700);
     glutInitWindowPosition(100, 100);
     glutCreateWindow("Menu do Jogo de navinha mais legal da sua vida");
 

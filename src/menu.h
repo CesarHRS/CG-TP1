@@ -16,7 +16,8 @@ enum GameState {
     PHASE3_SCREEN,
     PHASE4_SCREEN,
     PHASE5_SCREEN,
-    PHASE6_SCREEN
+    PHASE6_SCREEN,
+    PHASE7_SCREEN
 };
 
 extern GameState currentState;
@@ -26,6 +27,7 @@ extern Button startButton;
 extern Button phase2Button;
 extern Button phase3Button;
 extern Button phase4Button;
+extern Button phase7Button;
 extern Button instructionsButton;
 extern Button exitButton;
 extern Button backButton;
@@ -81,11 +83,14 @@ void handlePhase6SpecialKeyUp(int key, int x, int y);
 // Phase7 hooks (boss placeholder)
 void initPhase7();
 void drawPhase7();
-void updatePhase7();
+void drawPhase7(int width, int height);
+void updatePhase7(int value);
 void handlePhase7MouseClick(int button, int state, int x, int y);
 void handlePhase7MouseMove(int x, int y);
-void handlePhase7Keyboard(unsigned char key);
-void handlePhase7KeyboardUp(unsigned char key);
+void handlePhase7PassiveMotion(int x, int y);
+void handlePhase7Mouse(int button, int state, int x, int y);
+void handlePhase7Keyboard(unsigned char key, int x, int y);
+void handlePhase7KeyboardUp(unsigned char key, int x, int y);
 void handlePhase7SpecialKey(int key, int x, int y);
 void handlePhase7SpecialKeyUp(int key, int x, int y);
 
