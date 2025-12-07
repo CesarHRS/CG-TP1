@@ -8,6 +8,10 @@
 #include <stdlib.h>
 #include <time.h>
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 GLuint textureWallP5 = 0;
 GLuint textureFloorP5 = 0;
 GLuint texturePyramidP5 = 0;
@@ -1256,7 +1260,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glVertex3f(10.0f, 0.0f, 8.5f);
     glEnd();
     
-    // Parede direita (X=10)
+    // Parede direita
     glBegin(GL_QUADS);
     glNormal3f(-1.0, 0.0, 0.0);
     glVertex3f(10.0f, 0.0f, 3.0f);
@@ -1265,7 +1269,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glVertex3f(10.0f, 3.0f, 3.0f);
     glEnd();
     
-    // Parede traseira (Z=3)
+    // Parede traseira
     glBegin(GL_QUADS);
     glNormal3f(0.0, 0.0, 1.0);
     glVertex3f(3.0f, 0.0f, 3.0f);
@@ -1274,7 +1278,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glVertex3f(3.0f, 3.0f, 3.0f);
     glEnd();
     
-    // Parede esquerda (X=3) com porta - seção inferior (Z=3 a 5)
+    // Parede esquerda com porta
     glBegin(GL_QUADS);
     glNormal3f(1.0, 0.0, 0.0);
     glVertex3f(3.0f, 0.0f, 3.0f);
@@ -1283,9 +1287,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glVertex3f(3.0f, 0.0f, 5.0f);
     glEnd();
     
-    // Porta da área de console: Z=5 a 7.5 (sem parede) - PORTA MAIOR
-    
-    // Verga da porta da área de console
+
     glBegin(GL_QUADS);
     glNormal3f(1.0, 0.0, 0.0);
     glVertex3f(3.0f, 2.1f, 5.0f);
@@ -1294,7 +1296,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glVertex3f(3.0f, 2.1f, 7.5f);
     glEnd();
     
-    // Parede esquerda (X=3) - seção superior após porta (Z=7.5 a 8.5)
+    // Parede esquerda
     glBegin(GL_QUADS);
     glNormal3f(1.0, 0.0, 0.0);
     glVertex3f(3.0f, 0.0f, 7.5f);
@@ -1310,7 +1312,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glPushMatrix();
     glTranslatef(-7.0f, 0.3f, -7.0f);
     glColor3f(0.6f, 0.3f, 0.2f);
-    glScalef(2.0f, 0.6f, 1.8f); // Reduzida de 3x3 para 2x1.8
+    glScalef(2.0f, 0.6f, 1.8f); 
     glutSolidCube(1.0f);
     glPopMatrix();
     
@@ -1353,7 +1355,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glPushMatrix();
     glTranslatef(7.0f, 0.5f, -7.25f);
     glColor3f(0.5f, 0.45f, 0.4f);
-    glScalef(2.0f, 1.0f, 1.5f); // Reduzida
+    glScalef(2.0f, 1.0f, 1.5f);
     glutSolidCube(1.0f);
     glPopMatrix();
     
@@ -1361,7 +1363,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glPushMatrix();
     glTranslatef(8.8f, 1.0f, -7.0f);
     glColor3f(0.8f, 0.8f, 0.85f);
-    glScalef(0.7f, 2.0f, 0.6f); // Reduzida
+    glScalef(0.7f, 2.0f, 0.6f);
     glutSolidCube(1.0f);
     glPopMatrix();
     
@@ -1412,16 +1414,16 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glutSolidCube(1.0f);
     glPopMatrix();
     
-    drawWeaponRackP5(-8.5f, 7.5f, 90.0f);  // Movido para área frontal
+    drawWeaponRackP5(-8.5f, 7.5f, 90.0f);
     
-    // Caixas de munição empilhadas (mantidas no centro)
+    // Caixas de munição empilhadas
     drawAmmoBoxP5(-7.5f, 5.5f);
     drawAmmoBoxP5(-7.0f, 5.5f);
-    drawAmmoBoxP5(-7.3f, 5.85f); // Segunda camada
+    drawAmmoBoxP5(-7.3f, 5.85f);
     drawAmmoBoxP5(-8.0f, 4.5f);
     drawAmmoBoxP5(-6.5f, 4.5f);
     
-    // Mesa de trabalho/limpeza (movida para área frontal)
+    // Mesa de trabalho/limpeza
     glPushMatrix();
     glTranslatef(-9.0f, 0.5f, 7.5f);
     glColor3f(0.3f, 0.3f, 0.35f);
@@ -1452,7 +1454,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glutSolidCube(1.0f);
     glPopMatrix();
     
-    // Ferramentas na mesa de trabalho (ajustadas para nova posição)
+    // Ferramentas na mesa de trabalho
     glPushMatrix();
     glTranslatef(-9.2f, 0.6f, 7.5f);
     glColor3f(0.6f, 0.6f, 0.6f);
@@ -1470,10 +1472,10 @@ void drawPhase5(int windowWidth, int windowHeight) {
     drawControlConsoleP5(7.0f, 7.8f, 180.0f);  // Movido mais para frente
     drawCommandChairP5(6.5f, 6.8f, 180.0f);    // Cadeira próxima ao console
     
-    // Sofá para descanso da tripulação (mantido no centro)
+    // Sofá para descanso da tripulação
     drawSofaP5(5.5f, 5.8f, 180.0f);
     
-    // Estante com equipamentos (movida mais para frente)
+    // Estante com equipamentos
     glPushMatrix();
     glTranslatef(8.5f, 1.0f, 7.8f);
     glColor3f(0.3f, 0.3f, 0.35f);
@@ -1497,7 +1499,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glutSolidCube(1.0f);
     glPopMatrix();
     
-    // Bancos laterais no corredor (esquerdo)
+    // Bancos laterais no corredor
     glPushMatrix();
     glTranslatef(-4.0f, 0.25f, -2.0f);
     glColor3f(0.3f, 0.3f, 0.35f);
@@ -1505,7 +1507,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glutSolidCube(1.0f);
     glPopMatrix();
     
-    // Bancos laterais no corredor (direito)
+    // Bancos laterais no corredor
     glPushMatrix();
     glTranslatef(4.0f, 0.25f, -2.0f);
     glColor3f(0.3f, 0.3f, 0.35f);
@@ -1642,13 +1644,13 @@ void drawPhase5(int windowWidth, int windowHeight) {
         }
     }
 
-    // Desenhar objetos coletáveis (menores, parcialmente escondidos)
+    // Desenhar objetos coletáveis
     for (int i = 0; i < numObjectsP5; ++i) {
         if (!objectsP5[i].collected && !objectsP5[i].held) {
             glPushMatrix();
             glTranslatef(objectsP5[i].x, 0.13f, objectsP5[i].z); // Altura fixa no chão
             
-            glScalef(0.25f, 0.25f, 0.25f); // Objetos bem menores
+            glScalef(0.25f, 0.25f, 0.25f);
             
             switch (objectsP5[i].type) {
                 case SHAPE_CUBE: 
@@ -1712,8 +1714,6 @@ void drawPhase5(int windowWidth, int windowHeight) {
         }
         glPopMatrix();
     }
-
-    // Voltar para HUD 2D
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluOrtho2D(0, windowWidth, 0, windowHeight);
@@ -1727,15 +1727,14 @@ void drawPhase5(int windowWidth, int windowHeight) {
     
     // Display timer
     if (timeRemainingP5 <= 5.0f && !phase5_won && !gameOverP5) {
-        glColor3f(1.0, 0.0, 0.0); // Red when low
+        glColor3f(1.0, 0.0, 0.0); 
     } else {
-        glColor3f(0.0, 1.0, 1.0); // Cyan normally
+        glColor3f(0.0, 1.0, 1.0);
     }
     sprintf(text, "Tempo: %.1f s | Objetos: %d/8", timeRemainingP5, scoreP5);
     drawTextP5(10, windowHeight - 20, text);
 
     if (phase5_won) {
-        // Não mostrar nada - vai direto para fase 6
     } else if (heldObjectIndex >= 0) {
         glColor3f(1.0, 1.0, 0.3);
         const char* heldName = "";

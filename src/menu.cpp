@@ -416,7 +416,7 @@ void drawInstructionsScreen() {
         // Fase 3
         drawText(250, 550, "FASE 3 - Calculadora Espacial");
         drawText(150, 500, "OBJETIVO:");
-        drawText(150, 470, "- Resolva 10 equacoes usando a calculadora");d
+        drawText(150, 470, "- Resolva 10 equacoes usando a calculadora");
         drawText(150, 440, "- Acerte para ganhar municao automaticamente");
         drawText(150, 390, "CONTROLES:");
         drawText(150, 360, "- CLIQUE nos botoes da calculadora na direita");
