@@ -1127,10 +1127,10 @@ void drawPhase7(int windowWidth, int windowHeight) {
     
     // Mostrar HP do monstro
     if (numEnemiesP7 > 0 && enemiesP7[0].active) {
-        if (enemiesP7[0].hp >= 4) glColor3f(0.2f, 0.9f, 0.3f); // Verde brilhante
-        else if (enemiesP7[0].hp >= 2) glColor3f(0.9f, 0.8f, 0.2f); // Amarelo
+        if (enemiesP7[0].hp >= 7) glColor3f(0.2f, 0.9f, 0.3f); // Verde brilhante
+        else if (enemiesP7[0].hp >= 4) glColor3f(0.9f, 0.8f, 0.2f); // Amarelo
         else glColor3f(1.0f, 0.0f, 0.0f); // Vermelho
-        sprintf(text, "Monstro HP: %d/5", enemiesP7[0].hp);
+        sprintf(text, "Monstro HP: %d/10", enemiesP7[0].hp);
         drawTextP7(windowWidth - 180, windowHeight - 60, text);
     }
 

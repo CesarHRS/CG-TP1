@@ -724,6 +724,7 @@ void handleMouseHover(int x, int y) {
             }
             if (phase5Button.isHovered != isMouseOverButton(x, y, phase5Button)) {
                 phase5Button.isHovered = !phase5Button.isHovered;
+                needsRedraw = true;
             }
             if (phase6Button.isHovered != isMouseOverButton(x, y, phase6Button)) {
                 phase6Button.isHovered = !phase6Button.isHovered;

@@ -119,7 +119,7 @@ bool specialKeysP6[256] = {false};
 int livesP6 = 3;
 int scoreP6 = 0;
 int questionsAnsweredP6 = 0;
-const int totalQuestionsP6 = 2;
+const int totalQuestionsP6 = 10;
 bool gameOverP6 = false;
 bool victoryP6 = false;
 
@@ -775,11 +775,6 @@ void drawPhase6(int windowWidth, int windowHeight) {
 void updatePhase6(int value) {
     (void)value;
     
-    // Se não estamos mais na fase 6, parar de atualizar
-    if (currentState != PHASE6_SCREEN) {
-        return;
-    }
-    
     if (getPaused()) {
         glutTimerFunc(16, updatePhase6, 0);
         return;
@@ -800,14 +795,9 @@ void updatePhase6(int value) {
         return;
     }
     
-    if (gameOverP6) {
+    if (gameOverP6 || victoryP6) {
         glutPostRedisplay();
         glutTimerFunc(16, updatePhase6, 0);
-        return;
-    }
-    
-    // Se já completou todas as questões, não processar mais nada
-    if (questionsAnsweredP6 >= totalQuestionsP6) {
         return;
     }
     
@@ -843,16 +833,6 @@ void updatePhase6(int value) {
                     Audio::getInstance().play(Audio::SOUND_VICTORY);
                     scoreP6 += 10;
                     questionsAnsweredP6++;
-                    
-                    // Verificar vitória imediatamente após acertar
-                    if (questionsAnsweredP6 >= totalQuestionsP6) {
-                        printf("Fase 6 completa! Mostrando história da Fase 7...\n");
-                        magneticFields.clear(); // Limpar campos imediatamente
-                        setGameOver(false);
-                        setVictory(false);
-                        showStoryForPhase(7);
-                        return;
-                    }
                 } else {
                     Audio::getInstance().play(Audio::SOUND_ERROR);
                     livesP6--;
@@ -908,12 +888,10 @@ void updatePhase6(int value) {
     // Gerar novo conjunto de campos SOMENTE se passou por algum campo ou já aplicou o dano
     if (allFieldsPassed && questionCooldown <= 0 && !gameOverP6 && !victoryP6 && fieldSetPassed) {
         if (questionsAnsweredP6 >= totalQuestionsP6) {
-            printf("Fase 6 completa! Mostrando história da Fase 7...\n");
+            victoryP6 = true;
+            printf("Fase 6 completa! Indo para Fase 7...\n");
             Audio::getInstance().play(Audio::SOUND_VICTORY);
-            setGameOver(false);
-            setVictory(false);
-            showStoryForPhase(7);
-            return; // Sair imediatamente
+            setCurrentPhase(7);
         } else {
             generateQuestion();
             spawnFieldSet();

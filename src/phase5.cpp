@@ -215,19 +215,7 @@ void drawTextP5(float x, float y, const char *string) {
 
 // Desenhar texto 3D no mundo
 void drawText3DP5(float x, float y, float z, const char *string, void* font) {
-    // Desenhar contorno preto
-    glColor3f(0.0f, 0.0f, 0.0f);
-    for (int dx = -1; dx <= 1; dx++) {
-        for (int dy = -1; dy <= 1; dy++) {
-            if (dx != 0 || dy != 0) {
-                glRasterPos3f(x + dx * 0.002f, y + dy * 0.002f, z);
-                for (const char* c = string; *c != '\0'; c++) {
-                    glutBitmapCharacter(font, *c);
-                }
-            }
-        }
-    }
-    // Desenhar texto branco por cima
+    // Desenhar texto branco
     glColor3f(1.0f, 1.0f, 1.0f);
     glRasterPos3f(x, y, z);
     for (const char* c = string; *c != '\0'; c++) {
@@ -1705,7 +1693,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
             case SHAPE_CYLINDER: shapeName = "CILINDRO"; break;
         }
         sprintf(labelText, "%s %d/2", shapeName, depositsP5[i].count);
-        drawText3DP5(-0.35f, 0.05f, 0.0f, labelText, GLUT_BITMAP_HELVETICA_12);
+        drawText3DP5(0.0f, 0.3f, 0.0f, labelText, GLUT_BITMAP_HELVETICA_12);
         
         glPopMatrix();
     }
@@ -2030,16 +2018,6 @@ bool checkCollisionP5(float x, float z) {
 void updatePhase5(int value) {
     (void)value;
     
-    // Se não estamos mais na fase 5, parar de atualizar
-    if (currentState != PHASE5_SCREEN) {
-        return;
-    }
-    
-    // Se completou a fase, não continuar atualizando
-    if (scoreP5 >= 8) {
-        return;
-    }
-    
     if (getPaused()) {
         glutTimerFunc(16, updatePhase5, 0);
         return;
@@ -2060,7 +2038,7 @@ void updatePhase5(int value) {
         return;
     }
     
-    float speed = 0.05f; // Velocidade reduzida
+    float speed = 0.10f; // Velocidade igual à fase 7
     float lookX = sin(playerP5.angle);
     float lookZ = -cos(playerP5.angle);
 
@@ -2131,10 +2109,8 @@ void updatePhase5(int value) {
                         
                         // Verificar vitória
                         if (scoreP5 >= 8) {
-                            printf("Fase 5 completa! Mostrando história da Fase 6...\n");
-                            setGameOver(false);
-                            setVictory(false);
-                            showStoryForPhase(6);
+                            printf("Fase 5 completa! Indo para Fase 6...\n");
+                            setCurrentPhase(6);
                             return; // Sair imediatamente
                         }
                         
@@ -2232,10 +2208,8 @@ void handlePhase5Keyboard(unsigned char key, int x, int y) {
                         
                         // Verificar vitória
                         if (scoreP5 >= 8) {
-                            printf("Fase 5 completa! Mostrando história da Fase 6...\n");
-                            setGameOver(false);
-                            setVictory(false);
-                            showStoryForPhase(6);
+                            printf("Fase 5 completa! Indo para Fase 6...\n");
+                            setCurrentPhase(6);
                             return; // Sair imediatamente
                         }
                         
