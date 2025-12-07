@@ -27,11 +27,15 @@ build: all
 run: $(TARGET)
 	./$(TARGET)
 
-# Windows build and run
+# Windows build and run (COM SDL2 por padrão)
 build-windows: $(TARGET_WIN)
 
 $(TARGET_WIN): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $(TARGET_WIN) $(SRCS) $(LDFLAGS_WIN)
+	$(CXX) $(CXXFLAGS) -o $(TARGET_WIN) $(SRCS) $(LDFLAGS_WIN) $(SDL_LIBS)
+
+# Windows build SEM SDL2 (modo silencioso)
+build-windows-nosdl:
+	$(CXX) $(CXXFLAGS) -DNO_SDL -o $(TARGET_WIN) $(SRCS) $(LDFLAGS_WIN)
 
 run-windows: $(TARGET_WIN)
 	.\$(TARGET_WIN)
@@ -44,4 +48,4 @@ clean-windows:
 
 .PHONY: all build run clean
 
-.PHONY: build-windows run-windows clean-windows
+.PHONY: build-windows build-windows-nosdl run-windows clean-windows

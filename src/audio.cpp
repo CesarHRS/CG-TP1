@@ -3,11 +3,16 @@
 #include <string.h>
 #include <iostream>
 
-// Detectar se estamos no Linux e se SDL2 está disponível
-#ifdef __linux__
+// Usar SDL2 por padrão, a menos que NO_SDL seja definido
+#ifndef NO_SDL
     #define USE_SDL2
-    #include <SDL2/SDL.h>
-    #include <SDL2/SDL_mixer.h>
+    #ifdef __linux__
+        #include <SDL2/SDL.h>
+        #include <SDL2/SDL_mixer.h>
+    #else
+        #include <SDL.h>
+        #include <SDL_mixer.h>
+    #endif
 #endif
 
 #ifdef USE_SDL2
