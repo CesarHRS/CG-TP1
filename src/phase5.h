@@ -30,7 +30,7 @@ typedef struct {
 typedef struct {
     float x, y, z;
     ShapeType requiredType;
-    bool filled;
+    int count; // Quantos objetos já foram depositados (máximo 2)
 } DepositZone;
 
 // Function declarations for Phase 5 (3D Geometric Planet)

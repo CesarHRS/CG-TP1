@@ -888,9 +888,10 @@ void updatePhase6(int value) {
     // Gerar novo conjunto de campos SOMENTE se passou por algum campo ou já aplicou o dano
     if (allFieldsPassed && questionCooldown <= 0 && !gameOverP6 && !victoryP6 && fieldSetPassed) {
         if (questionsAnsweredP6 >= totalQuestionsP6) {
-            victoryP6 = true;
-            setVictory(true);
+            printf("Fase 6 completa! Mostrando história da Fase 7...\n");
             Audio::getInstance().play(Audio::SOUND_VICTORY);
+            showStoryForPhase(7);
+            return; // Sair imediatamente
         } else {
             generateQuestion();
             spawnFieldSet();

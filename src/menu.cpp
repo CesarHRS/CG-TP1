@@ -47,7 +47,7 @@ Button phase3Button = {300, 440, 200, 50, "Fase 3", false};
 Button phase4Button = {300, 380, 200, 50, "Fase 4", false};
 Button phase5Button = {300, 320, 200, 50, "Fase 5 (3D)", false};
 Button phase6Button = {300, 260, 200, 50, "Fase 6 (3D)", false};
-Button phase7Button = {300, 200, 200, 50, "Fase 7 (Boss)", false};
+Button phase7Button = {300, 200, 200, 50, "Fase 7 (3D)", false};
 // instructions and exit below
 Button instructionsButton = {300, 140, 200, 50, "Como Jogar", false};
 Button exitButton = {300, 80, 200, 50, "Sair", false};

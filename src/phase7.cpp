@@ -538,7 +538,7 @@ void updateEnemiesAI() {
         // Atirar no jogador se estiver próximo (projéteis atravessam paredes)
         if (playerDist < 15.0f) {
             enemiesP7[i].shootTimer++;
-            if (enemiesP7[i].shootTimer > (60 + rand()%40)) {
+            if (enemiesP7[i].shootTimer > (120 + rand()%80)) { // Atira com menos frequência
                 spawnEnemyProjectile(enemiesP7[i].x, enemiesP7[i].y, enemiesP7[i].z);
                 enemiesP7[i].shootTimer = 0;
             }
@@ -709,7 +709,7 @@ void initPhase7() {
     enemiesP7[0].startX = enemiesP7[0].x; 
     enemiesP7[0].startZ = enemiesP7[0].z; 
     enemiesP7[0].moveAxis = 0;
-    enemiesP7[0].hp = 5; // Mais HP já que é único
+    enemiesP7[0].hp = 10; // HP aumentado para 10 tiros
     enemiesP7[0].active = true;
     enemiesP7[0].moveDir = 1.0f; 
     enemiesP7[0].shootTimer = rand() % 100;
@@ -1169,7 +1169,7 @@ void updatePhase7(int value) {
     
     if (getGameOver()) { glutPostRedisplay(); return; }
 
-    float speed = 0.12f; // Velocidade reduzida para movimento mais lento
+    float speed = 0.10f; // Velocidade um pouco mais lenta
     float fwdX = sin(playerP7.angle); float fwdZ = -cos(playerP7.angle);
     float strafeX = cos(playerP7.angle); float strafeZ = sin(playerP7.angle);
     float moveX = 0.0f; float moveZ = 0.0f;

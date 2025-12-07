@@ -34,7 +34,7 @@ bool phase5_won = false;
 int heldObjectIndex = -1; // Índice do objeto sendo segurado (-1 = nenhum)
 
 // Timer variables
-float timeRemainingP5 = 15.0f; // 15 seconds
+float timeRemainingP5 = 30.0f; // 30 seconds
 bool gameOverP5 = false;
 
 // Countdown variables
@@ -215,6 +215,20 @@ void drawTextP5(float x, float y, const char *string) {
 
 // Desenhar texto 3D no mundo
 void drawText3DP5(float x, float y, float z, const char *string, void* font) {
+    // Desenhar contorno preto
+    glColor3f(0.0f, 0.0f, 0.0f);
+    for (int dx = -1; dx <= 1; dx++) {
+        for (int dy = -1; dy <= 1; dy++) {
+            if (dx != 0 || dy != 0) {
+                glRasterPos3f(x + dx * 0.002f, y + dy * 0.002f, z);
+                for (const char* c = string; *c != '\0'; c++) {
+                    glutBitmapCharacter(font, *c);
+                }
+            }
+        }
+    }
+    // Desenhar texto branco por cima
+    glColor3f(1.0f, 1.0f, 1.0f);
     glRasterPos3f(x, y, z);
     for (const char* c = string; *c != '\0'; c++) {
         glutBitmapCharacter(font, *c);
@@ -887,44 +901,64 @@ void initPhase5() {
     lastMouseYP5 = -1;
     for(int i = 0; i < 256; i++) keyStateP5[i] = false;
 
-    // 4 objetos escondidos em diferentes cômodos da nave (posições aleatórias)
-    numObjectsP5 = 4;
+    // 8 objetos escondidos em diferentes cômodos da nave (2 de cada tipo)
+    numObjectsP5 = 8;
     
-    // CUBO - Quarto (Cômodo 1: X=-10 a -3, Z=-10 a -3)
+    // CUBO 1 - Quarto (Cômodo 1: X=-10 a -3, Z=-10 a -3)
     float cubeX, cubeZ;
-    generateRandomObjectPosition(cubeX, cubeZ, 0, 0); // 0 objetos já criados
+    generateRandomObjectPosition(cubeX, cubeZ, 0, 0);
     objectsP5[0] = (Collectible){cubeX, 0.2f, cubeZ, SHAPE_CUBE, false, false};
-    printf("CUBO gerado em: (%.2f, %.2f)\n", cubeX, cubeZ);
+    printf("CUBO 1 gerado em: (%.2f, %.2f)\n", cubeX, cubeZ);
     
-    // ESFERA - Cozinha (Cômodo 2: X=3 a 10, Z=-10 a -3)
+    // CUBO 2 - Quarto (Cômodo 1)
+    generateRandomObjectPosition(cubeX, cubeZ, 0, 1);
+    objectsP5[1] = (Collectible){cubeX, 0.2f, cubeZ, SHAPE_CUBE, false, false};
+    printf("CUBO 2 gerado em: (%.2f, %.2f)\n", cubeX, cubeZ);
+    
+    // ESFERA 1 - Cozinha (Cômodo 2: X=3 a 10, Z=-10 a -3)
     float sphereX, sphereZ;
-    generateRandomObjectPosition(sphereX, sphereZ, 1, 1); // 1 objeto já criado
-    objectsP5[1] = (Collectible){sphereX, 0.2f, sphereZ, SHAPE_SPHERE, false, false};
-    printf("ESFERA gerada em: (%.2f, %.2f)\n", sphereX, sphereZ);
+    generateRandomObjectPosition(sphereX, sphereZ, 1, 2);
+    objectsP5[2] = (Collectible){sphereX, 0.2f, sphereZ, SHAPE_SPHERE, false, false};
+    printf("ESFERA 1 gerada em: (%.2f, %.2f)\n", sphereX, sphereZ);
     
-    // PIRÂMIDE - Sala de Munição (Cômodo 3: X=-10 a -3, Z=3 a 6.5)
+    // ESFERA 2 - Cozinha (Cômodo 2)
+    generateRandomObjectPosition(sphereX, sphereZ, 1, 3);
+    objectsP5[3] = (Collectible){sphereX, 0.2f, sphereZ, SHAPE_SPHERE, false, false};
+    printf("ESFERA 2 gerada em: (%.2f, %.2f)\n", sphereX, sphereZ);
+    
+    // PIRÂMIDE 1 - Sala de Munição (Cômodo 3: X=-10 a -3, Z=3 a 6.5)
     float pyramidX, pyramidZ;
-    generateRandomObjectPosition(pyramidX, pyramidZ, 2, 2); // 2 objetos já criados
-    objectsP5[2] = (Collectible){pyramidX, 0.2f, pyramidZ, SHAPE_PYRAMID, false, false};
-    printf("PIRÂMIDE gerada em: (%.2f, %.2f)\n", pyramidX, pyramidZ);
+    generateRandomObjectPosition(pyramidX, pyramidZ, 2, 4);
+    objectsP5[4] = (Collectible){pyramidX, 0.2f, pyramidZ, SHAPE_PYRAMID, false, false};
+    printf("PIRÂMIDE 1 gerada em: (%.2f, %.2f)\n", pyramidX, pyramidZ);
     
-    // CILINDRO - Área de Console (Cômodo 4: X=3 a 10, Z=3 a 6.5)
+    // PIRÂMIDE 2 - Sala de Munição (Cômodo 3)
+    generateRandomObjectPosition(pyramidX, pyramidZ, 2, 5);
+    objectsP5[5] = (Collectible){pyramidX, 0.2f, pyramidZ, SHAPE_PYRAMID, false, false};
+    printf("PIRÂMIDE 2 gerada em: (%.2f, %.2f)\n", pyramidX, pyramidZ);
+    
+    // CILINDRO 1 - Área de Console (Cômodo 4: X=3 a 10, Z=3 a 6.5)
     float cylinderX, cylinderZ;
-    generateRandomObjectPosition(cylinderX, cylinderZ, 3, 3); // 3 objetos já criados
-    objectsP5[3] = (Collectible){cylinderX, 0.2f, cylinderZ, SHAPE_CYLINDER, false, false};
-    printf("CILINDRO gerado em: (%.2f, %.2f)\n", cylinderX, cylinderZ);
+    generateRandomObjectPosition(cylinderX, cylinderZ, 3, 6);
+    objectsP5[6] = (Collectible){cylinderX, 0.2f, cylinderZ, SHAPE_CYLINDER, false, false};
+    printf("CILINDRO 1 gerado em: (%.2f, %.2f)\n", cylinderX, cylinderZ);
     
-    // Zonas de depósito no painel de controle frontal
+    // CILINDRO 2 - Área de Console (Cômodo 4)
+    generateRandomObjectPosition(cylinderX, cylinderZ, 3, 7);
+    objectsP5[7] = (Collectible){cylinderX, 0.2f, cylinderZ, SHAPE_CYLINDER, false, false};
+    printf("CILINDRO 2 gerado em: (%.2f, %.2f)\n", cylinderX, cylinderZ);
+    
+    // Zonas de depósito no painel de controle frontal (4 bases, 2 objetos por base)
     numDepositsP5 = 4;
-    depositsP5[0] = (DepositZone){-1.5f, 0.0f, 7.5f, SHAPE_CUBE, false}; // Slot vermelho
-    depositsP5[1] = (DepositZone){-0.5f, 0.0f, 7.5f, SHAPE_SPHERE, false}; // Slot verde
-    depositsP5[2] = (DepositZone){0.5f, 0.0f, 7.5f, SHAPE_PYRAMID, false}; // Slot azul
-    depositsP5[3] = (DepositZone){1.5f, 0.0f, 7.5f, SHAPE_CYLINDER, false}; // Slot amarelo
+    depositsP5[0] = (DepositZone){-1.5f, 0.0f, 7.5f, SHAPE_CUBE, 0}; // Slot vermelho
+    depositsP5[1] = (DepositZone){-0.5f, 0.0f, 7.5f, SHAPE_SPHERE, 0}; // Slot verde
+    depositsP5[2] = (DepositZone){0.5f, 0.0f, 7.5f, SHAPE_PYRAMID, 0}; // Slot azul
+    depositsP5[3] = (DepositZone){1.5f, 0.0f, 7.5f, SHAPE_CYLINDER, 0}; // Slot amarelo
     
     scoreP5 = 0;
     phase5_won = false;
     heldObjectIndex = -1;
-    timeRemainingP5 = 15.0f;
+    timeRemainingP5 = 30.0f;
     gameOverP5 = false;
     
     // Initialize countdown
@@ -1640,8 +1674,10 @@ void drawPhase5(int windowWidth, int windowHeight) {
         glPushMatrix();
         glTranslatef(depositsP5[i].x, 1.25f, depositsP5[i].z);
         
-        if (depositsP5[i].filled) {
-            glColor3f(0.2f, 0.8f, 0.2f); // Verde quando preenchida
+        if (depositsP5[i].count >= 2) {
+            glColor3f(0.2f, 0.8f, 0.2f); // Verde quando cheia (2 objetos)
+        } else if (depositsP5[i].count == 1) {
+            glColor3f(0.8f, 0.8f, 0.2f); // Amarelo quando tem 1 objeto
         } else {
             // Cor baseada no tipo requerido
             switch(depositsP5[i].requiredType) {
@@ -1658,18 +1694,18 @@ void drawPhase5(int windowWidth, int windowHeight) {
         glutSolidCube(1.0f);
         glPopMatrix();
         
-        // Texto indicando qual forma colocar (só se não estiver preenchida)
-        if (!depositsP5[i].filled) {
-            glColor3f(1.0f, 1.0f, 1.0f);
-            const char* labelText = "";
-            switch(depositsP5[i].requiredType) {
-                case SHAPE_CUBE: labelText = "CUBO"; break;
-                case SHAPE_SPHERE: labelText = "ESFERA"; break;
-                case SHAPE_PYRAMID: labelText = "PIRAMIDE"; break;
-                case SHAPE_CYLINDER: labelText = "CILINDRO"; break;
-            }
-            drawText3DP5(-0.3f, 0.05f, 0.0f, labelText, GLUT_BITMAP_HELVETICA_12);
+        // Texto indicando qual forma colocar e quantidade
+        glColor3f(1.0f, 1.0f, 1.0f);
+        char labelText[32];
+        const char* shapeName = "";
+        switch(depositsP5[i].requiredType) {
+            case SHAPE_CUBE: shapeName = "CUBO"; break;
+            case SHAPE_SPHERE: shapeName = "ESFERA"; break;
+            case SHAPE_PYRAMID: shapeName = "PIRAMIDE"; break;
+            case SHAPE_CYLINDER: shapeName = "CILINDRO"; break;
         }
+        sprintf(labelText, "%s %d/2", shapeName, depositsP5[i].count);
+        drawText3DP5(-0.35f, 0.05f, 0.0f, labelText, GLUT_BITMAP_HELVETICA_12);
         
         glPopMatrix();
     }
@@ -1680,7 +1716,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
         if (objectsP5[i].collected && !objectsP5[i].held) {
             glPushMatrix();
             glTranslatef(objectsP5[i].x, objectsP5[i].y, objectsP5[i].z); // Usar Y armazenado
-            glScalef(0.25f, 0.25f, 0.25f);
+            glScalef(0.18f, 0.18f, 0.18f); // Objetos menores para ficarem lado a lado
             
             switch (objectsP5[i].type) {
                 case SHAPE_CUBE: 
@@ -1796,12 +1832,11 @@ void drawPhase5(int windowWidth, int windowHeight) {
     } else {
         glColor3f(0.0, 1.0, 1.0); // Cyan normally
     }
-    sprintf(text, "Tempo: %.1f s | Objetos: %d/4", timeRemainingP5, scoreP5);
+    sprintf(text, "Tempo: %.1f s | Objetos: %d/8", timeRemainingP5, scoreP5);
     drawTextP5(10, windowHeight - 20, text);
 
     if (phase5_won) {
-        glColor3f(0.2, 1.0, 0.2);
-        drawTextP5(10, windowHeight - 45, "MISSAO COMPLETA! Pressione ESC para sair.");
+        // Não mostrar nada - vai direto para fase 6
     } else if (heldObjectIndex >= 0) {
         glColor3f(1.0, 1.0, 0.3);
         const char* heldName = "";
@@ -1892,10 +1927,12 @@ bool checkCollisionP5(float x, float z) {
     
     // ===================================================================
     // PAREDES DO CÔMODO 3: SALA DE MUNIÇÃO (X=-10 a -3, Z=3 a 8.5)
-    // Porta em X=-3, Z=5 a 6.5
+    // Porta em X=-3, Z=5 a 6.5 (sem colisão na porta)
     // ===================================================================
-    // Parede direita com porta (X=-3) - apenas Z=3 a Z=5 (porta de Z=5 a 6.5)
-    if (fabs(x + 3.0f) < 0.15f && z > 3.0f - radius && z < 5.0f - radius) return true;
+    // Parede direita com porta (X=-3) - seção 1: Z=3 a Z=5
+    if (fabs(x + 3.0f) < 0.15f && z >= 3.0f - radius && z < 5.0f) return true;
+    // Parede direita com porta (X=-3) - seção 2: Z=6.5 a Z=8.5
+    if (fabs(x + 3.0f) < 0.15f && z > 6.5f && z <= 8.5f + radius) return true;
     // Parede traseira (Z=3) da sala de munição
     if (fabs(z - 3.0f) < 0.15f && x < -3.0f + radius && x > -10.0f - radius) return true;
     // Parede esquerda (X=-10) da sala de munição
@@ -1905,10 +1942,12 @@ bool checkCollisionP5(float x, float z) {
     
     // ===================================================================
     // PAREDES DO CÔMODO 4: ÁREA DE CONSOLE (X=3 a 10, Z=3 a 8.5)
-    // Porta em X=3, Z=5 a 6.5
+    // Porta em X=3, Z=5 a 6.5 (sem colisão na porta)
     // ===================================================================
-    // Parede esquerda com porta (X=3) - apenas Z=3 a Z=5 (porta de Z=5 a 6.5)
-    if (fabs(x - 3.0f) < 0.15f && z > 3.0f - radius && z < 5.0f - radius) return true;
+    // Parede esquerda com porta (X=3) - seção 1: Z=3 a Z=5
+    if (fabs(x - 3.0f) < 0.15f && z >= 3.0f - radius && z < 5.0f) return true;
+    // Parede esquerda com porta (X=3) - seção 2: Z=6.5 a Z=8.5
+    if (fabs(x - 3.0f) < 0.15f && z > 6.5f && z <= 8.5f + radius) return true;
     // Parede traseira (Z=3) da área de console
     if (fabs(z - 3.0f) < 0.15f && x > 3.0f - radius && x < 10.0f + radius) return true;
     // Parede direita (X=10) da área de console
@@ -1958,16 +1997,13 @@ bool checkCollisionP5(float x, float z) {
     // ===================================================================
     // MÓVEIS E OBJETOS - ÁREA DE CONSOLE
     // ===================================================================
-    // CONSOLE AUXILIAR (X=7.0, Z=7.8) e CADEIRA (X=6.5, Z=6.8) - movidos para frente
-    if (x > 6.2f - radius && x < 7.8f + radius && z > 6.3f - radius && z < 8.3f + radius) return true;
+    // CONSOLE AUXILIAR e CADEIRA - removidos colisão para não bloquear entrada da sala
     // Estante (X=8.5, Z=7.8) - na área frontal
     if (x > 8.0f - radius && x < 9.0f + radius && z > 7.3f - radius && z < 8.3f + radius) return true;
-    // SOFÁ (X=5.5, Z=5.8, rotação 180°, escala 1.8x0.8)
-    if (x > 4.5f - radius && x < 6.5f + radius && z > 5.3f - radius && z < 6.3f + radius) return true;
+    // SOFÁ - removido colisão para não bloquear acesso à porta
     // ESTANTE com equipamentos (X=8.5, Z=7.0, escala 0.8x1.5)
     if (x > 8.0f - radius && x < 9.0f + radius && z > 6.2f - radius && z < 7.8f + radius) return true;
-    // Caixa de ferramentas (X=6.0, Z=6.0, escala 0.8x0.5)
-    if (x > 5.5f - radius && x < 6.5f + radius && z > 5.7f - radius && z < 6.3f + radius) return true;
+    // Caixa de ferramentas - removido colisão para não bloquear acesso à porta
     
     // ===================================================================
     // OBJETOS DO CORREDOR
@@ -2014,7 +2050,7 @@ void updatePhase5(int value) {
         return;
     }
     
-    float speed = 0.08f;
+    float speed = 0.05f; // Velocidade reduzida
     float lookX = sin(playerP5.angle);
     float lookZ = -cos(playerP5.angle);
 
@@ -2053,7 +2089,7 @@ void updatePhase5(int value) {
             int closestDeposit = -1;
             float closestDist = 999.0f;
             for (int i = 0; i < numDepositsP5; i++) {
-                if (!depositsP5[i].filled) {
+                if (depositsP5[i].count < 2) {
                     float dist = sqrt(pow(playerP5.x - depositsP5[i].x, 2) + pow(playerP5.z - depositsP5[i].z, 2));
                     if (dist < 2.0f && dist < closestDist) {
                         closestDist = dist;
@@ -2065,28 +2101,37 @@ void updatePhase5(int value) {
             // Se encontrou uma plataforma próxima, verificar ao pressionar E
             if (closestDeposit >= 0 && (keyStateP5['e'] || keyStateP5['E'])) {
                 if (objectsP5[heldObjectIndex].type == depositsP5[closestDeposit].requiredType) {
-                    // Correto! Posicionar objeto na plataforma
-                    printf("Objeto depositado corretamente! Score: %d\n", scoreP5 + 1);
-                    depositsP5[closestDeposit].filled = true;
-                    objectsP5[heldObjectIndex].x = depositsP5[closestDeposit].x;
-                    objectsP5[heldObjectIndex].y = 1.35f; // EM CIMA da plataforma
-                    objectsP5[heldObjectIndex].z = depositsP5[closestDeposit].z;
-                    objectsP5[heldObjectIndex].collected = true;
-                    objectsP5[heldObjectIndex].held = false;
-                    scoreP5++;
-                    Audio::getInstance().play(Audio::SOUND_VICTORY);
-                    heldObjectIndex = -1;
-                    
-                    // Reset timer on successful deposit
-                    timeRemainingP5 = 15.0f;
-                    printf("Cronometro reiniciado! Tempo: 15 segundos\n");
-                    
-                    // Verificar vitória
-                    if (scoreP5 >= 4) {
-                        phase5_won = true;
-                        printf("Fase 5 completa!\n");
-                        // Ir para a próxima fase (Fase 6)
-                        setCurrentPhase(6);
+                    // Verificar se a base ainda tem espaço (máximo 2 objetos)
+                    if (depositsP5[closestDeposit].count < 2) {
+                        // Correto! Posicionar objeto na plataforma
+                        printf("Objeto depositado corretamente! Score: %d\n", scoreP5 + 1);
+                        
+                        // Posicionar lado a lado (offset horizontal)
+                        float xOffset = depositsP5[closestDeposit].count == 0 ? -0.15f : 0.15f;
+                        
+                        depositsP5[closestDeposit].count++;
+                        objectsP5[heldObjectIndex].x = depositsP5[closestDeposit].x + xOffset;
+                        objectsP5[heldObjectIndex].y = 1.35f;
+                        objectsP5[heldObjectIndex].z = depositsP5[closestDeposit].z;
+                        objectsP5[heldObjectIndex].collected = true;
+                        objectsP5[heldObjectIndex].held = false;
+                        scoreP5++;
+                        Audio::getInstance().play(Audio::SOUND_VICTORY);
+                        heldObjectIndex = -1;
+                        
+                        // Verificar vitória
+                        if (scoreP5 >= 8) {
+                            printf("Fase 5 completa! Mostrando história da Fase 6...\n");
+                            showStoryForPhase(6);
+                            return; // Sair imediatamente
+                        }
+                        
+                        // Reset timer on successful deposit
+                        timeRemainingP5 = 30.0f;
+                        printf("Cronometro reiniciado! Tempo: 30 segundos\n");
+                    } else {
+                        printf("Esta base já está cheia (2 objetos)!\n");
+                        Audio::getInstance().play(Audio::SOUND_ERROR);
                     }
                 } else {
                     // Errado - tipo incorreto
@@ -2142,7 +2187,7 @@ void handlePhase5Keyboard(unsigned char key, int x, int y) {
             int closestDeposit = -1;
             float closestDist = 999.0f;
             for (int i = 0; i < numDepositsP5; i++) {
-                if (!depositsP5[i].filled) {
+                if (depositsP5[i].count < 2) {
                     float dist = sqrt(pow(playerP5.x - depositsP5[i].x, 2) + pow(playerP5.z - depositsP5[i].z, 2));
                     if (dist < 2.0f && dist < closestDist) {
                         closestDist = dist;
@@ -2154,29 +2199,38 @@ void handlePhase5Keyboard(unsigned char key, int x, int y) {
             // Se encontrou uma plataforma próxima
             if (closestDeposit >= 0) {
                 if (objectsP5[heldObjectIndex].type == depositsP5[closestDeposit].requiredType) {
-                    // Correto! Posicionar objeto na plataforma
-                    printf("Objeto depositado corretamente! Score: %d\n", scoreP5 + 1);
-                    depositsP5[closestDeposit].filled = true;
-                    objectsP5[heldObjectIndex].x = depositsP5[closestDeposit].x;
-                    objectsP5[heldObjectIndex].y = 1.35f; // EM CIMA da plataforma
-                    objectsP5[heldObjectIndex].z = depositsP5[closestDeposit].z;
-                    objectsP5[heldObjectIndex].collected = true;
-                    objectsP5[heldObjectIndex].held = false;
-                    scoreP5++;
-                    Audio::getInstance().play(Audio::SOUND_VICTORY);
-                    heldObjectIndex = -1;
-                    deposited = true;
-                    
-                    // Reset timer on successful deposit
-                    timeRemainingP5 = 15.0f;
-                    printf("Cronometro reiniciado! Tempo: 15 segundos\n");
-                    
-                    // Verificar vitória
-                    if (scoreP5 >= 4) {
-                        phase5_won = true;
-                        printf("Fase 5 completa!\n");
-                        // Ir para a próxima fase (Fase 6)
-                        setCurrentPhase(6);
+                    // Verificar se a base ainda tem espaço (máximo 2 objetos)
+                    if (depositsP5[closestDeposit].count < 2) {
+                        // Correto! Posicionar objeto na plataforma
+                        printf("Objeto depositado corretamente! Score: %d\n", scoreP5 + 1);
+                        
+                        // Posicionar lado a lado (offset horizontal)
+                        float xOffset = depositsP5[closestDeposit].count == 0 ? -0.15f : 0.15f;
+                        
+                        depositsP5[closestDeposit].count++;
+                        objectsP5[heldObjectIndex].x = depositsP5[closestDeposit].x + xOffset;
+                        objectsP5[heldObjectIndex].y = 1.35f;
+                        objectsP5[heldObjectIndex].z = depositsP5[closestDeposit].z;
+                        objectsP5[heldObjectIndex].collected = true;
+                        objectsP5[heldObjectIndex].held = false;
+                        scoreP5++;
+                        Audio::getInstance().play(Audio::SOUND_VICTORY);
+                        heldObjectIndex = -1;
+                        deposited = true;
+                        
+                        // Verificar vitória
+                        if (scoreP5 >= 8) {
+                            printf("Fase 5 completa! Mostrando história da Fase 6...\n");
+                            showStoryForPhase(6);
+                            return; // Sair imediatamente
+                        }
+                        
+                        // Reset timer on successful deposit
+                        timeRemainingP5 = 30.0f;
+                        printf("Cronometro reiniciado! Tempo: 30 segundos\n");
+                    } else {
+                        printf("Esta base já está cheia (2 objetos)!\n");
+                        Audio::getInstance().play(Audio::SOUND_ERROR);
                     }
                 } else {
                     // Errado - tipo incorreto
