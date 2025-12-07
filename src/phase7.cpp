@@ -1146,6 +1146,11 @@ void drawPhase7(int windowWidth, int windowHeight) {
 void updatePhase7(int value) {
     (void)value;
     
+    // Se não estamos mais na fase 7, parar de atualizar
+    if (currentState != PHASE7_SCREEN) {
+        return;
+    }
+    
     if (getPaused()) {
         glutTimerFunc(16, updatePhase7, 0);
         return;

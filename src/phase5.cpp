@@ -2030,6 +2030,11 @@ bool checkCollisionP5(float x, float z) {
 void updatePhase5(int value) {
     (void)value;
     
+    // Se não estamos mais na fase 5, parar de atualizar
+    if (currentState != PHASE5_SCREEN) {
+        return;
+    }
+    
     // Se completou a fase, não continuar atualizando
     if (scoreP5 >= 8) {
         return;
