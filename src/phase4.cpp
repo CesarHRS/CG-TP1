@@ -139,6 +139,9 @@ void initPhase4() {
     initGameOver(windowWidthP4, windowHeightP4);
     registerRestartCallback(restartPhase4);
     registerMenuCallback(returnToMenuFromPhase4);
+
+    // Play boss music for Phase 4
+    Audio::getInstance().playMusic("assets/music/boss1.mp3");
 }
 
 void drawParallaxBackground() {
@@ -862,4 +865,6 @@ void restartPhase4() {
 void returnToMenuFromPhase4() {
     // Chamado pelo gameover/menu - apenas voltar ao menu principal
     changeState(MAIN_MENU);
+    // Restore menu music
+    Audio::getInstance().playMusic("assets/music/menu.wav");
 }
