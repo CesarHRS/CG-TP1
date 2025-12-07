@@ -679,6 +679,8 @@ void initPhase7() {
     initGameOver(800, 700);
     registerRestartCallback(initPhase7);
     registerMenuCallback(returnToMenuFromPhase7);
+    // Play boss music for Phase 7
+    Audio::getInstance().playMusic("assets/music/boss2.mp3");
     
     // Garantir que o timer está rodando
     glutTimerFunc(16, updatePhase7, 0);
@@ -1207,6 +1209,8 @@ void returnToMenuFromPhase7() {
     setVictory(false);
     glClearColor(0.1f, 0.1f, 0.15f, 1.0f); // Restaurar cor de fundo do menu
     setCurrentPhase(0);
+    // Restore menu music
+    Audio::getInstance().playMusic("assets/music/menu.wav");
 }
 
 void drawPhase7() {
