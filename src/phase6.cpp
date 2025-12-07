@@ -16,6 +16,79 @@
 #endif
 
 // ===================================================================
+// TEXTURAS GLOBAIS FASE 6
+// ===================================================================
+
+GLuint textureShipP6 = 0;
+GLuint textureAsteroidP6 = 0;
+GLuint textureFieldP6 = 0;
+bool texturesLoadedP6 = false;
+
+// ===================================================================
+// FUNÇÕES DE TEXTURAS
+// ===================================================================
+
+GLuint createProceduralTextureP6(int width, int height, int type) {
+    unsigned char* data = (unsigned char*)malloc(width * height * 3);
+    
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            int index = (y * width + x) * 3;
+            
+            switch(type) {
+                case 0: // Nave (metal azulado)
+                    {
+                        int noise = rand() % 40;
+                        data[index] = 100 + noise;
+                        data[index + 1] = 140 + noise;
+                        data[index + 2] = 200 + noise;
+                    }
+                    break;
+                case 1: // Campo magnético (branco com variação sutil)
+                    {
+                        int noise = rand() % 30;
+                        data[index] = 230 + noise;
+                        data[index + 1] = 230 + noise;
+                        data[index + 2] = 230 + noise;
+                    }
+                    break;
+                case 2: // Asteroide (rocha cinza)
+                    {
+                        int noise = rand() % 50;
+                        int base = 60 + ((x * y) % 40);
+                        data[index] = base + noise;
+                        data[index + 1] = base + noise;
+                        data[index + 2] = base + noise + 10;
+                    }
+                    break;
+            }
+        }
+    }
+    
+    GLuint texID;
+    glGenTextures(1, &texID);
+    glBindTexture(GL_TEXTURE_2D, texID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    
+    free(data);
+    return texID;
+}
+
+void loadTexturesP6() {
+    if (!texturesLoadedP6) {
+        textureShipP6 = createProceduralTextureP6(128, 128, 0);
+        textureFieldP6 = createProceduralTextureP6(128, 128, 1);
+        textureAsteroidP6 = createProceduralTextureP6(128, 128, 2);
+        texturesLoadedP6 = true;
+        printf("Texturas procedurais da Fase 6 criadas\n");
+    }
+}
+
+// ===================================================================
 // ESTRUTURAS E VARIÁVEIS GLOBAIS
 // ===================================================================
 
@@ -464,24 +537,49 @@ void drawMagneticField(const MagneticField& field) {
     glPushMatrix();
     glTranslatef(field.x, field.y, field.z);
     
-    // Pulsação
-    float pulse = 0.9f + 0.1f * sin(glutGet(GLUT_ELAPSED_TIME) * 0.003f);
+    // Pulsação sutil
+    float pulse = 0.95f + 0.05f * sin(glutGet(GLUT_ELAPSED_TIME) * 0.003f);
     
-    // Esfera externa (campo magnético) - maior
-    if (field.isCorrect) {
-        glColor4f(0.2f, 0.8f, 0.3f, 0.3f); // Verde transparente
-    } else {
-        glColor4f(0.8f, 0.3f, 0.2f, 0.3f); // Vermelho transparente
-    }
+    // Habilitar iluminação e textura para dar profundidade 3D
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+    glEnable(GL_TEXTURE_2D);
     
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glutSolidSphere(5.0 * pulse, 24, 24);
-    glDisable(GL_BLEND);
+    // Configurar luz para dar volume
+    GLfloat lightPos[] = {10.0f, 10.0f, 10.0f, 1.0f};
+    GLfloat lightAmb[] = {0.4f, 0.4f, 0.4f, 1.0f};
+    GLfloat lightDif[] = {1.0f, 1.0f, 1.0f, 1.0f};
+    GLfloat lightSpec[] = {1.0f, 1.0f, 1.0f, 1.0f};
     
-    // Esfera interna branca brilhante
+    glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmb);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDif);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpec);
+    
+    // Material brilhante
+    GLfloat matAmb[] = {0.3f, 0.3f, 0.3f, 1.0f};
+    GLfloat matDif[] = {0.8f, 0.8f, 0.8f, 1.0f};
+    GLfloat matSpec[] = {1.0f, 1.0f, 1.0f, 1.0f};
+    GLfloat matShin[] = {100.0f};
+    
+    glMaterialfv(GL_FRONT, GL_AMBIENT, matAmb);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, matDif);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, matSpec);
+    glMaterialfv(GL_FRONT, GL_SHININESS, matShin);
+    
+    // Aplicar textura
+    glBindTexture(GL_TEXTURE_2D, textureFieldP6);
     glColor3f(1.0f, 1.0f, 1.0f);
-    glutSolidSphere(4.2, 20, 20);
+    
+    // Desenhar esfera com textura e iluminação
+    GLUquadric* quad = gluNewQuadric();
+    gluQuadricTexture(quad, GL_TRUE);
+    gluQuadricNormals(quad, GLU_SMOOTH);
+    gluSphere(quad, 5.0 * pulse, 32, 32);
+    gluDeleteQuadric(quad);
+    
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_LIGHTING);
     
     glPopMatrix();
     
@@ -494,8 +592,8 @@ void drawMagneticField(const MagneticField& field) {
     // Billboard (sempre virado para câmera)
     glRotatef(180, 0, 1, 0);
     
-    // Texto preto, tamanho ajustado para números grandes
-    glColor3f(0.0f, 0.0f, 0.0f);
+    // Texto branco, tamanho ajustado para números grandes
+    glColor3f(1.0f, 1.0f, 1.0f);
     char buffer[16];
     sprintf(buffer, "%d", field.answerValue);
     
@@ -532,6 +630,9 @@ void drawMagneticField(const MagneticField& field) {
 void initPhase6() {
     printf("Inicializando Fase 6 (Cinturão de Asteroides Magnéticos)...\n");
     srand((unsigned int)time(NULL));
+    
+    // Carregar texturas
+    loadTexturesP6();
     
     shipX = 0.0f;
     shipY = 0.0f;
@@ -605,18 +706,7 @@ void drawPhase6(int windowWidth, int windowHeight) {
     // Desenhar estrelas de fundo (no mundo, atrás de tudo)
     drawStarField();
     
-    // Desenhar campos magnéticos
-    glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
-    
-    GLfloat lightPos[] = {0.0f, 10.0f, -10.0f, 1.0f};
-    GLfloat lightAmb[] = {0.3f, 0.3f, 0.3f, 1.0f};
-    GLfloat lightDif[] = {0.8f, 0.8f, 0.8f, 1.0f};
-    
-    glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
-    glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmb);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDif);
-    
+    // Desenhar campos magnéticos (sem iluminação)
     for (size_t i = 0; i < magneticFields.size(); i++) {
         if (magneticFields[i].active) {
             // Debug: verificar se isCorrect está consistente
@@ -631,8 +721,6 @@ void drawPhase6(int windowWidth, int windowHeight) {
             drawMagneticField(magneticFields[i]);
         }
     }
-    
-    glDisable(GL_LIGHTING);
     
     // Desenhar cockpit e painel
     drawCockpitFrame();
@@ -874,13 +962,29 @@ void restartPhase6() {
 }
 
 void returnToMenuFromPhase6() {
-    damageFlashP6 = 0;
+    // Resetar estados de jogo primeiro
     gameOverP6 = false;
     victoryP6 = false;
-    magneticFields.clear();
-    usedRadii.clear();
     setGameOver(false);
     setVictory(false);
-    glClearColor(0.1f, 0.1f, 0.15f, 1.0f); // Restaurar cor de fundo do menu
+    
+    // Resetar variáveis da fase
+    damageFlashP6 = 0;
+    livesP6 = 3;
+    scoreP6 = 0;
+    questionsAnsweredP6 = 0;
+    magneticFields.clear();
+    usedRadii.clear();
+    fieldSetPassed = false;
+    showCountdownP6 = false;
+    
+    // Resetar estado de pausa
+    setPaused(false, 0);
+    
+    // Restaurar cor de fundo do menu
+    glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
+    
+    // Voltar ao menu
     setCurrentPhase(0);
+    glutPostRedisplay();
 }

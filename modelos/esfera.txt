@@ -1,0 +1,20 @@
+# Modelo 2D - Esfera (círculo com linhas de latitude/longitude)
+# Formato: x y (coordenadas de vértices para círculo aproximado)
+
+# Círculo principal (16 pontos)
+0.5 0.0
+0.4619 0.1913
+0.3536 0.3536
+0.1913 0.4619
+0.0 0.5
+-0.1913 0.4619
+-0.3536 0.3536
+-0.4619 0.1913
+-0.5 0.0
+-0.4619 -0.1913
+-0.3536 -0.3536
+-0.1913 -0.4619
+0.0 -0.5
+0.1913 -0.4619
+0.3536 -0.3536
+0.4619 -0.1913

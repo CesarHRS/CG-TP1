@@ -9,6 +9,18 @@
 #include <time.h>
 
 // ===================================================================
+// Texturas Globais
+// ===================================================================
+
+GLuint textureWallP5 = 0;
+GLuint textureFloorP5 = 0;
+GLuint texturePyramidP5 = 0;
+GLuint textureCubeP5 = 0;
+GLuint textureSphereP5 = 0;
+GLuint textureCylinderP5 = 0;
+bool texturesLoadedP5 = false;
+
+// ===================================================================
 // Global variables for Phase 5
 // ===================================================================
 
@@ -41,54 +53,157 @@ int lastMouseYP5;
 #define M_PI 3.14159265358979323846
 #endif
 
+// ===================================================================
+// Funções de Texturas
+// ===================================================================
+
+GLuint createProceduralTexture(int width, int height, int type) {
+    unsigned char* data = (unsigned char*)malloc(width * height * 3);
+    
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            int index = (y * width + x) * 3;
+            
+            switch(type) {
+                case 0: // Parede metálica
+                    {
+                        int noise = rand() % 30;
+                        data[index] = 120 + noise;
+                        data[index + 1] = 130 + noise;
+                        data[index + 2] = 140 + noise;
+                    }
+                    break;
+                case 1: // Piso
+                    {
+                        int checker = ((x / 16) % 2) ^ ((y / 16) % 2);
+                        int base = checker ? 80 : 100;
+                        data[index] = base;
+                        data[index + 1] = base;
+                        data[index + 2] = base;
+                    }
+                    break;
+                case 2: // Pirâmide (gradiente vermelho)
+                    {
+                        int grad = (x + y) % 255;
+                        data[index] = 200 + (grad % 55);
+                        data[index + 1] = 50 + (grad % 50);
+                        data[index + 2] = 50;
+                    }
+                    break;
+                case 3: // Cubo (gradiente azul)
+                    {
+                        int grad = (x * y) % 255;
+                        data[index] = 50 + (grad % 50);
+                        data[index + 1] = 100 + (grad % 50);
+                        data[index + 2] = 200 + (grad % 55);
+                    }
+                    break;
+                case 4: // Esfera (gradiente verde)
+                    {
+                        int grad = (int)sqrt(x * x + y * y) % 255;
+                        data[index] = 50 + (grad % 50);
+                        data[index + 1] = 200 + (grad % 55);
+                        data[index + 2] = 100 + (grad % 50);
+                    }
+                    break;
+                case 5: // Cilindro (gradiente amarelo)
+                    {
+                        int grad = (x % 128) + (y % 128);
+                        data[index] = 200 + (grad % 55);
+                        data[index + 1] = 200 + (grad % 55);
+                        data[index + 2] = 50;
+                    }
+                    break;
+            }
+        }
+    }
+    
+    GLuint texID;
+    glGenTextures(1, &texID);
+    glBindTexture(GL_TEXTURE_2D, texID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    
+    free(data);
+    return texID;
+}
+
+void loadTexturesP5() {
+    if (!texturesLoadedP5) {
+        textureWallP5 = createProceduralTexture(256, 256, 0);
+        textureFloorP5 = createProceduralTexture(256, 256, 1);
+        texturePyramidP5 = createProceduralTexture(128, 128, 2);
+        textureCubeP5 = createProceduralTexture(128, 128, 3);
+        textureSphereP5 = createProceduralTexture(128, 128, 4);
+        textureCylinderP5 = createProceduralTexture(128, 128, 5);
+        texturesLoadedP5 = true;
+        printf("Texturas procedurais da Fase 5 criadas\n");
+    }
+}
 
 // ===================================================================
 // Utility Functions
 // ===================================================================
 
 void drawPyramidP5() {
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texturePyramidP5);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    
     glBegin(GL_TRIANGLES);
         // Face 1
-        glColor3f(1.0f, 0.0f, 0.0f);
-        glVertex3f( 0.0f, 1.f, 0.0f);
-        glVertex3f(-1.f, -1.f, 1.f);
-        glVertex3f(1.f, -1.f, 1.f);
+        glTexCoord2f(0.5f, 1.0f); glVertex3f( 0.0f, 1.f, 0.0f);
+        glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.f, -1.f, 1.f);
+        glTexCoord2f(1.0f, 0.0f); glVertex3f(1.f, -1.f, 1.f);
         // Face 2
-        glColor3f(0.0f, 1.0f, 0.0f);
-        glVertex3f(0.0f, 1.f, 0.0f);
-        glVertex3f(1.f, -1.f, 1.f);
-        glVertex3f(1.f, -1.f, -1.f);
+        glTexCoord2f(0.5f, 1.0f); glVertex3f(0.0f, 1.f, 0.0f);
+        glTexCoord2f(0.0f, 0.0f); glVertex3f(1.f, -1.f, 1.f);
+        glTexCoord2f(1.0f, 0.0f); glVertex3f(1.f, -1.f, -1.f);
         // Face 3
-        glColor3f(0.0f, 0.0f, 1.0f);
-        glVertex3f(0.0f, 1.f, 0.0f);
-        glVertex3f(1.f, -1.f, -1.f);
-        glVertex3f(-1.f, -1.f, -1.f);
+        glTexCoord2f(0.5f, 1.0f); glVertex3f(0.0f, 1.f, 0.0f);
+        glTexCoord2f(0.0f, 0.0f); glVertex3f(1.f, -1.f, -1.f);
+        glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.f, -1.f, -1.f);
         // Face 4
-        glColor3f(1.0f, 1.0f, 0.0f);
-        glVertex3f( 0.0f, 1.f, 0.0f);
-        glVertex3f(-1.f,-1.f,-1.f);
-        glVertex3f(-1.f,-1.f, 1.f);
+        glTexCoord2f(0.5f, 1.0f); glVertex3f( 0.0f, 1.f, 0.0f);
+        glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.f,-1.f,-1.f);
+        glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.f,-1.f, 1.f);
     glEnd();
+    
+    glDisable(GL_TEXTURE_2D);
 }
 
 void drawCylinderP5(float radius, float height, int sides) {
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textureCylinderP5);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    
     glBegin(GL_QUAD_STRIP);
     for (int i = 0; i <= sides; i++) {
         float angle = 2.0f * M_PI * i / sides;
         float x = radius * cos(angle);
         float z = radius * sin(angle);
+        float texS = (float)i / sides;
         glNormal3f(x/radius, 0.0, z/radius);
-        glVertex3f(x, 0, z);
-        glVertex3f(x, height, z);
+        glTexCoord2f(texS, 0.0f); glVertex3f(x, 0, z);
+        glTexCoord2f(texS, 1.0f); glVertex3f(x, height, z);
     }
     glEnd();
+    
     glBegin(GL_POLYGON);
     glNormal3f(0.0, 1.0, 0.0);
     for (int i = 0; i <= sides; i++) {
         float angle = 2.0f * M_PI * i / sides;
+        float texS = 0.5f + 0.5f * cos(angle);
+        float texT = 0.5f + 0.5f * sin(angle);
+        glTexCoord2f(texS, texT);
         glVertex3f(radius * cos(angle), height, radius * sin(angle));
     }
     glEnd();
+    
+    glDisable(GL_TEXTURE_2D);
 }
 
 void drawTextP5(float x, float y, const char *string) {
@@ -112,12 +227,49 @@ void drawText3DP5(float x, float y, float z, const char *string, void* font) {
 
 // Desenhar parede metálica
 void drawMetalWallP5(float x, float z, float width, float height, float depth, float r, float g, float b) {
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textureWallP5);
+    glColor3f(r, g, b);
+    
     glPushMatrix();
     glTranslatef(x, height/2, z);
-    glColor3f(r, g, b);
-    glScalef(width, height, depth);
-    glutSolidCube(1.0f);
+    
+    // Desenhar cubo com coordenadas de textura
+    glBegin(GL_QUADS);
+    // Frente
+    glTexCoord2f(0, 0); glVertex3f(-width/2, -height/2, depth/2);
+    glTexCoord2f(1, 0); glVertex3f(width/2, -height/2, depth/2);
+    glTexCoord2f(1, 1); glVertex3f(width/2, height/2, depth/2);
+    glTexCoord2f(0, 1); glVertex3f(-width/2, height/2, depth/2);
+    // Trás
+    glTexCoord2f(0, 0); glVertex3f(-width/2, -height/2, -depth/2);
+    glTexCoord2f(1, 0); glVertex3f(width/2, -height/2, -depth/2);
+    glTexCoord2f(1, 1); glVertex3f(width/2, height/2, -depth/2);
+    glTexCoord2f(0, 1); glVertex3f(-width/2, height/2, -depth/2);
+    // Topo
+    glTexCoord2f(0, 0); glVertex3f(-width/2, height/2, -depth/2);
+    glTexCoord2f(1, 0); glVertex3f(width/2, height/2, -depth/2);
+    glTexCoord2f(1, 1); glVertex3f(width/2, height/2, depth/2);
+    glTexCoord2f(0, 1); glVertex3f(-width/2, height/2, depth/2);
+    // Base
+    glTexCoord2f(0, 0); glVertex3f(-width/2, -height/2, -depth/2);
+    glTexCoord2f(1, 0); glVertex3f(width/2, -height/2, -depth/2);
+    glTexCoord2f(1, 1); glVertex3f(width/2, -height/2, depth/2);
+    glTexCoord2f(0, 1); glVertex3f(-width/2, -height/2, depth/2);
+    // Direita
+    glTexCoord2f(0, 0); glVertex3f(width/2, -height/2, -depth/2);
+    glTexCoord2f(1, 0); glVertex3f(width/2, -height/2, depth/2);
+    glTexCoord2f(1, 1); glVertex3f(width/2, height/2, depth/2);
+    glTexCoord2f(0, 1); glVertex3f(width/2, height/2, -depth/2);
+    // Esquerda
+    glTexCoord2f(0, 0); glVertex3f(-width/2, -height/2, -depth/2);
+    glTexCoord2f(1, 0); glVertex3f(-width/2, -height/2, depth/2);
+    glTexCoord2f(1, 1); glVertex3f(-width/2, height/2, depth/2);
+    glTexCoord2f(0, 1); glVertex3f(-width/2, height/2, -depth/2);
+    glEnd();
+    
     glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
 }
 
 // Desenhar porta deslizante
@@ -708,6 +860,9 @@ void generateRandomObjectPosition(float &x, float &z, int roomIndex, int current
 // Core Phase 5 Functions
 // ===================================================================
 
+// Forward declarations
+void returnToMenuFromPhase5();
+
 void initPhase5() {
     printf("Initializing Phase 5 (Inside the Spaceship)...\n");
     srand((unsigned int)time(NULL));
@@ -718,6 +873,9 @@ void initPhase5() {
     GLfloat light_pos[] = {0.0, 3.0, 0.0, 1.0}; // Luz no centro da nave
     glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
     glEnable(GL_DEPTH_TEST);
+    
+    // Carregar texturas
+    loadTexturesP5();
 
     playerP5.x = 0.0f;
     playerP5.y = 1.6f; // Altura dos olhos
@@ -779,6 +937,7 @@ void initPhase5() {
     setVictory(false);
     initGameOver(800, 700);
     registerRestartCallback(initPhase5);
+    registerMenuCallback(returnToMenuFromPhase5);
 }
 
 void drawPhase5(int windowWidth, int windowHeight) {
@@ -805,24 +964,22 @@ void drawPhase5(int windowWidth, int windowHeight) {
     // ===================================================================
     
     // Chão metálico da nave (placas com padrão)
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textureFloorP5);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    
     glBegin(GL_QUADS);
     for (int x = -10; x < 10; x++) {
         for (int z = -10; z < 10; z++) {
-            // Padrão de placas metálicas
-            if ((x + z) % 2 == 0) {
-                glColor3f(0.35f, 0.35f, 0.4f); // Cinza metálico claro
-            } else {
-                glColor3f(0.3f, 0.3f, 0.35f); // Cinza metálico escuro
-            }
-            
             glNormal3f(0.0, 1.0, 0.0);
-            glVertex3f((float)x, 0.0f, (float)z);
-            glVertex3f((float)x, 0.0f, (float)(z + 1));
-            glVertex3f((float)(x + 1), 0.0f, (float)(z + 1));
-            glVertex3f((float)(x + 1), 0.0f, (float)z);
+            glTexCoord2f(0.0f, 0.0f); glVertex3f((float)x, 0.0f, (float)z);
+            glTexCoord2f(0.0f, 1.0f); glVertex3f((float)x, 0.0f, (float)(z + 1));
+            glTexCoord2f(1.0f, 1.0f); glVertex3f((float)(x + 1), 0.0f, (float)(z + 1));
+            glTexCoord2f(1.0f, 0.0f); glVertex3f((float)(x + 1), 0.0f, (float)z);
         }
     }
     glEnd();
+    glDisable(GL_TEXTURE_2D);
     
     // Teto da nave
     glBegin(GL_QUADS);
@@ -1526,11 +1683,24 @@ void drawPhase5(int windowWidth, int windowHeight) {
             glScalef(0.25f, 0.25f, 0.25f);
             
             switch (objectsP5[i].type) {
-                case SHAPE_CUBE: glColor3f(1.0, 0.2, 0.2); glutSolidCube(1.0); break;
-                case SHAPE_SPHERE: glColor3f(1.0, 0.5, 0.0); glutSolidSphere(0.6, 20, 20); break; // Laranja
-                case SHAPE_PYRAMID: glColor3f(0.2, 0.8, 1.0); drawPyramidP5(); break;
+                case SHAPE_CUBE: 
+                    glEnable(GL_TEXTURE_2D);
+                    glBindTexture(GL_TEXTURE_2D, textureCubeP5);
+                    glColor3f(1.0, 1.0, 1.0);
+                    glutSolidCube(1.0);
+                    glDisable(GL_TEXTURE_2D);
+                    break;
+                case SHAPE_SPHERE: 
+                    glEnable(GL_TEXTURE_2D);
+                    glBindTexture(GL_TEXTURE_2D, textureSphereP5);
+                    glColor3f(1.0, 1.0, 1.0);
+                    glutSolidSphere(0.6, 20, 20);
+                    glDisable(GL_TEXTURE_2D);
+                    break;
+                case SHAPE_PYRAMID: 
+                    drawPyramidP5(); 
+                    break;
                 case SHAPE_CYLINDER: 
-                    glColor3f(1.0, 1.0, 0.2); 
                     glTranslatef(0.0f, -0.5f, 0.0f);
                     drawCylinderP5(0.5, 1.0, 20); 
                     break;
@@ -1548,11 +1718,24 @@ void drawPhase5(int windowWidth, int windowHeight) {
             glScalef(0.25f, 0.25f, 0.25f); // Objetos bem menores
             
             switch (objectsP5[i].type) {
-                case SHAPE_CUBE: glColor3f(1.0, 0.2, 0.2); glutSolidCube(1.0); break;
-                case SHAPE_SPHERE: glColor3f(1.0, 0.5, 0.0); glutSolidSphere(0.6, 20, 20); break; // Laranja
-                case SHAPE_PYRAMID: glColor3f(0.2, 0.2, 1.0); drawPyramidP5(); break;
+                case SHAPE_CUBE: 
+                    glEnable(GL_TEXTURE_2D);
+                    glBindTexture(GL_TEXTURE_2D, textureCubeP5);
+                    glColor3f(1.0, 1.0, 1.0);
+                    glutSolidCube(1.0);
+                    glDisable(GL_TEXTURE_2D);
+                    break;
+                case SHAPE_SPHERE: 
+                    glEnable(GL_TEXTURE_2D);
+                    glBindTexture(GL_TEXTURE_2D, textureSphereP5);
+                    glColor3f(1.0, 1.0, 1.0);
+                    glutSolidSphere(0.6, 20, 20);
+                    glDisable(GL_TEXTURE_2D);
+                    break;
+                case SHAPE_PYRAMID: 
+                    drawPyramidP5(); 
+                    break;
                 case SHAPE_CYLINDER: 
-                    glColor3f(1.0, 1.0, 0.2); 
                     glTranslatef(0.0f, -0.5f, 0.0f);
                     drawCylinderP5(0.5, 1.0, 20); 
                     break;
@@ -1570,11 +1753,24 @@ void drawPhase5(int windowWidth, int windowHeight) {
         glScalef(0.25f, 0.25f, 0.25f);
         
         switch (objectsP5[heldObjectIndex].type) {
-            case SHAPE_CUBE: glColor3f(1.0, 0.2, 0.2); glutSolidCube(1.0); break;
-            case SHAPE_SPHERE: glColor3f(1.0, 0.5, 0.0); glutSolidSphere(0.6, 20, 20); break; // Laranja
-            case SHAPE_PYRAMID: glColor3f(0.2, 0.8, 1.0); drawPyramidP5(); break;
+            case SHAPE_CUBE: 
+                glEnable(GL_TEXTURE_2D);
+                glBindTexture(GL_TEXTURE_2D, textureCubeP5);
+                glColor3f(1.0, 1.0, 1.0);
+                glutSolidCube(1.0);
+                glDisable(GL_TEXTURE_2D);
+                break;
+            case SHAPE_SPHERE: 
+                glEnable(GL_TEXTURE_2D);
+                glBindTexture(GL_TEXTURE_2D, textureSphereP5);
+                glColor3f(1.0, 1.0, 1.0);
+                glutSolidSphere(0.6, 20, 20);
+                glDisable(GL_TEXTURE_2D);
+                break;
+            case SHAPE_PYRAMID: 
+                drawPyramidP5(); 
+                break;
             case SHAPE_CYLINDER: 
-                glColor3f(1.0, 1.0, 0.2); 
                 glTranslatef(0.0f, -0.5f, 0.0f);
                 drawCylinderP5(0.5, 1.0, 20); 
                 break;
@@ -2049,4 +2245,13 @@ void handlePhase5PassiveMotion(int x, int y) {
     float maxPitch = 1.48f; // ~85 graus em radianos
     if (playerP5.pitch > maxPitch) playerP5.pitch = maxPitch;
     if (playerP5.pitch < -maxPitch) playerP5.pitch = -maxPitch;
+}
+
+void returnToMenuFromPhase5() {
+    printf("Voltando ao menu principal da Fase 5...\n");
+    setGameOver(false);
+    setVictory(false);
+    setPaused(false, 0);
+    setCurrentPhase(0);
+    glutPostRedisplay();
 }

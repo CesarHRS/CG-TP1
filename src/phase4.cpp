@@ -864,7 +864,11 @@ void restartPhase4() {
 
 void returnToMenuFromPhase4() {
     // Chamado pelo gameover/menu - apenas voltar ao menu principal
+    setGameOver(false);
+    setVictory(false);
+    setPaused(false, 0);
     changeState(MAIN_MENU);
     // Restore menu music
     Audio::getInstance().playMusic("assets/music/menu.wav");
+    glutPostRedisplay();
 }

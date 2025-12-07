@@ -48,8 +48,12 @@ struct Material {
     float Ns;    // Shininess
 } objMaterial;
 
-// Textura do monstro
+// Texturas
 GLuint monsterTextureID = 0;
+GLuint textureWallP7 = 0;
+GLuint textureFloorP7 = 0;
+GLuint textureProjectileP7 = 0;
+bool texturesLoadedP7 = false;
 
 // ===================================================================
 // Variáveis Globais
@@ -171,6 +175,61 @@ void loadOBJ(const char* filename) {
     fclose(file);
     objLoaded = true;
     printf("Modelo OBJ carregado: %d vértices, %d faces\n", (int)objVertices.size(), (int)objFaces.size());
+}
+
+GLuint createProceduralTextureP7(int width, int height, int type) {
+    unsigned char* data = (unsigned char*)malloc(width * height * 3);
+    
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            int index = (y * width + x) * 3;
+            
+            switch(type) {
+                case 0: // Parede metálica
+                    {
+                        int noise = rand() % 30;
+                        data[index] = 120 + noise;
+                        data[index + 1] = 130 + noise;
+                        data[index + 2] = 140 + noise;
+                    }
+                    break;
+                case 1: // Piso xadrez
+                    {
+                        int checker = ((x / 16) % 2) ^ ((y / 16) % 2);
+                        int base = checker ? 80 : 100;
+                        data[index] = base;
+                        data[index + 1] = base;
+                        data[index + 2] = base;
+                    }
+                    break;
+                case 2: // Projétil (energia amarela/laranja)
+                    {
+                        float cx = width / 2.0f;
+                        float cy = height / 2.0f;
+                        float dist = sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy));
+                        float maxDist = width / 2.0f;
+                        float intensity = 1.0f - (dist / maxDist);
+                        if (intensity < 0) intensity = 0;
+                        data[index] = (unsigned char)(255 * intensity);
+                        data[index + 1] = (unsigned char)(200 * intensity);
+                        data[index + 2] = (unsigned char)(50 * intensity);
+                    }
+                    break;
+            }
+        }
+    }
+    
+    GLuint texID;
+    glGenTextures(1, &texID);
+    glBindTexture(GL_TEXTURE_2D, texID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    
+    free(data);
+    return texID;
 }
 
 // Carregar textura PNG
@@ -670,10 +729,17 @@ void initPhase7() {
     resetEnemyAI();
     
     // Carregar modelo 3D do inimigo
-    loadOBJ("src/Monstro/Oozey.obj");
+    loadOBJ("src/modelos/Oozey.obj");
     
-    // Carregar textura do monstro
-    monsterTextureID = loadTexture("src/Monstro/oozey_diffuse.png");
+    // Carregar texturas
+    if (!texturesLoadedP7) {
+        monsterTextureID = loadTexture("src/modelos/oozey_diffuse.png");
+        textureWallP7 = createProceduralTextureP7(256, 256, 0);
+        textureFloorP7 = createProceduralTextureP7(256, 256, 1);
+        textureProjectileP7 = createProceduralTextureP7(64, 64, 2);
+        texturesLoadedP7 = true;
+        printf("Texturas da Fase 7 criadas\n");
+    }
     
     setGameOver(false); setVictory(false);
     initGameOver(800, 700);
@@ -748,17 +814,23 @@ void drawPhase7(int windowWidth, int windowHeight) {
     // MAPA DA FASE 5 (Reconstruído)
     // ===================================
     
-    // Chão
+    // Chão com textura
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textureFloorP7);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    
     glBegin(GL_QUADS);
     for (int x = -10; x < 10; x++) {
         for (int z = -10; z < 10; z++) {
-            if ((x + z) % 2 == 0) glColor3f(0.35f, 0.35f, 0.4f); else glColor3f(0.3f, 0.3f, 0.35f);
             glNormal3f(0.0, 1.0, 0.0);
-            glVertex3f((float)x, 0.0f, (float)z); glVertex3f((float)x, 0.0f, (float)(z + 1));
-            glVertex3f((float)(x + 1), 0.0f, (float)(z + 1)); glVertex3f((float)(x + 1), 0.0f, (float)z);
+            glTexCoord2f(0.0f, 0.0f); glVertex3f((float)x, 0.0f, (float)z);
+            glTexCoord2f(0.0f, 1.0f); glVertex3f((float)x, 0.0f, (float)(z + 1));
+            glTexCoord2f(1.0f, 1.0f); glVertex3f((float)(x + 1), 0.0f, (float)(z + 1));
+            glTexCoord2f(1.0f, 0.0f); glVertex3f((float)(x + 1), 0.0f, (float)z);
         }
     }
     glEnd();
+    glDisable(GL_TEXTURE_2D);
 
     // Teto
     glBegin(GL_QUADS); glColor3f(0.25f, 0.25f, 0.28f); glNormal3f(0.0, -1.0, 0.0);
@@ -766,13 +838,34 @@ void drawPhase7(int windowWidth, int windowHeight) {
     glVertex3f(10.0f, 3.0f, 10.0f); glVertex3f(-10.0f, 3.0f, 10.0f);
     glEnd();
 
-    // Paredes Externas
-    glColor3f(0.3f, 0.3f, 0.35f);
+    // Paredes Externas com textura
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textureWallP7);
+    glColor3f(0.9f, 0.9f, 1.0f);
+    
     glBegin(GL_QUADS);
-    glNormal3f(1.0, 0.0, 0.0); glVertex3f(-10.0f, 0.0f, -10.0f); glVertex3f(-10.0f, 3.0f, -10.0f); glVertex3f(-10.0f, 3.0f, 10.0f); glVertex3f(-10.0f, 0.0f, 10.0f);
-    glNormal3f(-1.0, 0.0, 0.0); glVertex3f(10.0f, 0.0f, -10.0f); glVertex3f(10.0f, 0.0f, 10.0f); glVertex3f(10.0f, 3.0f, 10.0f); glVertex3f(10.0f, 3.0f, -10.0f);
-    glNormal3f(0.0, 0.0, 1.0); glVertex3f(-10.0f, 0.0f, -10.0f); glVertex3f(10.0f, 0.0f, -10.0f); glVertex3f(10.0f, 3.0f, -10.0f); glVertex3f(-10.0f, 3.0f, -10.0f);
+    // Parede esquerda
+    glNormal3f(1.0, 0.0, 0.0);
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(-10.0f, 0.0f, -10.0f);
+    glTexCoord2f(0.0f, 1.0f); glVertex3f(-10.0f, 3.0f, -10.0f);
+    glTexCoord2f(5.0f, 1.0f); glVertex3f(-10.0f, 3.0f, 10.0f);
+    glTexCoord2f(5.0f, 0.0f); glVertex3f(-10.0f, 0.0f, 10.0f);
+    
+    // Parede direita
+    glNormal3f(-1.0, 0.0, 0.0);
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(10.0f, 0.0f, -10.0f);
+    glTexCoord2f(5.0f, 0.0f); glVertex3f(10.0f, 0.0f, 10.0f);
+    glTexCoord2f(5.0f, 1.0f); glVertex3f(10.0f, 3.0f, 10.0f);
+    glTexCoord2f(0.0f, 1.0f); glVertex3f(10.0f, 3.0f, -10.0f);
+    
+    // Parede traseira
+    glNormal3f(0.0, 0.0, 1.0);
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(-10.0f, 0.0f, -10.0f);
+    glTexCoord2f(5.0f, 0.0f); glVertex3f(10.0f, 0.0f, -10.0f);
+    glTexCoord2f(5.0f, 1.0f); glVertex3f(10.0f, 3.0f, -10.0f);
+    glTexCoord2f(0.0f, 1.0f); glVertex3f(-10.0f, 3.0f, -10.0f);
     glEnd();
+    glDisable(GL_TEXTURE_2D);
 
     // Parabrisa Frontal
     glBegin(GL_QUADS);
@@ -883,29 +976,46 @@ void drawPhase7(int windowWidth, int windowHeight) {
         }
     }
 
-    // Projéteis do jogador (vermelhos)
+    // Projéteis do jogador (vermelhos brilhantes)
     glDisable(GL_LIGHTING);
-    glColor3f(1.0f, 0.1f, 0.1f);
+    glDisable(GL_TEXTURE_2D);
+    
     for(int i=0; i<MAX_PROJECTILES; i++) {
         if(playerProjectiles[i].active) {
             glPushMatrix(); 
             glTranslatef(playerProjectiles[i].x, playerProjectiles[i].y, playerProjectiles[i].z);
-            glutSolidSphere(0.12f, 10, 10); 
+            
+            // Brilho externo
+            glColor3f(1.0f, 0.3f, 0.3f);
+            glutSolidSphere(0.14f, 10, 10);
+            
+            // Núcleo brilhante
+            glColor3f(1.0f, 0.9f, 0.9f);
+            glutSolidSphere(0.08f, 8, 8);
+            
             glPopMatrix();
         }
     }
-    glEnable(GL_LIGHTING);
 
-    // Projéteis dos inimigos (amarelos)
-    glColor3f(1.0f, 1.0f, 0.0f);
+    // Projéteis dos inimigos (amarelos brilhantes)
     for(int i=0; i<maxProjectilesP7; i++) {
         if(enemyProjectiles[i].active) {
             glPushMatrix(); 
             glTranslatef(enemyProjectiles[i].x, enemyProjectiles[i].y, enemyProjectiles[i].z);
-            glutSolidSphere(0.15f, 8, 8); 
+            
+            // Brilho externo
+            glColor3f(1.0f, 1.0f, 0.2f);
+            glutSolidSphere(0.17f, 10, 10);
+            
+            // Núcleo brilhante
+            glColor3f(1.0f, 1.0f, 0.9f);
+            glutSolidSphere(0.10f, 8, 8);
+            
             glPopMatrix();
         }
     }
+    
+    glEnable(GL_LIGHTING);
 
     // HUD
     glMatrixMode(GL_PROJECTION); glLoadIdentity();
@@ -1059,7 +1169,7 @@ void updatePhase7(int value) {
     
     if (getGameOver()) { glutPostRedisplay(); return; }
 
-    float speed = 0.2f; 
+    float speed = 0.12f; // Velocidade reduzida para movimento mais lento
     float fwdX = sin(playerP7.angle); float fwdZ = -cos(playerP7.angle);
     float strafeX = cos(playerP7.angle); float strafeZ = sin(playerP7.angle);
     float moveX = 0.0f; float moveZ = 0.0f;
@@ -1208,9 +1318,11 @@ void returnToMenuFromPhase7() {
     setGameOver(false);
     setVictory(false);
     glClearColor(0.1f, 0.1f, 0.15f, 1.0f); // Restaurar cor de fundo do menu
+    setPaused(false, 0);
     setCurrentPhase(0);
     // Restore menu music
     Audio::getInstance().playMusic("assets/music/menu.wav");
+    glutPostRedisplay();
 }
 
 void drawPhase7() {

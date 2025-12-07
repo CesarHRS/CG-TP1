@@ -760,7 +760,11 @@ void restartPhase3() {
 }
 
 void returnToMenuFromPhase3() {
+    setGameOver(false);
+    setVictory(false);
+    setPaused(false, 0);
     glutSetCursor(GLUT_CURSOR_INHERIT);
     glutPassiveMotionFunc(handleMouseHover);
     currentState = MAIN_MENU;
+    glutPostRedisplay();
 }

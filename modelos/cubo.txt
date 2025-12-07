@@ -1,0 +1,19 @@
+# Modelo 2D - Cubo (vista frontal, quadrado)
+# Formato: x y (coordenadas de vértices)
+
+# Face frontal
+-0.4 -0.4
+0.4 -0.4
+0.4 0.4
+-0.4 0.4
+
+# Linhas de profundidade (perspectiva isométrica)
+-0.4 0.4
+-0.2 0.6
+0.6 0.6
+0.4 0.4
+
+0.4 0.4
+0.6 0.6
+0.6 -0.2
+0.4 -0.4
