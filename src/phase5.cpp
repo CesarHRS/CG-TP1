@@ -132,16 +132,15 @@ GLuint createProceduralTexture(int width, int height, int type) {
 }
 
 void loadTexturesP5() {
-    if (!texturesLoadedP5) {
-        textureWallP5 = createProceduralTexture(256, 256, 0);
-        textureFloorP5 = createProceduralTexture(256, 256, 1);
-        texturePyramidP5 = createProceduralTexture(128, 128, 2);
-        textureCubeP5 = createProceduralTexture(128, 128, 3);
-        textureSphereP5 = createProceduralTexture(128, 128, 4);
-        textureCylinderP5 = createProceduralTexture(128, 128, 5);
-        texturesLoadedP5 = true;
-        printf("Texturas procedurais da Fase 5 criadas\n");
-    }
+    // Recriar texturas sempre para evitar conflitos com outras fases
+    textureWallP5 = createProceduralTexture(256, 256, 0);
+    textureFloorP5 = createProceduralTexture(256, 256, 1);
+    texturePyramidP5 = createProceduralTexture(128, 128, 2);
+    textureCubeP5 = createProceduralTexture(128, 128, 3);
+    textureSphereP5 = createProceduralTexture(128, 128, 4);
+    textureCylinderP5 = createProceduralTexture(128, 128, 5);
+    texturesLoadedP5 = true;
+    printf("Texturas procedurais da Fase 5 criadas\n");
 }
 
 // ===================================================================
@@ -869,11 +868,34 @@ void initPhase5() {
     printf("Initializing Phase 5 (Inside the Spaceship)...\n");
     srand((unsigned int)time(NULL));
 
+    // Garantir que a iluminação esteja ativa
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
     glEnable(GL_COLOR_MATERIAL);
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+    
+    // Configurar luz ambiente e difusa
+    GLfloat light_ambient[] = {0.3f, 0.3f, 0.3f, 1.0f};
+    GLfloat light_diffuse[] = {0.8f, 0.8f, 0.8f, 1.0f};
+    GLfloat light_specular[] = {1.0f, 1.0f, 1.0f, 1.0f};
     GLfloat light_pos[] = {0.0, 3.0, 0.0, 1.0}; // Luz no centro da nave
+    
+    glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
     glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
+    
+    // Configurar propriedades de material padrão
+    GLfloat mat_ambient[] = {0.2f, 0.2f, 0.2f, 1.0f};
+    GLfloat mat_diffuse[] = {0.8f, 0.8f, 0.8f, 1.0f};
+    GLfloat mat_specular[] = {0.0f, 0.0f, 0.0f, 1.0f};
+    GLfloat mat_shininess[] = {0.0f};
+    
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat_ambient);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat_diffuse);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+    
     glEnable(GL_DEPTH_TEST);
     
     // Carregar texturas
@@ -978,7 +1000,23 @@ void drawPhase5(int windowWidth, int windowHeight) {
     float lookZ = playerP5.z - cos(playerP5.angle);
     gluLookAt(playerP5.x, playerP5.y, playerP5.z, lookX, lookY, lookZ, 0.0f, 1.0f, 0.0f);
 
+    // Garantir que a iluminação esteja ativa (pode ter sido desabilitada por outra fase)
     glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+    glEnable(GL_COLOR_MATERIAL);
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+    
+    // Reconfigurar propriedades de material (podem ter sido alteradas por outra fase)
+    GLfloat mat_ambient[] = {0.2f, 0.2f, 0.2f, 1.0f};
+    GLfloat mat_diffuse[] = {0.8f, 0.8f, 0.8f, 1.0f};
+    GLfloat mat_specular[] = {0.0f, 0.0f, 0.0f, 1.0f};
+    GLfloat mat_shininess[] = {0.0f};
+    
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat_ambient);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat_diffuse);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+    
     glEnable(GL_DEPTH_TEST);
 
     // ===================================================================
@@ -2018,6 +2056,11 @@ bool checkCollisionP5(float x, float z) {
 void updatePhase5(int value) {
     (void)value;
     
+    // Parar o timer se não estiver mais na fase 5
+    if (currentState != PHASE5_SCREEN) {
+        return;
+    }
+    
     if (getPaused()) {
         glutTimerFunc(16, updatePhase5, 0);
         return;
@@ -2049,7 +2092,9 @@ void updatePhase5(int value) {
             timeRemainingP5 = 0.0f;
             gameOverP5 = true;
             printf("Tempo esgotado! Game Over.\n");
-            Audio::getInstance().play(Audio::SOUND_ERROR);
+            if (currentState == PHASE5_SCREEN) {
+                Audio::getInstance().play(Audio::SOUND_ERROR);
+            }
             setGameOver(true);
             setVictory(false);
         }

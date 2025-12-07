@@ -130,7 +130,7 @@ int damageFlashP6 = 0;
 std::vector<MagneticField> magneticFields;
 Question currentQuestionP6;
 float fieldSpawnZ = 80.0f;
-float fieldSpeed = 0.15f;  // Velocidade média - equilibrada
+float fieldSpeed = 0.10f;  // Velocidade reduzida para melhor jogabilidade
 int fieldSetCount = 0;
 bool fieldSetPassed = false;  // Flag para detectar se passou pelo conjunto de campos
 
@@ -631,6 +631,10 @@ void initPhase6() {
     printf("Inicializando Fase 6 (Cinturão de Asteroides Magnéticos)...\n");
     srand((unsigned int)time(NULL));
     
+    // Desabilitar iluminação para a fase 6 (usa flat shading)
+    glDisable(GL_LIGHTING);
+    glDisable(GL_LIGHT0);
+    
     // Carregar texturas
     loadTexturesP6();
     
@@ -697,6 +701,10 @@ void drawPhase6(int windowWidth, int windowHeight) {
     gluLookAt(shipX, shipY, shipZ - 8.0f,  // Posição da câmera segue a nave
               shipX, shipY, shipZ + 50.0f,  // Olhando para frente na direção da nave
               0.0f, 1.0f, 0.0f);             // Up vector
+    
+    // Fase 6 não usa iluminação (flat shading)
+    glDisable(GL_LIGHTING);
+    glDisable(GL_LIGHT0);
     
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -981,6 +989,10 @@ void returnToMenuFromPhase6() {
     
     // Resetar estado de pausa
     setPaused(false, 0);
+    
+    // Limpar estados OpenGL que podem ter sido alterados pela fase
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_BLEND);
     
     // Restaurar cor de fundo do menu
     glClearColor(0.1f, 0.1f, 0.15f, 1.0f);

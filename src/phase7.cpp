@@ -531,7 +531,9 @@ void updateEnemiesAI() {
             if (contactDamageTimer >= 60) { // 1 dano por segundo
                 phase7_vida--;
                 // Tocar som de dano
-                Audio::getInstance().play(Audio::SOUND_DAMAGE);
+                if (currentState == PHASE7_SCREEN) {
+                    Audio::getInstance().play(Audio::SOUND_DAMAGE);
+                }
                 contactDamageTimer = 0;
                 if (phase7_vida <= 0) setGameOver(true);
             }
@@ -582,7 +584,9 @@ void updateProjectiles() {
                     scoreP7 += 100;
                     
                     // Som de explosão
-                    Audio::getInstance().play(Audio::SOUND_EXPLOSION);
+                    if (currentState == PHASE7_SCREEN) {
+                        Audio::getInstance().play(Audio::SOUND_EXPLOSION);
+                    }
                     
                     bool anyAlive = false;
                     for(int k = 0; k < numEnemiesP7; k++) {
@@ -595,7 +599,9 @@ void updateProjectiles() {
                         setGameOver(true);
                         
                         // Som de vitória quando o boss morre
-                        Audio::getInstance().play(Audio::SOUND_VICTORY);
+                        if (currentState == PHASE7_SCREEN) {
+                            Audio::getInstance().play(Audio::SOUND_VICTORY);
+                        }
                     }
                 }
                 break;
@@ -627,7 +633,9 @@ void updateProjectiles() {
             enemyProjectiles[i].active = false;
             phase7_vida--;
             // Tocar som de dano
-            Audio::getInstance().play(Audio::SOUND_DAMAGE);
+            if (currentState == PHASE7_SCREEN) {
+                Audio::getInstance().play(Audio::SOUND_DAMAGE);
+            }
             if (phase7_vida <= 0) setGameOver(true);
         }
 
@@ -678,21 +686,34 @@ void initPhase7() {
     printf("Initializing Phase 7 (Map P5 + FPS)...\n");
     srand((unsigned int)time(NULL));
 
+    // Garantir que a iluminação esteja ativa e configurada corretamente
     glEnable(GL_LIGHTING); 
     glEnable(GL_LIGHT0); 
     glEnable(GL_COLOR_MATERIAL);
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
     glEnable(GL_DEPTH_TEST);
     
     // Configuração de luz principal (sala)
     GLfloat light_pos[] = {0.0f, 3.0f, 0.0f, 1.0f};
     GLfloat light_ambient[] = {0.3f, 0.3f, 0.3f, 1.0f};
     GLfloat light_diffuse[] = {0.8f, 0.8f, 0.8f, 1.0f};
-    GLfloat light_specular[] = {1.0f, 1.0f, 1.0f, 1.0f};
+    GLfloat light_specular[] = {0.5f, 0.5f, 0.5f, 1.0f};
     
     glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
     glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
     glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+    
+    // Configurar propriedades de material padrão
+    GLfloat mat_ambient[] = {0.2f, 0.2f, 0.2f, 1.0f};
+    GLfloat mat_diffuse[] = {0.8f, 0.8f, 0.8f, 1.0f};
+    GLfloat mat_specular[] = {0.3f, 0.3f, 0.3f, 1.0f};
+    GLfloat mat_shininess[] = {20.0f};
+    
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat_ambient);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat_diffuse);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
 
     // Player começa no corredor central, olhando para o painel
     playerP7.x = 0.0f; playerP7.y = 1.6f; playerP7.z = 3.0f;
@@ -830,7 +851,24 @@ void drawPhase7(int windowWidth, int windowHeight) {
     float lookZ = playerP7.z - cos(playerP7.angle);
     gluLookAt(playerP7.x, playerP7.y, playerP7.z, lookX, lookY, lookZ, 0.0f, 1.0f, 0.0f);
 
-    glEnable(GL_LIGHTING); glEnable(GL_DEPTH_TEST);
+    // Garantir que a iluminação esteja ativa (pode ter sido desabilitada por outra fase)
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+    glEnable(GL_COLOR_MATERIAL);
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+    
+    // Reconfigurar propriedades de material (podem ter sido alteradas por outra fase)
+    GLfloat mat_ambient[] = {0.2f, 0.2f, 0.2f, 1.0f};
+    GLfloat mat_diffuse[] = {0.8f, 0.8f, 0.8f, 1.0f};
+    GLfloat mat_specular[] = {0.3f, 0.3f, 0.3f, 1.0f};
+    GLfloat mat_shininess[] = {20.0f};
+    
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat_ambient);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat_diffuse);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+    
+    glEnable(GL_DEPTH_TEST);
 
     // ===================================
     // MAPA DA FASE 5 (Reconstruído)
@@ -1159,6 +1197,11 @@ void drawPhase7(int windowWidth, int windowHeight) {
 void updatePhase7(int value) {
     (void)value;
     
+    // Parar o timer se não estiver mais na fase 7
+    if (currentState != PHASE7_SCREEN) {
+        return;
+    }
+    
     if (getPaused()) {
         glutTimerFunc(16, updatePhase7, 0);
         return;
@@ -1260,10 +1303,14 @@ void handlePhase7Keyboard(unsigned char key, int x, int y) {
         if (!getGameOver()) {
             if (phase7_municao > 0) {
                 phase7_municao--;
-                Audio::getInstance().play(Audio::SOUND_LASER);
+                if (currentState == PHASE7_SCREEN) {
+                    Audio::getInstance().play(Audio::SOUND_LASER);
+                }
                 checkShootingHit();
             } else {
-                Audio::getInstance().play(Audio::SOUND_ERROR);
+                if (currentState == PHASE7_SCREEN) {
+                    Audio::getInstance().play(Audio::SOUND_ERROR);
+                }
             }
         }
     }
@@ -1280,10 +1327,14 @@ void handlePhase7Mouse(int button, int state, int x, int y) {
         if (!getGameOver()) {
             if (phase7_municao > 0) {
                 phase7_municao--;
-                Audio::getInstance().play(Audio::SOUND_LASER);
+                if (currentState == PHASE7_SCREEN) {
+                    Audio::getInstance().play(Audio::SOUND_LASER);
+                }
                 checkShootingHit();
             } else {
-                Audio::getInstance().play(Audio::SOUND_ERROR);
+                if (currentState == PHASE7_SCREEN) {
+                    Audio::getInstance().play(Audio::SOUND_ERROR);
+                }
             }
         }
     }
@@ -1339,6 +1390,11 @@ void returnToMenuFromPhase7() {
     phase7_won = false;
     setGameOver(false);
     setVictory(false);
+    
+    // Limpar estados OpenGL que podem ter sido alterados pela fase
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_BLEND);
+    
     glClearColor(0.1f, 0.1f, 0.15f, 1.0f); // Restaurar cor de fundo do menu
     setPaused(false, 0);
     setCurrentPhase(0);
