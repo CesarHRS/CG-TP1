@@ -403,7 +403,6 @@ void drawInstructionsScreen() {
         drawText(150, 360, "- Clique no asteroide para seleciona-lo");
         drawText(150, 330, "- Digite o resultado da operacao matematica");
         drawText(150, 300, "- Pressione ENTER para confirmar a resposta");
-        drawText(150, 270, "- A nave e fixa, nao se move");
     } else if (instructionsPage == 2) {
         // Fase 2
         drawText(280, 550, "FASE 2 - Mira Manual");
@@ -413,12 +412,11 @@ void drawInstructionsScreen() {
         drawText(150, 360, "- Mova o MOUSE para mirar");
         drawText(150, 330, "- CLIQUE no asteroide correto");
         drawText(150, 300, "- Acerte o asteroide que tem a resposta correta");
-        drawText(150, 270, "- A nave e fixa, apenas mire e atire");
     } else if (instructionsPage == 3) {
         // Fase 3
         drawText(250, 550, "FASE 3 - Calculadora Espacial");
         drawText(150, 500, "OBJETIVO:");
-        drawText(150, 470, "- Resolva 10 equacoes usando a calculadora");
+        drawText(150, 470, "- Resolva 10 equacoes usando a calculadora");d
         drawText(150, 440, "- Acerte para ganhar municao automaticamente");
         drawText(150, 390, "CONTROLES:");
         drawText(150, 360, "- CLIQUE nos botoes da calculadora na direita");
