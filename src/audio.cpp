@@ -56,10 +56,41 @@ void Audio::loadAll() {
 }
 
 void Audio::play(SoundId id) {
-    // Effects not implemented with SDL_mixer here; keep as stub to avoid
-    // adding lots of per-effect loading logic. This preserves existing
-    // behavior until a follow-up implements effect loading.
-    (void)id;
+    if (!initialized) init();
+#ifdef AUDIO_HAVE_SDL
+    const char *soundPaths[] = {
+        "assets/sounds/laser.mp3",
+        "assets/sounds/explosion.mp3",
+        "assets/sounds/error.mp3",
+        "assets/sounds/fail.mp3",
+        "assets/sounds/victory.mp3"
+    };
+    
+    if (id < 0 || id >= SOUND_COUNT) return;
+    
+    const char *path = soundPaths[id];
+    Mix_Chunk *chunk = Mix_LoadWAV(path);
+    if (!chunk) {
+        // Try loading with different format if WAV fails
+        chunk = (Mix_Chunk*)Mix_LoadMUS(path);
+        if (!chunk) {
+            std::cerr << "[Audio] Mix_LoadWAV failed for " << path << ": " << Mix_GetError() << "\n";
+            return;
+        }
+    }
+    
+    if (Mix_PlayChannel(-1, chunk, 0) == -1) {
+        std::cerr << "[Audio] Mix_PlayChannel failed: " << Mix_GetError() << "\n";
+        Mix_FreeChunk(chunk);
+    }
+#else
+    const char *soundNames[] = {
+        "laser", "explosion", "error", "fail", "victory"
+    };
+    if (id >= 0 && id < SOUND_COUNT) {
+        std::cout << "[Audio] (stub) play: " << soundNames[id] << "\n";
+    }
+#endif
 }
 
 void Audio::playMusic(const std::string &path) {
