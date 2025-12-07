@@ -899,7 +899,7 @@ void updatePhase6(int value) {
             victoryP6 = true;
             printf("Fase 6 completa! Indo para Fase 7...\n");
             Audio::getInstance().play(Audio::SOUND_VICTORY);
-            setCurrentPhase(7);
+            showStoryForPhase(7);
         } else {
             generateQuestion();
             spawnFieldSet();

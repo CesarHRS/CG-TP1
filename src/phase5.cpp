@@ -1702,10 +1702,8 @@ void drawPhase5(int windowWidth, int windowHeight) {
         
         if (depositsP5[i].count >= 2) {
             glColor3f(0.2f, 0.8f, 0.2f); // Verde quando cheia (2 objetos)
-        } else if (depositsP5[i].count == 1) {
-            glColor3f(0.8f, 0.8f, 0.2f); // Amarelo quando tem 1 objeto
         } else {
-            // Cor baseada no tipo requerido
+            
             switch(depositsP5[i].requiredType) {
                 case SHAPE_CUBE: glColor3f(0.8f, 0.2f, 0.2f); break;
                 case SHAPE_SPHERE: glColor3f(1.0f, 0.5f, 0.0f); break; // Laranja
@@ -1759,7 +1757,8 @@ void drawPhase5(int windowWidth, int windowHeight) {
                     glutSolidSphere(0.6, 20, 20);
                     glDisable(GL_TEXTURE_2D);
                     break;
-                case SHAPE_PYRAMID: 
+                case SHAPE_PYRAMID:
+                    glScalef(0.5f, 0.5f, 0.5f);
                     drawPyramidP5(); 
                     break;
                 case SHAPE_CYLINDER: 
@@ -1794,7 +1793,8 @@ void drawPhase5(int windowWidth, int windowHeight) {
                     glutSolidSphere(0.6, 20, 20);
                     glDisable(GL_TEXTURE_2D);
                     break;
-                case SHAPE_PYRAMID: 
+                case SHAPE_PYRAMID:
+                    glScalef(0.5f, 0.5f, 0.5f);
                     drawPyramidP5(); 
                     break;
                 case SHAPE_CYLINDER: 
@@ -1829,7 +1829,8 @@ void drawPhase5(int windowWidth, int windowHeight) {
                 glutSolidSphere(0.6, 20, 20);
                 glDisable(GL_TEXTURE_2D);
                 break;
-            case SHAPE_PYRAMID: 
+            case SHAPE_PYRAMID:
+                glScalef(0.5f, 0.5f, 0.5f);
                 drawPyramidP5(); 
                 break;
             case SHAPE_CYLINDER: 
@@ -2155,7 +2156,9 @@ void updatePhase5(int value) {
                         // Verificar vitória
                         if (scoreP5 >= 8) {
                             printf("Fase 5 completa! Indo para Fase 6...\n");
-                            setCurrentPhase(6);
+                            phase5_won = true;
+                            gameOverP5 = true;
+                            showStoryForPhase(6);
                             return; // Sair imediatamente
                         }
                         
@@ -2254,7 +2257,9 @@ void handlePhase5Keyboard(unsigned char key, int x, int y) {
                         // Verificar vitória
                         if (scoreP5 >= 8) {
                             printf("Fase 5 completa! Indo para Fase 6...\n");
-                            setCurrentPhase(6);
+                            phase5_won = true;
+                            gameOverP5 = true;
+                            showStoryForPhase(6);
                             return; // Sair imediatamente
                         }
                         
