@@ -21,6 +21,7 @@ Audio::Audio()
     : initialized(false)
 {
     for (int i = 0; i < SOUND_COUNT; ++i) chunks[i] = nullptr;
+    musicVolume = 1.0f;
     currentMusicPath = "";
     musicPlaying = false;
 }
@@ -58,11 +59,12 @@ void Audio::loadAll() {
 void Audio::play(SoundId id) {
     if (!initialized) init();
 #ifdef AUDIO_HAVE_SDL
+    // Order must match the enum in audio.h. Ensure SOUND_DAMAGE maps to fail.mp3
     const char *soundPaths[] = {
         "assets/sounds/laser.mp3",
         "assets/sounds/explosion.mp3",
-        "assets/sounds/error.mp3",
         "assets/sounds/fail.mp3",
+        "assets/sounds/error.mp3",
         "assets/sounds/victory.mp3"
     };
     
@@ -85,11 +87,23 @@ void Audio::play(SoundId id) {
     }
 #else
     const char *soundNames[] = {
-        "laser", "explosion", "error", "fail", "victory"
+        "laser", "explosion", "fail", "error", "victory"
     };
     if (id >= 0 && id < SOUND_COUNT) {
         std::cout << "[Audio] (stub) play: " << soundNames[id] << "\n";
     }
+#endif
+}
+
+void Audio::setMusicVolume(float volume) {
+    if (volume < 0.0f) volume = 0.0f;
+    if (volume > 1.0f) volume = 1.0f;
+    musicVolume = volume;
+#ifdef AUDIO_HAVE_SDL
+    // MIX_MAX_VOLUME is typically 128
+    Mix_VolumeMusic((int)(MIX_MAX_VOLUME * musicVolume));
+#else
+    std::cout << "[Audio] (stub) setMusicVolume: " << musicVolume << "\n";
 #endif
 }
 
@@ -116,6 +130,8 @@ void Audio::playMusic(const std::string &path) {
     if (Mix_PlayMusic(m, -1) == -1) {
         std::cerr << "[Audio] Mix_PlayMusic failed: " << Mix_GetError() << "\n";
     }
+    // Apply current music volume
+    Mix_VolumeMusic((int)(MIX_MAX_VOLUME * musicVolume));
     currentMusicPath = path;
     musicPlaying = true;
 #else

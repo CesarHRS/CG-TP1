@@ -530,6 +530,8 @@ void updateEnemiesAI() {
             contactDamageTimer++;
             if (contactDamageTimer >= 60) { // 1 dano por segundo
                 phase7_vida--;
+                // Tocar som de dano
+                Audio::getInstance().play(Audio::SOUND_DAMAGE);
                 contactDamageTimer = 0;
                 if (phase7_vida <= 0) setGameOver(true);
             }
@@ -624,6 +626,8 @@ void updateProjectiles() {
         if (dist < playerHitRadius) {
             enemyProjectiles[i].active = false;
             phase7_vida--;
+            // Tocar som de dano
+            Audio::getInstance().play(Audio::SOUND_DAMAGE);
             if (phase7_vida <= 0) setGameOver(true);
         }
 
@@ -763,6 +767,8 @@ void initPhase7() {
     registerMenuCallback(returnToMenuFromPhase7);
     // Play boss music for Phase 7
     Audio::getInstance().playMusic("assets/music/boss2.mp3");
+    // Diminuir volume da música para a fase 7
+    Audio::getInstance().setMusicVolume(0.3f);
     
     // Garantir que o timer está rodando
     glutTimerFunc(16, updatePhase7, 0);
@@ -1338,6 +1344,8 @@ void returnToMenuFromPhase7() {
     setCurrentPhase(0);
     // Restore menu music
     Audio::getInstance().playMusic("assets/music/menu.wav");
+    // Restaurar volume padrão do menu
+    Audio::getInstance().setMusicVolume(1.0f);
     glutPostRedisplay();
 }
 

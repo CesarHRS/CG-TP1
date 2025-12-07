@@ -22,6 +22,8 @@ public:
     // Play a music file (looping). This is best-effort; when no mixer is
     // available this will be a no-op that logs the requested file.
     void playMusic(const std::string &path);
+    // Set music volume (0.0 = silent, 1.0 = max)
+    void setMusicVolume(float volume);
     // Stop currently playing music (if any)
     void stopMusic();
     void cleanup();
@@ -34,6 +36,7 @@ private:
 
     bool initialized;
     void* chunks[SOUND_COUNT]; 
+    float musicVolume;
     // Current music state (stub-friendly)
     std::string currentMusicPath;
     bool musicPlaying;
