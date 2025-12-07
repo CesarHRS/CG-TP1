@@ -57,7 +57,7 @@ int damageFlashP6 = 0;
 std::vector<MagneticField> magneticFields;
 Question currentQuestionP6;
 float fieldSpawnZ = 80.0f;
-float fieldSpeed = 0.2f;
+float fieldSpeed = 0.15f;  // Velocidade média - equilibrada
 int fieldSetCount = 0;
 bool fieldSetPassed = false;  // Flag para detectar se passou pelo conjunto de campos
 
@@ -537,6 +537,10 @@ void initPhase6() {
     shipY = 0.0f;
     shipZ = -5.0f;
     
+    // Reset global game over state FIRST
+    setGameOver(false);
+    setVictory(false);
+    
     livesP6 = 3;
     scoreP6 = 0;
     questionsAnsweredP6 = 0;
@@ -553,12 +557,16 @@ void initPhase6() {
     
     magneticFields.clear();
     usedRadii.clear();
+    fieldSetPassed = false;
     initStars();
+    
+    // Resetar pergunta atual antes de gerar nova
+    currentQuestionP6.radius = 0;
+    currentQuestionP6.correctAnswer = 0;
+    currentQuestionP6.text = "";
     
     generateQuestion();
     spawnFieldSet();
-    
-    setGameOver(false);
     initGameOver(800, 700);
     registerRestartCallback(restartPhase6);
     registerMenuCallback(returnToMenuFromPhase6);
@@ -611,6 +619,15 @@ void drawPhase6(int windowWidth, int windowHeight) {
     
     for (size_t i = 0; i < magneticFields.size(); i++) {
         if (magneticFields[i].active) {
+            // Debug: verificar se isCorrect está consistente
+            bool shouldBeCorrect = (magneticFields[i].answerValue == currentQuestionP6.correctAnswer);
+            if (magneticFields[i].isCorrect != shouldBeCorrect) {
+                printf("ERRO: Campo %zu tem isCorrect=%d mas deveria ser %d (valor=%d, resposta=%d)\n",
+                       i, magneticFields[i].isCorrect, shouldBeCorrect, 
+                       magneticFields[i].answerValue, currentQuestionP6.correctAnswer);
+                // Corrigir em tempo real
+                magneticFields[i].isCorrect = shouldBeCorrect;
+            }
             drawMagneticField(magneticFields[i]);
         }
     }
@@ -657,12 +674,23 @@ void drawPhase6(int windowWidth, int windowHeight) {
         }
     }
     
+    // Desenhar tela de pausa se ESC foi pressionado
+    if (getPaused()) {
+        drawPauseScreen();
+        return;
+    }
+    
     // Draw game over screen if needed
     drawGameOver();
 }
 
 void updatePhase6(int value) {
     (void)value;
+    
+    if (getPaused()) {
+        glutTimerFunc(16, updatePhase6, 0);
+        return;
+    }
     
     // Update countdown
     if (showCountdownP6) {
@@ -743,7 +771,8 @@ void updatePhase6(int value) {
     }
     
     // Se todos os campos passaram (não há mais campos ativos) e não colidiu com nenhum
-    if (!anyFieldActive && magneticFields.size() > 0 && !fieldSetPassed) {
+    // Só penalizar se realmente passou pelos campos sem pegar nenhum
+    if (!anyFieldActive && magneticFields.size() > 0 && !fieldSetPassed && allFieldsPassed) {
         fieldSetPassed = true;
         Audio::getInstance().play(Audio::SOUND_ERROR);
         livesP6--;
@@ -798,21 +827,27 @@ void updatePhase6(int value) {
 void handlePhase6Keyboard(unsigned char key, int x, int y) {
     (void)x; (void)y;
     
-    if (gameOverP6) {
-        handleGameOverKeyboard(key);
+    // ESC para pausar
+    if (key == 27) {
+        if (!gameOverP6 && !getPaused()) {
+            setPaused(true, 6);
+            glutPostRedisplay();
+        } else if (getPaused()) {
+            handlePauseKeyboard(key);
+            glutPostRedisplay();
+        }
         return;
     }
     
-    if (key == 27) { // ESC
-        damageFlashP6 = 0;
-        gameOverP6 = false;
-        victoryP6 = false;
-        magneticFields.clear();
-        usedRadii.clear();
-        setGameOver(false);
-        setVictory(false);
-        glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
-        setCurrentPhase(0);
+    // Se está pausado, tratar teclas de pausa
+    if (getPaused()) {
+        handlePauseKeyboard(key);
+        glutPostRedisplay();
+        return;
+    }
+    
+    if (gameOverP6) {
+        handleGameOverKeyboard(key);
         return;
     }
     

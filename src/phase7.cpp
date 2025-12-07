@@ -918,16 +918,16 @@ void drawPhase7(int windowWidth, int windowHeight) {
         glColor4f(0.0f, 0.0f, 0.0f, 0.7f);
         glBegin(GL_QUADS);
         glVertex2f(0, 0);
-        glVertex2f(windowWidth, 0);
-        glVertex2f(windowWidth, windowHeight);
-        glVertex2f(0, windowHeight);
+        glVertex2f(800, 0);
+        glVertex2f(800, 700);
+        glVertex2f(0, 700);
         glEnd();
         glDisable(GL_BLEND);
         
         char countText[10];
         sprintf(countText, "%d", countdownValueP7);
         glColor3f(1.0f, 1.0f, 1.0f);
-        glRasterPos2f(windowWidth / 2.0f - 20.0f, windowHeight / 2.0f);
+        glRasterPos2f(400.0f - 20.0f, 350.0f);
         for (char* p = countText; *p; p++) {
             glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *p);
         }
@@ -941,6 +941,13 @@ void drawPhase7(int windowWidth, int windowHeight) {
         for (const char* p = msg; *p; p++) {
             glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *p);
         }
+    }
+
+    // Desenhar tela de pausa se ESC foi pressionado
+    if (getPaused()) {
+        drawPauseScreen();
+        glMatrixMode(GL_PROJECTION); glPopMatrix(); glMatrixMode(GL_MODELVIEW);
+        return;
     }
 
     if (getGameOver()) {
@@ -1018,6 +1025,11 @@ void drawPhase7(int windowWidth, int windowHeight) {
 void updatePhase7(int value) {
     (void)value;
     
+    if (getPaused()) {
+        glutTimerFunc(16, updatePhase7, 0);
+        return;
+    }
+    
     // Update countdown
     if (showCountdownP7) {
         countdownTimerP7++;
@@ -1087,7 +1099,25 @@ void updatePhase7(int value) {
 
 void handlePhase7Keyboard(unsigned char key, int x, int y) {
     (void)x; (void)y;
-    if (key == 27) { setCurrentPhase(0); return; }
+    
+    // ESC para pausar
+    if (key == 27) {
+        if (!getGameOver() && !getPaused()) {
+            setPaused(true, 7);
+        } else if (getPaused()) {
+            handlePauseKeyboard(key);
+        }
+        glutPostRedisplay();
+        return;
+    }
+    
+    // Se está pausado, tratar teclas de pausa
+    if (getPaused()) {
+        handlePauseKeyboard(key);
+        glutPostRedisplay();
+        return;
+    }
+    
     if (getGameOver()) { handleGameOverKeyboard(key); return; }
     
     keyStateP7[key] = true;

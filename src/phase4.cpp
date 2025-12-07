@@ -30,6 +30,11 @@ int shotsRemainingP4 = 10;
 int hitsNeededP4 = 6;
 bool bossDefeatedP4 = false;
 
+// Contagem regressiva
+bool showCountdownP4 = false;
+int countdownTimerP4 = 0;
+int countdownValueP4 = 3;
+
 // Internal timers and parameters
 static int gameFrameCounterP4 = 0;
 static int asteroidSpawnCooldownP4 = 0;
@@ -124,6 +129,11 @@ void initPhase4() {
 
     initParallax();
     resetPhase4State();
+    
+    // Iniciar contagem regressiva
+    showCountdownP4 = true;
+    countdownTimerP4 = 0;
+    countdownValueP4 = 3;
 
     setGameOver(false);
     initGameOver(windowWidthP4, windowHeightP4);
@@ -460,6 +470,36 @@ void drawUI() {
     // UI vazia - informações movidas para as barras de vida
 }
 
+void drawCountdownP4() {
+    if (!showCountdownP4 || countdownValueP4 <= 0) return;
+    
+    // Fundo semi-transparente escuro
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(0.0f, 0.0f, 0.0f, 0.7f);
+    glBegin(GL_QUADS);
+    glVertex2f(0, 0);
+    glVertex2f(800, 0);
+    glVertex2f(800, 700);
+    glVertex2f(0, 700);
+    glEnd();
+    glDisable(GL_BLEND);
+    
+    // Número da contagem
+    std::string countText = std::to_string(countdownValueP4);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    
+    // Posição centralizada para janela 800x700
+    float textX = 400.0f - 20.0f;
+    float textY = 350.0f;
+    
+    // Fonte grande
+    glRasterPos2f(textX, textY);
+    for (char c : countText) {
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, c);
+    }
+}
+
 void drawPhase4() {
     drawParallaxBackground();
     drawBossP4();
@@ -471,6 +511,18 @@ void drawPhase4() {
     drawHealthBarP4();
     drawBossHealthBarP4();
     drawUI();
+    
+    // Desenhar tela de pausa se ESC foi pressionado (ANTES da contagem)
+    if (getPaused()) {
+        drawPauseScreen();
+        return;
+    }
+    
+    // Desenhar contagem regressiva se ativa
+    if (showCountdownP4) {
+        drawCountdownP4();
+        return;
+    }
 
     if (bossDefeatedP4) {
         glColor3f(0.8f, 1.0f, 0.3f);
@@ -534,7 +586,20 @@ void fireLaserP4(float targetX, float targetY) {
 }
 
 void updatePhase4() {
-    if (getGameOver()) return; // parar se gameover
+    if (getGameOver() || getPaused()) return; // parar se gameover ou pausado
+
+    // Atualizar contagem regressiva
+    if (showCountdownP4) {
+        countdownTimerP4++;
+        if (countdownTimerP4 >= 60) { // 1 segundo a 60 FPS
+            countdownTimerP4 = 0;
+            countdownValueP4--;
+            if (countdownValueP4 <= 0) {
+                showCountdownP4 = false;
+            }
+        }
+        return; // Não atualizar o jogo enquanto está contando
+    }
 
     gameFrameCounterP4++;
 
@@ -706,6 +771,24 @@ void updatePhase4() {
 }
 
 void handlePhase4Keyboard(unsigned char key) {
+    // ESC para pausar
+    if (key == 27) {
+        if (!getGameOver() && !getPaused()) {
+            setPaused(true, 4);
+        } else if (getPaused()) {
+            handlePauseKeyboard(key);
+        }
+        glutPostRedisplay();
+        return;
+    }
+    
+    // Se está pausado, tratar teclas de pausa
+    if (getPaused()) {
+        handlePauseKeyboard(key);
+        glutPostRedisplay();
+        return;
+    }
+    
     // Allow moving the player in all directions with WASD or arrow keys
     if (key == 'a' || key == 'A') {
         isMovingLeftP4 = true;

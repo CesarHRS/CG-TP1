@@ -11,6 +11,8 @@ extern int windowWidth_gameover;
 extern int windowHeight_gameover;
 extern bool isGameOver;
 extern bool isVictory; // Se é vitória ou derrota
+extern bool gamePaused; // Se o jogo está pausado
+extern int pausedPhase; // Qual fase está pausada (1-7)
 extern RestartCallback onRestartCallback;
 extern MenuCallback onMenuCallback;
 extern NextPhaseCallback onNextPhaseCallback; // Callback para próxima fase
@@ -24,6 +26,12 @@ void setGameOver(bool active);
 void setVictory(bool victory); // Definir se é vitória
 void setVictoryPhase(int phase); // Definir a fase da vitória
 bool getGameOver();
+
+// Funções de pausa
+void setPaused(bool paused, int phase);
+bool getPaused();
+void drawPauseScreen();
+void handlePauseKeyboard(unsigned char key);
 
 // Funções para registrar callbacks de cada fase
 void registerRestartCallback(RestartCallback callback);

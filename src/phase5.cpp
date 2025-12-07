@@ -774,8 +774,9 @@ void initPhase5() {
     countdownTimerP5 = 0;
     countdownValueP5 = 3;
     
-    // Initialize game over screen
+    // Reset global game over state FIRST
     setGameOver(false);
+    setVictory(false);
     initGameOver(800, 700);
     registerRestartCallback(initPhase5);
 }
@@ -1646,6 +1647,12 @@ void drawPhase5(int windowWidth, int windowHeight) {
         }
     }
     
+    // Desenhar tela de pausa se ESC foi pressionado
+    if (getPaused()) {
+        drawPauseScreen();
+        return;
+    }
+    
     // Draw game over screen if needed
     drawGameOver();
 }
@@ -1791,6 +1798,11 @@ bool checkCollisionP5(float x, float z) {
 void updatePhase5(int value) {
     (void)value;
     
+    if (getPaused()) {
+        glutTimerFunc(16, updatePhase5, 0);
+        return;
+    }
+    
     // Update countdown
     if (showCountdownP5) {
         countdownTimerP5++;
@@ -1900,14 +1912,21 @@ void handlePhase5Keyboard(unsigned char key, int x, int y) {
     (void)x;
     (void)y;
     
-    // Handle ESC key to return to menu
-    if (key == 27) { // ESC
-        gameOverP5 = false;
-        phase5_won = false;
-        setGameOver(false);
-        setVictory(false);
-        glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
-        setCurrentPhase(0);
+    // ESC para pausar
+    if (key == 27) {
+        if (!getGameOver() && !getPaused()) {
+            setPaused(true, 5);
+        } else if (getPaused()) {
+            handlePauseKeyboard(key);
+        }
+        glutPostRedisplay();
+        return;
+    }
+    
+    // Se está pausado, tratar teclas de pausa
+    if (getPaused()) {
+        handlePauseKeyboard(key);
+        glutPostRedisplay();
         return;
     }
     

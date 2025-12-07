@@ -590,11 +590,16 @@ void drawPhase3() {
     drawProgressCounter();
     drawCountdown(); // Contagem regressiva
     
+    if (getPaused()) {
+        drawPauseScreen();
+        return;
+    }
+    
     drawGameOver();
 }
 
 void updatePhase3() {
-    if (getGameOver()) return;
+    if (getGameOver() || getPaused()) return;
     
     // Atualizar contagem regressiva
     if (showCountdown) {
@@ -727,10 +732,22 @@ void handlePhase3Keyboard(unsigned char key) {
         return;
     }
     
-    // Apenas ESC para voltar ao menu
+    // ESC para pausar
     if (key == 27) {
-        returnToMenuFromPhase3();
+        if (!getPaused()) {
+            setPaused(true, 3);
+        } else {
+            handlePauseKeyboard(key);
+        }
         glutPostRedisplay();
+        return;
+    }
+    
+    // Se está pausado, tratar teclas de pausa
+    if (getPaused()) {
+        handlePauseKeyboard(key);
+        glutPostRedisplay();
+        return;
     }
 }
 

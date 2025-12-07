@@ -36,9 +36,7 @@ bool showCountdown = false;
 int countdownTimer = 0;
 int countdownValue = 3;
 
-// Sistema de pausa
-bool isPaused = false;
-int pauseSelectedOption = 0; // 0 = Continuar, 1 = Menu
+// Sistema de pausa antigo removido - usar getPaused() de gameover.h
 
 void drawPlayer() {
     // Nave vista de cima, apenas a parte frontal (15% inferior da tela)
@@ -425,9 +423,9 @@ void drawCountdown() {
     glColor4f(0.0f, 0.0f, 0.0f, 0.7f);
     glBegin(GL_QUADS);
     glVertex2f(0, 0);
-    glVertex2f(windowWidth_game, 0);
-    glVertex2f(windowWidth_game, windowHeight_game);
-    glVertex2f(0, windowHeight_game);
+    glVertex2f(800, 0);
+    glVertex2f(800, 700);
+    glVertex2f(0, 700);
     glEnd();
     glDisable(GL_BLEND);
     
@@ -435,9 +433,9 @@ void drawCountdown() {
     std::string countText = std::to_string(countdownValue);
     glColor3f(1.0f, 1.0f, 1.0f);
     
-    // Posição centralizada
-    float textX = windowWidth_game / 2.0f - 20.0f;
-    float textY = windowHeight_game / 2.0f;
+    // Posição centralizada para janela 800x700
+    float textX = 400.0f - 20.0f;
+    float textY = 350.0f;
     
     // Fonte grande
     glRasterPos2f(textX, textY);
@@ -446,65 +444,7 @@ void drawCountdown() {
     }
 }
 
-void drawPauseMenu() {
-    if (!isPaused) return;
-    
-    // Fundo semi-transparente escuro
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4f(0.0f, 0.0f, 0.0f, 0.8f);
-    glBegin(GL_QUADS);
-    glVertex2f(0, 0);
-    glVertex2f(windowWidth_game, 0);
-    glVertex2f(windowWidth_game, windowHeight_game);
-    glVertex2f(0, windowHeight_game);
-    glEnd();
-    glDisable(GL_BLEND);
-    
-    // Título "PAUSADO"
-    std::string pauseText = "PAUSADO";
-    glColor3f(1.0f, 1.0f, 1.0f);
-    float titleX = windowWidth_game / 2.0f - 60.0f;
-    float titleY = windowHeight_game / 2.0f + 80.0f;
-    glRasterPos2f(titleX, titleY);
-    for (char c : pauseText) {
-        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, c);
-    }
-    
-    // Opção 0: Continuar
-    float option0Y = windowHeight_game / 2.0f + 20.0f;
-    if (pauseSelectedOption == 0) {
-        glColor3f(1.0f, 1.0f, 0.0f); // Amarelo se selecionado
-    } else {
-        glColor3f(1.0f, 1.0f, 1.0f); // Branco
-    }
-    std::string continueText = "Continuar";
-    glRasterPos2f(windowWidth_game / 2.0f - 45.0f, option0Y);
-    for (char c : continueText) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
-    }
-    
-    // Opção 1: Menu
-    float option1Y = windowHeight_game / 2.0f - 20.0f;
-    if (pauseSelectedOption == 1) {
-        glColor3f(1.0f, 1.0f, 0.0f); // Amarelo se selecionado
-    } else {
-        glColor3f(1.0f, 1.0f, 1.0f); // Branco
-    }
-    std::string menuText = "Voltar ao Menu";
-    glRasterPos2f(windowWidth_game / 2.0f - 70.0f, option1Y);
-    for (char c : menuText) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
-    }
-    
-    // Instruções
-    glColor3f(0.7f, 0.7f, 0.7f);
-    std::string instrText = "Use Setas e Enter";
-    glRasterPos2f(windowWidth_game / 2.0f - 80.0f, windowHeight_game / 2.0f - 80.0f);
-    for (char c : instrText) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
-    }
-}
+// Função drawPauseMenu removida - usar drawPauseScreen() de gameover.h
 
 // Desenhar questão matemática no para-brisa
 void drawMathQuestion() {
@@ -639,7 +579,12 @@ void drawGame() {
     drawCrosshair(); // Desenhar mira customizada
     drawProgressBar(); // Desenhar barra de progresso vertical no canto direito
     drawCountdown(); // Desenhar contagem regressiva se ativa
-    drawPauseMenu(); // Desenhar menu de pausa
+    
+    // Desenhar tela de pausa se ESC foi pressionado
+    if (getPaused()) {
+        drawPauseScreen();
+        return;
+    }
     
     // Desenhar tela de Game Over se necessário
     drawGameOver();
@@ -669,7 +614,7 @@ bool checkCollision(const Enemy& enemy) {
 
 void updateGame() {
     // Se o jogo acabou ou está pausado, não atualizar
-    if (getGameOver() || isPaused) {
+    if (getGameOver() || getPaused()) {
         return;
     }
     
@@ -840,31 +785,22 @@ void updateLaserShot() {
 }
 
 void handleGameKeyboard(unsigned char key) {
-    // ESC para pausar/despausar
+    // ESC para pausar
     if (key == 27) { // ESC
-        if (!getGameOver()) {
-            isPaused = !isPaused;
-            pauseSelectedOption = 0; // Reset para "Continuar"
+        if (!getGameOver() && !getPaused()) {
+            setPaused(true, 1);
             glutPostRedisplay();
+        } else if (getPaused()) {
+            handlePauseKeyboard(key);
         }
         return;
     }
     
-    // Se está pausado, tratar navegação do menu
-    if (isPaused) {
-        if (key == 13 || key == '\r') { // Enter
-            if (pauseSelectedOption == 0) {
-                // Continuar
-                isPaused = false;
-            } else if (pauseSelectedOption == 1) {
-                // Voltar ao menu
-                isPaused = false;
-                currentState = MAIN_MENU;
-                glutSetCursor(GLUT_CURSOR_INHERIT);
-            }
-            glutPostRedisplay();
-        }
-        return; // Não processar outras teclas quando pausado
+    // Se está pausado, tratar teclas de pausa
+    if (getPaused()) {
+        handlePauseKeyboard(key);
+        glutPostRedisplay();
+        return;
     }
     
     // Se há uma questão ativa, processar input numérico
@@ -1020,16 +956,8 @@ void handleGameKeyboardUp(unsigned char key) {
 void handleGameSpecialKey(int key, int x, int y) {
     (void)x;
     (void)y;
-    
-    if (isPaused) {
-        if (key == GLUT_KEY_UP) {
-            pauseSelectedOption = 0; // Continuar
-            glutPostRedisplay();
-        } else if (key == GLUT_KEY_DOWN) {
-            pauseSelectedOption = 1; // Menu
-            glutPostRedisplay();
-        }
-    }
+    (void)key;
+    // Sistema de pausa antigo removido
 }
 
 // Callbacks para o sistema de Game Over
