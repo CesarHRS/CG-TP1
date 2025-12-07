@@ -40,7 +40,7 @@ clean:
 	rm -f $(TARGET) $(OBJS)
 
 clean-windows:
-	rm -f $(TARGET_WIN) $(OBJS)
+	del /Q $(TARGET_WIN) src\*.o 2>nul || echo Limpeza concluida
 
 .PHONY: all build run clean
 
