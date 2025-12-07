@@ -484,7 +484,7 @@ void resetEnemyAI() {
 }
 
 void updateEnemiesAI() {
-    float moveSpeed = 0.04f; // Reduzido para metade da velocidade
+    float moveSpeed = 0.02f; // Reduzido para ficar ainda mais lento
 
     for(int i=0; i<numEnemiesP7; i++) {
         if(!enemiesP7[i].active) continue;
@@ -579,6 +579,9 @@ void updateProjectiles() {
                     enemiesP7[j].active = false;
                     scoreP7 += 100;
                     
+                    // Som de explosão
+                    Audio::getInstance().play(Audio::SOUND_EXPLOSION);
+                    
                     bool anyAlive = false;
                     for(int k = 0; k < numEnemiesP7; k++) {
                         if (enemiesP7[k].active) { anyAlive = true; break; }
@@ -588,6 +591,9 @@ void updateProjectiles() {
                         setVictory(true);
                         setVictoryPhase(7);
                         setGameOver(true);
+                        
+                        // Som de vitória quando o boss morre
+                        Audio::getInstance().play(Audio::SOUND_VICTORY);
                     }
                 }
                 break;
@@ -652,6 +658,9 @@ void checkShootingHit() {
             
             playerProjectiles[i].active = true;
             playerProjectiles[i].distanceTraveled = 0.0f;
+            
+            // Som de laser
+            Audio::getInstance().play(Audio::SOUND_LASER);
             break;
         }
     }
