@@ -1837,7 +1837,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
         drawTextP5(10, windowHeight - 45, heldName);
     } else {
         glColor3f(1.0, 1.0, 1.0);
-        drawTextP5(10, windowHeight - 45, "E para pegar | Explore os comodos da nave | Deposite no painel frontal");
+        drawTextP5(10, windowHeight - 45, "'E' para pegar | Explore os comodos da nave | Deposite no painel frontal");
     }
 
     glMatrixMode(GL_PROJECTION);
@@ -2038,7 +2038,7 @@ void updatePhase5(int value) {
         return;
     }
     
-    float speed = 0.10f; // Velocidade igual à fase 7
+    float speed = 0.05f; // Velocidade igual à fase 7
     float lookX = sin(playerP5.angle);
     float lookZ = -cos(playerP5.angle);
 
