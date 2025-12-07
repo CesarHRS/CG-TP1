@@ -733,6 +733,8 @@ void updatePhase4() {
                 if (bossP4.hitCount >= hitsNeededP4) {
                     bossP4.active = false;
                     bossDefeatedP4 = true;
+                    // Parar música da fase 4
+                    Audio::getInstance().stopMusic();
                     // Completou a Fase 4! Mostrar história da Fase 5 (3D)
                     showStoryForPhase(5);
                     return;

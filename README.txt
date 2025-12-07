@@ -1,5 +1,5 @@
 
-# Jogo Educativo (CG-TP1)
+# Jogo Educativo (CG)
 
 Feito por:
 
@@ -7,7 +7,8 @@ César Henrique Resende Soares | 20223006601
 
 Lara Loures Costa França | 201712040154
 
-Apresentação do Youtube: https://www.youtube.com/watch?v=CzZwMi1nJn8
+Apresentação do Youtube TP1: https://www.youtube.com/watch?v=CzZwMi1nJn8
+Apresentação do Youtube TP2: https://www.youtube.com/watch?v=nlmkilYdk9w
 
 ## Estrutura de Arquivos
 

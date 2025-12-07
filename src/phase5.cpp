@@ -8,10 +8,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-// ===================================================================
-// Texturas Globais
-// ===================================================================
-
 GLuint textureWallP5 = 0;
 GLuint textureFloorP5 = 0;
 GLuint texturePyramidP5 = 0;
@@ -20,9 +16,6 @@ GLuint textureSphereP5 = 0;
 GLuint textureCylinderP5 = 0;
 bool texturesLoadedP5 = false;
 
-// ===================================================================
-// Global variables for Phase 5
-// ===================================================================
 
 Player3D playerP5;
 Collectible objectsP5[10];
@@ -42,20 +35,12 @@ bool showCountdownP5 = false;
 int countdownTimerP5 = 0;
 int countdownValueP5 = 3;
 
-// Keyboard state for smooth movement
 bool keyStateP5[256];
 
 // Mouse look variables
 int lastMouseXP5;
 int lastMouseYP5;
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-
-// ===================================================================
-// Funções de Texturas
-// ===================================================================
 
 GLuint createProceduralTexture(int width, int height, int type) {
     unsigned char* data = (unsigned char*)malloc(width * height * 3);
@@ -143,10 +128,6 @@ void loadTexturesP5() {
     printf("Texturas procedurais da Fase 5 criadas\n");
 }
 
-// ===================================================================
-// Utility Functions
-// ===================================================================
-
 void drawPyramidP5() {
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, texturePyramidP5);
@@ -221,10 +202,6 @@ void drawText3DP5(float x, float y, float z, const char *string, void* font) {
         glutBitmapCharacter(font, *c);
     }
 }
-
-// ===================================================================
-// Funções para desenhar o interior da nave
-// ===================================================================
 
 // Desenhar parede metálica
 void drawMetalWallP5(float x, float z, float width, float height, float depth, float r, float g, float b) {
@@ -498,35 +475,6 @@ void drawCommandChairP5(float x, float z, float rotation) {
     glPopMatrix();
 }
 
-// Desenhar árvore 3D (REMOVIDO - não será mais usado)
-void drawTreeP5(float x, float z, float scale) {
-    glPushMatrix();
-    glTranslatef(x, 0.0f, z);
-    glScalef(scale, scale, scale);
-    
-    // Tronco (cilindro vertical)
-    glColor3f(0.4f, 0.25f, 0.1f); // Marrom
-    glPushMatrix();
-    glTranslatef(0.0f, 0.0f, 0.0f);
-    drawCylinderP5(0.2f, 2.0f, 10);
-    glPopMatrix();
-    
-    // Copa da árvore (esfera verde)
-    glColor3f(0.1f, 0.6f, 0.1f); // Verde escuro
-    glPushMatrix();
-    glTranslatef(0.0f, 2.5f, 0.0f);
-    glutSolidSphere(1.0f, 12, 12);
-    glPopMatrix();
-    
-    glColor3f(0.2f, 0.7f, 0.2f); // Verde mais claro
-    glPushMatrix();
-    glTranslatef(0.0f, 3.2f, 0.0f);
-    glutSolidSphere(0.7f, 12, 12);
-    glPopMatrix();
-    
-    glPopMatrix();
-}
-
 // Desenhar arbusto
 void drawBushP5(float x, float z, float scale) {
     glPushMatrix();
@@ -704,10 +652,6 @@ void drawSpaceGlovesP5() {
     glEnable(GL_LIGHTING);
 }
 
-
-// ===================================================================
-// Helper function to check if position is valid for object placement
-// ===================================================================
 bool isValidObjectPosition(float x, float z) {
     // Verificar limites da nave
     if (x < -9.3f || x > 9.3f || z < -9.3f || z > 9.3f) return false;
@@ -718,9 +662,9 @@ bool isValidObjectPosition(float x, float z) {
     // Evitar área do painel frontal e console
     if (z > 6.3f) return false;
     
-    // QUARTO (X=-10 a -3, Z=-10 a -3)
+    // QUARTO
     if (x >= -10.0f && x <= -3.0f && z >= -10.0f && z <= -3.0f) {
-        // Evitar cama (X=-8 a -6, Z=-8 a -6)
+        // Evitar cama 
         if (x > -8.5f && x < -5.5f && z > -8.5f && z < -5.5f) return false;
         // Evitar mesa de cabeceira
         if (x > -9.0f && x < -8.0f && z > -7.0f && z < -6.0f) return false;
@@ -733,11 +677,11 @@ bool isValidObjectPosition(float x, float z) {
         return true;
     }
     
-    // COZINHA (X=3 a 10, Z=-10 a -3)
+    // COZINHA 
     if (x >= 3.0f && x <= 10.0f && z >= -10.0f && z <= -3.0f) {
-        // Evitar bancada (X=6 a 8, Z=-8 a -6.5)
+        // Evitar bancada 
         if (x > 5.5f && x < 8.5f && z > -8.5f && z < -6.0f) return false;
-        // Evitar geladeira (X=8.3 a 9.3, Z=-7.5 a -6.5)
+        // Evitar geladeira
         if (x > 7.8f && x < 9.8f && z > -8.0f && z < -6.0f) return false;
         // Evitar mesa
         if (x > 4.3f && x < 5.7f && z > -5.0f && z < -4.0f) return false;
@@ -750,11 +694,11 @@ bool isValidObjectPosition(float x, float z) {
         return true;
     }
     
-    // SALA DE MUNIÇÃO (X=-10 a -3, Z=3 a 8.5) - sala FRONTAL estendida
+    // SALA DE MUNIÇÃO 
     if (x >= -10.0f && x <= -3.0f && z >= 3.0f && z <= 8.5f) {
-        // Evitar rack de armas (X=-8.5, Z=7.5) no canto frontal
+        // Evitar rack de armas no canto frontal
         if (x > -9.1f && x < -7.9f && z > 6.7f && z < 8.2f) return false;
-        // Evitar todas as caixas de munição empilhadas (área grande no centro)
+        // Evitar todas as caixas de munição empilhadas
         if (x > -8.3f && x < -6.5f && z > 4.5f && z < 6.0f) return false;
         // Evitar mesa de trabalho (X=-9, Z=7.5) - canto esquerdo frontal
         if (x > -9.8f && x < -8.2f && z > 7.0f && z < 8.0f) return false;
@@ -825,13 +769,13 @@ void generateRandomObjectPosition(float &x, float &z, int roomIndex, int current
             minX = 4.5f; maxX = 8.5f;
             minZ = -8.5f; maxZ = -4.5f;
             break;
-        case 2: // Sala de Munição (X=-10 a -3, Z=3 a 8.5) - evitando rack/mesa frontal
+        case 2: // Sala de Munição - evitando rack/mesa frontal
             minX = -7.0f; maxX = -4.0f;
-            minZ = 3.8f; maxZ = 6.5f;  // Evita área frontal (Z=7+)
+            minZ = 3.8f; maxZ = 6.5f;  // Evita área frontal
             break;
-        case 3: // Área de Console (X=3 a 10, Z=3 a 8.5) - evitando console/estante frontal
-            minX = 4.0f; maxX = 6.0f;  // Área central, evita console (X=7) e estante (X=8.5)
-            minZ = 3.8f; maxZ = 5.0f;  // Evita sofá (Z=5.8) e console frontal (Z=7.8)
+        case 3: // Área de Console
+            minX = 4.0f; maxX = 6.0f;  // Área central, evita console e estante
+            minZ = 3.8f; maxZ = 5.0f;  // Evita sofá e console frontal
             break;
         default:
             minX = -6.0f; maxX = 6.0f;
@@ -856,10 +800,6 @@ void generateRandomObjectPosition(float &x, float &z, int roomIndex, int current
         printf("AVISO: Objeto %d colocado em posicao fallback: (%.2f, %.2f)\n", roomIndex, x, z);
     }
 }
-
-// ===================================================================
-// Core Phase 5 Functions
-// ===================================================================
 
 // Forward declarations
 void returnToMenuFromPhase5();
@@ -914,46 +854,46 @@ void initPhase5() {
     // 8 objetos escondidos em diferentes cômodos da nave (2 de cada tipo)
     numObjectsP5 = 8;
     
-    // CUBO 1 - Quarto (Cômodo 1: X=-10 a -3, Z=-10 a -3)
+    // CUBO 1 - Quarto
     float cubeX, cubeZ;
     generateRandomObjectPosition(cubeX, cubeZ, 0, 0);
     objectsP5[0] = (Collectible){cubeX, 0.2f, cubeZ, SHAPE_CUBE, false, false};
     printf("CUBO 1 gerado em: (%.2f, %.2f)\n", cubeX, cubeZ);
     
-    // CUBO 2 - Quarto (Cômodo 1)
+    // CUBO 2 - Quarto
     generateRandomObjectPosition(cubeX, cubeZ, 0, 1);
     objectsP5[1] = (Collectible){cubeX, 0.2f, cubeZ, SHAPE_CUBE, false, false};
     printf("CUBO 2 gerado em: (%.2f, %.2f)\n", cubeX, cubeZ);
     
-    // ESFERA 1 - Cozinha (Cômodo 2: X=3 a 10, Z=-10 a -3)
+    // ESFERA 1 - Cozinha
     float sphereX, sphereZ;
     generateRandomObjectPosition(sphereX, sphereZ, 1, 2);
     objectsP5[2] = (Collectible){sphereX, 0.2f, sphereZ, SHAPE_SPHERE, false, false};
     printf("ESFERA 1 gerada em: (%.2f, %.2f)\n", sphereX, sphereZ);
     
-    // ESFERA 2 - Cozinha (Cômodo 2)
+    // ESFERA 2 - Cozinha
     generateRandomObjectPosition(sphereX, sphereZ, 1, 3);
     objectsP5[3] = (Collectible){sphereX, 0.2f, sphereZ, SHAPE_SPHERE, false, false};
     printf("ESFERA 2 gerada em: (%.2f, %.2f)\n", sphereX, sphereZ);
     
-    // PIRÂMIDE 1 - Sala de Munição (Cômodo 3: X=-10 a -3, Z=3 a 6.5)
+    // PIRÂMIDE 1 - Sala de Munição
     float pyramidX, pyramidZ;
     generateRandomObjectPosition(pyramidX, pyramidZ, 2, 4);
     objectsP5[4] = (Collectible){pyramidX, 0.2f, pyramidZ, SHAPE_PYRAMID, false, false};
     printf("PIRÂMIDE 1 gerada em: (%.2f, %.2f)\n", pyramidX, pyramidZ);
     
-    // PIRÂMIDE 2 - Sala de Munição (Cômodo 3)
+    // PIRÂMIDE 2 - Sala de Munição
     generateRandomObjectPosition(pyramidX, pyramidZ, 2, 5);
     objectsP5[5] = (Collectible){pyramidX, 0.2f, pyramidZ, SHAPE_PYRAMID, false, false};
     printf("PIRÂMIDE 2 gerada em: (%.2f, %.2f)\n", pyramidX, pyramidZ);
     
-    // CILINDRO 1 - Área de Console (Cômodo 4: X=3 a 10, Z=3 a 6.5)
+    // CILINDRO 1 - Área de Console
     float cylinderX, cylinderZ;
     generateRandomObjectPosition(cylinderX, cylinderZ, 3, 6);
     objectsP5[6] = (Collectible){cylinderX, 0.2f, cylinderZ, SHAPE_CYLINDER, false, false};
     printf("CILINDRO 1 gerado em: (%.2f, %.2f)\n", cylinderX, cylinderZ);
     
-    // CILINDRO 2 - Área de Console (Cômodo 4)
+    // CILINDRO 2 - Área de Console
     generateRandomObjectPosition(cylinderX, cylinderZ, 3, 7);
     objectsP5[7] = (Collectible){cylinderX, 0.2f, cylinderZ, SHAPE_CYLINDER, false, false};
     printf("CILINDRO 2 gerado em: (%.2f, %.2f)\n", cylinderX, cylinderZ);
@@ -1019,10 +959,6 @@ void drawPhase5(int windowWidth, int windowHeight) {
     
     glEnable(GL_DEPTH_TEST);
 
-    // ===================================================================
-    // ESTRUTURA DA NAVE
-    // ===================================================================
-    
     // Chão metálico da nave (placas com padrão)
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, textureFloorP5);
@@ -1081,10 +1017,6 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glVertex3f(-10.0f, 3.0f, -10.0f);
     glEnd();
     
-    // ===================================================================
-    // PAREDE FRONTAL COM PARABRISA E PAINEL DE CONTROLE
-    // ===================================================================
-    
     // Parede frontal esquerda (lateral do parabrisa)
     glBegin(GL_QUADS);
     glNormal3f(0.0, 0.0, -1.0);
@@ -1112,7 +1044,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glVertex3f(4.0f, 0.0f, 10.0f);
     glEnd();
     
-    // Parabrisa (vidro transparente/azulado mostrando o espaço) - REDUZIDO
+    // Parabrisa
     glColor3f(0.1f, 0.15f, 0.3f); // Azul escuro do espaço
     glBegin(GL_QUADS);
     glNormal3f(0.0, 0.0, -1.0);
@@ -1122,12 +1054,11 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glVertex3f(4.0f, 1.0f, 10.0f);
     glEnd();
     
-    // Estrelas vistas através do parabrisa (fixas)
+    // Estrelas vistas através do parabrisa
     glDisable(GL_LIGHTING);
     glPointSize(3.0f);
     glBegin(GL_POINTS);
     glColor3f(1.0f, 1.0f, 1.0f);
-    // Estrelas em posições fixas (distribuídas pelo parabrisa reduzido)
     glVertex3f(-3.5f, 2.8f, 9.95f);
     glVertex3f(-2.8f, 2.2f, 9.95f);
     glVertex3f(-1.5f, 2.9f, 9.95f);
@@ -1148,26 +1079,12 @@ void drawPhase5(int windowWidth, int windowHeight) {
     // Painel de controle principal (console grande na frente)
     drawControlConsoleP5(0.0f, 7.5f, 0.0f);
     drawCommandChairP5(0.0f, 6.0f, 0.0f);
-    
-    // ===================================================================
-    // PAREDES DOS 4 CÔMODOS INDEPENDENTES
-    // Layout: Quarto (traseiro esq), Cozinha (traseiro dir), 
-    //         Munição (frontal esq), Console (frontal dir)
-    // Cada cômodo: 7x7 unidades com porta de 2 unidades
-    // Cômodos: X=-10 a -3 e 3 a 10, Z=-10 a -3 e 3 a 10
-    // ===================================================================
-    
+
     // Ativar polygon offset para evitar z-fighting (linhas brancas)
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(1.0f, 1.0f);
     
     glColor3f(0.35f, 0.35f, 0.4f);
-    
-    // ===================================================================
-    // CÔMODO 1: QUARTO (Bedroom) - Traseiro Esquerdo
-    // Área: X=-10 a -3, Z=-10 a -3
-    // Porta: Em X=-3, Z=-7 a -5 (virada para corredor)
-    // ===================================================================
     
     // Parede traseira (Z=-10)
     glBegin(GL_QUADS);
@@ -1196,7 +1113,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glVertex3f(-3.0f, 0.0f, -3.0f);
     glEnd();
     
-    // Parede direita (X=-3) com porta - seção inferior (Z=-10 a -7)
+    // Parede direita  com porta - seção inferior
     glBegin(GL_QUADS);
     glNormal3f(-1.0, 0.0, 0.0);
     glVertex3f(-3.0f, 0.0f, -10.0f);
@@ -1205,7 +1122,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glVertex3f(-3.0f, 3.0f, -10.0f);
     glEnd();
     
-    // Parede direita (X=-3) com porta - seção superior (Z=-5 a -3)
+    // Parede direita com porta
     glBegin(GL_QUADS);
     glNormal3f(-1.0, 0.0, 0.0);
     glVertex3f(-3.0f, 0.0f, -5.0f);
@@ -1214,7 +1131,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glVertex3f(-3.0f, 3.0f, -5.0f);
     glEnd();
     
-    // Verga da porta do quarto (altura 2.1 a 3.0)
+    // Verga da porta do quarto
     glBegin(GL_QUADS);
     glNormal3f(-1.0, 0.0, 0.0);
     glVertex3f(-3.0f, 2.1f, -7.0f);
@@ -1223,13 +1140,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glVertex3f(-3.0f, 3.0f, -7.0f);
     glEnd();
     
-    // ===================================================================
-    // CÔMODO 2: COZINHA (Kitchen) - Traseiro Direito
-    // Área: X=3 a 10, Z=-10 a -3
-    // Porta: Em X=3, Z=-7 a -5
-    // ===================================================================
-    
-    // Parede traseira (Z=-10)
+    // Parede traseira
     glBegin(GL_QUADS);
     glNormal3f(0.0, 0.0, 1.0);
     glVertex3f(3.0f, 0.0f, -10.0f);
@@ -1238,7 +1149,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glVertex3f(3.0f, 3.0f, -10.0f);
     glEnd();
     
-    // Parede direita (X=10)
+    // Parede direita
     glBegin(GL_QUADS);
     glNormal3f(-1.0, 0.0, 0.0);
     glVertex3f(10.0f, 0.0f, -10.0f);
@@ -1247,7 +1158,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glVertex3f(10.0f, 3.0f, -10.0f);
     glEnd();
     
-    // Parede frontal (Z=-3)
+    // Parede frontal
     glBegin(GL_QUADS);
     glNormal3f(0.0, 0.0, -1.0);
     glVertex3f(3.0f, 0.0f, -3.0f);
@@ -1256,7 +1167,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glVertex3f(10.0f, 0.0f, -3.0f);
     glEnd();
     
-    // Parede esquerda (X=3) com porta - seção inferior (Z=-10 a -7)
+    // Parede esquerda com porta - seção inferior
     glBegin(GL_QUADS);
     glNormal3f(1.0, 0.0, 0.0);
     glVertex3f(3.0f, 0.0f, -10.0f);
@@ -1265,7 +1176,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glVertex3f(3.0f, 0.0f, -7.0f);
     glEnd();
     
-    // Parede esquerda (X=3) com porta - seção superior (Z=-5 a -3)
+    // Parede esquerda com porta - seção superior 
     glBegin(GL_QUADS);
     glNormal3f(1.0, 0.0, 0.0);
     glVertex3f(3.0f, 0.0f, -5.0f);
@@ -1282,14 +1193,8 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glVertex3f(3.0f, 3.0f, -5.0f);
     glVertex3f(3.0f, 2.1f, -5.0f);
     glEnd();
-    
-    // ===================================================================
-    // CÔMODO 3: SALA DE MUNIÇÃO (Ammo Room) - Frontal Esquerdo
-    // Área: X=-10 a -3, Z=3 a 8.5 (estendida até próximo do parabrisa)
-    // Porta: Em X=-3, Z=5 a 6.5
-    // ===================================================================
-    
-    // Parede frontal (Z=8.5) - estendida até próximo do parabrisa
+
+    // Parede frontal
     glBegin(GL_QUADS);
     glNormal3f(0.0, 0.0, -1.0);
     glVertex3f(-10.0f, 0.0f, 8.5f);
@@ -1298,7 +1203,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glVertex3f(-3.0f, 0.0f, 8.5f);
     glEnd();
     
-    // Parede esquerda (X=-10)
+    // Parede esquerda
     glBegin(GL_QUADS);
     glNormal3f(1.0, 0.0, 0.0);
     glVertex3f(-10.0f, 0.0f, 3.0f);
@@ -1307,7 +1212,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glVertex3f(-10.0f, 0.0f, 8.5f);
     glEnd();
     
-    // Parede traseira (Z=3)
+    // Parede traseira
     glBegin(GL_QUADS);
     glNormal3f(0.0, 0.0, 1.0);
     glVertex3f(-10.0f, 0.0f, 3.0f);
@@ -1316,7 +1221,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glVertex3f(-10.0f, 3.0f, 3.0f);
     glEnd();
     
-    // Parede direita (X=-3) com porta - seção inferior (Z=3 a 5)
+    // Parede direita com porta - seção inferior
     glBegin(GL_QUADS);
     glNormal3f(-1.0, 0.0, 0.0);
     glVertex3f(-3.0f, 0.0f, 3.0f);
@@ -1324,8 +1229,6 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glVertex3f(-3.0f, 3.0f, 5.0f);
     glVertex3f(-3.0f, 3.0f, 3.0f);
     glEnd();
-    
-    // Porta da sala de munição: Z=5 a 7.5 (sem parede) - PORTA MAIOR
     
     // Verga da porta da sala de munição
     glBegin(GL_QUADS);
@@ -1336,7 +1239,6 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glVertex3f(-3.0f, 3.0f, 5.0f);
     glEnd();
     
-    // Parede direita (X=-3) - seção superior após porta (Z=7.5 a 8.5)
     glBegin(GL_QUADS);
     glNormal3f(-1.0, 0.0, 0.0);
     glVertex3f(-3.0f, 0.0f, 7.5f);
@@ -1345,13 +1247,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glVertex3f(-3.0f, 3.0f, 7.5f);
     glEnd();
     
-    // ===================================================================
-    // CÔMODO 4: ÁREA DE CONSOLE (Console Area) - Frontal Direito
-    // Área: X=3 a 10, Z=3 a 8.5 (estendida até próximo do parabrisa)
-    // Porta: Em X=3, Z=5 a 6.5
-    // ===================================================================
-    
-    // Parede frontal (Z=8.5) - estendida até próximo do parabrisa
+    // Parede frontal
     glBegin(GL_QUADS);
     glNormal3f(0.0, 0.0, -1.0);
     glVertex3f(3.0f, 0.0f, 8.5f);
@@ -1407,16 +1303,9 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glVertex3f(3.0f, 0.0f, 8.5f);
     glEnd();
     
-    // ===================================================================
-    // FIM DAS PAREDES DOS CÔMODOS
-    // ===================================================================
-    
     // Desativar polygon offset após desenhar as paredes
     glDisable(GL_POLYGON_OFFSET_FILL);
-    
-    // ===================================================================
-    // QUARTO (Canto traseiro-esquerdo: X=-10 a -3, Z=-10 a -3)
-    // ===================================================================
+
     // Cama menor e reposicionada
     glPushMatrix();
     glTranslatef(-7.0f, 0.3f, -7.0f);
@@ -1460,9 +1349,6 @@ void drawPhase5(int windowWidth, int windowHeight) {
     // TV montada na parede do quarto
     drawTVP5(-9.4f, -4.5f, 90.0f);
     
-    // ===================================================================
-    // COZINHA (Canto traseiro-direito: X=3 a 10, Z=-10 a -3)
-    // ===================================================================
     // Bancada menor
     glPushMatrix();
     glTranslatef(7.0f, 0.5f, -7.25f);
@@ -1526,9 +1412,6 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glutSolidCube(1.0f);
     glPopMatrix();
     
-    // ===================================================================
-    // SALA DE MUNIÇÃO (Canto frontal-esquerdo)
-    // ===================================================================
     drawWeaponRackP5(-8.5f, 7.5f, 90.0f);  // Movido para área frontal
     
     // Caixas de munição empilhadas (mantidas no centro)
@@ -1584,9 +1467,6 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glutSolidCube(1.0f);
     glPopMatrix();
     
-    // ===================================================================
-    // ÁREA DE CONSOLE AUXILIAR (Canto frontal-direito)
-    // ===================================================================
     drawControlConsoleP5(7.0f, 7.8f, 180.0f);  // Movido mais para frente
     drawCommandChairP5(6.5f, 6.8f, 180.0f);    // Cadeira próxima ao console
     
@@ -1616,10 +1496,6 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glScalef(0.8f, 0.4f, 0.5f);
     glutSolidCube(1.0f);
     glPopMatrix();
-    
-    // ===================================================================
-    // CORREDOR CENTRAL - Elementos decorativos
-    // ===================================================================
     
     // Bancos laterais no corredor (esquerdo)
     glPushMatrix();
@@ -1692,10 +1568,6 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glutSolidSphere(0.3f, 8, 8);
     glPopMatrix();
     
-    // ===================================================================
-    // PAINEL DE DEPÓSITO (Slots no console principal - horizontal)
-    // ===================================================================
-    glDisable(GL_LIGHTING);
     for (int i = 0; i < numDepositsP5; i++) {
         glPushMatrix();
         glTranslatef(depositsP5[i].x, 1.25f, depositsP5[i].z);
