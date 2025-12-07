@@ -2030,6 +2030,11 @@ bool checkCollisionP5(float x, float z) {
 void updatePhase5(int value) {
     (void)value;
     
+    // Se completou a fase, não continuar atualizando
+    if (scoreP5 >= 8) {
+        return;
+    }
+    
     if (getPaused()) {
         glutTimerFunc(16, updatePhase5, 0);
         return;
@@ -2122,6 +2127,8 @@ void updatePhase5(int value) {
                         // Verificar vitória
                         if (scoreP5 >= 8) {
                             printf("Fase 5 completa! Mostrando história da Fase 6...\n");
+                            setGameOver(false);
+                            setVictory(false);
                             showStoryForPhase(6);
                             return; // Sair imediatamente
                         }
@@ -2221,6 +2228,8 @@ void handlePhase5Keyboard(unsigned char key, int x, int y) {
                         // Verificar vitória
                         if (scoreP5 >= 8) {
                             printf("Fase 5 completa! Mostrando história da Fase 6...\n");
+                            setGameOver(false);
+                            setVictory(false);
                             showStoryForPhase(6);
                             return; // Sair imediatamente
                         }

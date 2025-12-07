@@ -890,6 +890,8 @@ void updatePhase6(int value) {
         if (questionsAnsweredP6 >= totalQuestionsP6) {
             printf("Fase 6 completa! Mostrando história da Fase 7...\n");
             Audio::getInstance().play(Audio::SOUND_VICTORY);
+            setGameOver(false);
+            setVictory(false);
             showStoryForPhase(7);
             return; // Sair imediatamente
         } else {
