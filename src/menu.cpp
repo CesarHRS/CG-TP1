@@ -875,6 +875,8 @@ void setup() {
     // Initialize audio system (optional). Will print warnings if SDL or mixers aren't available.
     Audio::getInstance().init();
     Audio::getInstance().loadAll();
+    // Play menu music (best-effort)
+    Audio::getInstance().playMusic("assets/music/menu.wav");
     // Ensure cleanup on exit
     atexit(audio_cleanup_at_exit);
 }
