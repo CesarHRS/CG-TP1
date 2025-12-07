@@ -2,13 +2,11 @@
 #define PHASE6_H
 
 void initPhase6();
-void drawPhase6();
-void updatePhase6();
-void handlePhase6MouseClick(int button, int state, int x, int y);
-void handlePhase6MouseMove(int x, int y);
-void handlePhase6Keyboard(unsigned char key);
-void handlePhase6KeyboardUp(unsigned char key);
-void handlePhase6SpecialKey(int key, int x, int y);
-void handlePhase6SpecialKeyUp(int key, int x, int y);
+void drawPhase6(int windowWidth, int windowHeight);
+void updatePhase6(int value);
+void handlePhase6Keyboard(unsigned char key, int x, int y);
+void handlePhase6KeyboardUp(unsigned char key, int x, int y);
+void handlePhase6Special(int key, int x, int y);
+void handlePhase6SpecialUp(int key, int x, int y);
 
-#endif // PHASE6_H
+#endif

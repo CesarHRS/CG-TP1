@@ -1,0 +1,17 @@
+# Modelo 2D - Nave (coordenadas normalizadas -1 a 1)
+# Formato: x y (coordenadas de vértices)
+
+# Corpo principal (triângulo)
+0.0 0.5
+-0.3 -0.5
+0.3 -0.5
+
+# Asa esquerda
+-0.3 -0.2
+-0.6 -0.4
+-0.3 -0.5
+
+# Asa direita
+0.3 -0.2
+0.6 -0.4
+0.3 -0.5

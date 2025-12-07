@@ -15,7 +15,7 @@
 #endif
 
 int windowWidthP3 = 800;
-int windowHeightP3 = 600;
+int windowHeightP3 = 700;
 int mouseXP3 = 400;
 int mouseYP3 = 300;
 
@@ -113,7 +113,7 @@ void createNewAmmoP3() {
 void initPhase3() {
     srand(time(0));
     windowWidthP3 = 800;
-    windowHeightP3 = 600;
+    windowHeightP3 = 700;
     mouseXP3 = windowWidthP3/2;
     mouseYP3 = windowHeightP3/2;
     
@@ -590,11 +590,16 @@ void drawPhase3() {
     drawProgressCounter();
     drawCountdown(); // Contagem regressiva
     
+    if (getPaused()) {
+        drawPauseScreen();
+        return;
+    }
+    
     drawGameOver();
 }
 
 void updatePhase3() {
-    if (getGameOver()) return;
+    if (getGameOver() || getPaused()) return;
     
     // Atualizar contagem regressiva
     if (showCountdown) {
@@ -727,10 +732,22 @@ void handlePhase3Keyboard(unsigned char key) {
         return;
     }
     
-    // Apenas ESC para voltar ao menu
+    // ESC para pausar
     if (key == 27) {
-        returnToMenuFromPhase3();
+        if (!getPaused()) {
+            setPaused(true, 3);
+        } else {
+            handlePauseKeyboard(key);
+        }
         glutPostRedisplay();
+        return;
+    }
+    
+    // Se está pausado, tratar teclas de pausa
+    if (getPaused()) {
+        handlePauseKeyboard(key);
+        glutPostRedisplay();
+        return;
     }
 }
 
@@ -743,7 +760,11 @@ void restartPhase3() {
 }
 
 void returnToMenuFromPhase3() {
+    setGameOver(false);
+    setVictory(false);
+    setPaused(false, 0);
     glutSetCursor(GLUT_CURSOR_INHERIT);
     glutPassiveMotionFunc(handleMouseHover);
     currentState = MAIN_MENU;
+    glutPostRedisplay();
 }

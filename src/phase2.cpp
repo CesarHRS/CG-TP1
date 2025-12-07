@@ -19,7 +19,7 @@ std::vector<ExplosionPhase2> explosionsP2;
 std::vector<LaserShotPhase2> laserShotsP2;
 EquationPhase2 currentEquationP2;
 int windowWidthP2 = 800;
-int windowHeightP2 = 600;
+int windowHeightP2 = 700;
 int mouseXP2 = 400;
 int mouseYP2 = 300;
 int shotsRemainingP2 = 5;
@@ -440,7 +440,11 @@ void drawPhase2() {
     drawCorrectAnswersCountP2();
     drawCrosshairP2();
     drawCountdown(); // Contagem regressiva
-    drawPauseMenu(); // Menu de pausa
+    
+    if (getPaused()) {
+        drawPauseScreen();
+        return;
+    }
     
     drawGameOver();
 }
@@ -616,7 +620,7 @@ void checkTimeoutDamageP2() {
 }
 
 void updatePhase2() {
-    if (getGameOver() || isPaused) {
+    if (getGameOver() || getPaused()) {
         return;
     }
     
@@ -836,29 +840,21 @@ void handlePhase2MouseClick(int button, int state, int x, int y) {
 }
 
 void handlePhase2Keyboard(unsigned char key) {
-    // ESC para pausar/despausar
+    // ESC para pausar
     if (key == 27) { // ESC
-        if (!getGameOver()) {
-            isPaused = !isPaused;
-            pauseSelectedOption = 0;
+        if (!getGameOver() && !getPaused()) {
+            setPaused(true, 2);
             glutPostRedisplay();
+        } else if (getPaused()) {
+            handlePauseKeyboard(key);
         }
         return;
     }
     
-    // Se está pausado, tratar navegação do menu
-    if (isPaused) {
-        if (key == 13 || key == '\r') { // Enter
-            if (pauseSelectedOption == 0) {
-                isPaused = false;
-            } else if (pauseSelectedOption == 1) {
-                isPaused = false;
-                currentState = MAIN_MENU;
-                glutSetCursor(GLUT_CURSOR_INHERIT);
-                glutPassiveMotionFunc(handleMouseHover);
-            }
-            glutPostRedisplay();
-        }
+    // Se está pausado, tratar teclas de pausa
+    if (getPaused()) {
+        handlePauseKeyboard(key);
+        glutPostRedisplay();
         return;
     }
 }
@@ -871,16 +867,8 @@ void handlePhase2KeyboardUp(unsigned char key) {
 void handlePhase2SpecialKey(int key, int x, int y) {
     (void)x;
     (void)y;
-    
-    if (isPaused) {
-        if (key == GLUT_KEY_UP) {
-            pauseSelectedOption = 0;
-            glutPostRedisplay();
-        } else if (key == GLUT_KEY_DOWN) {
-            pauseSelectedOption = 1;
-            glutPostRedisplay();
-        }
-    }
+    (void)key;
+    // Sistema de pausa antigo removido
 }
 
 void restartPhase2() {
@@ -889,7 +877,11 @@ void restartPhase2() {
 
 void returnToMenuFromPhase2() {
     // Retornar ao menu
+    setGameOver(false);
+    setVictory(false);
+    setPaused(false, 0);
     glutSetCursor(GLUT_CURSOR_INHERIT);
     glutPassiveMotionFunc(handleMouseHover);
     currentState = MAIN_MENU;
+    glutPostRedisplay();
 }

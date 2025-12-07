@@ -6,7 +6,6 @@
 #include "phase4.h"
 #include "phase5.h"
 #include "phase6.h"
-#include "phase7.h"
 #include "gameover.h"
 #include "audio.h"
 #include <string.h>
@@ -24,31 +23,35 @@
 
 GameState currentState = MAIN_MENU;
 int windowWidth = 800;
-int windowHeight = 600;
+int windowHeight = 700;
 // menu uses system cursor; custom pointer is drawn only in phase3
 int menuMouseX = 400;
-int menuMouseY = 300;
+int menuMouseY = 350;
 
 // Story overlay state: when true, a space-background overlay with text is shown
 bool showPhaseStory = false;
 int storyPhase = 0; // 1,2,3
 int storyPage = 0; // pagination index (0-based, two paragraphs per page)
 
+// Instructions pagination
+int instructionsPage = 0; // 0-7: 0=geral, 1-7=fases
+const int totalInstructionsPages = 8; // 1 página geral + 7 fases
+
 
 // Arrange menu buttons with uniform vertical spacing
 // Start near the top and step down by 60 px between buttons
 // Arrange 9 main buttons symmetrically (7 phases + instructions + exit)
-Button startButton = {300, 520, 200, 50, "Fase 1", false};
-Button phase2Button = {300, 460, 200, 50, "Fase 2", false};
-Button phase3Button = {300, 400, 200, 50, "Fase 3", false};
-Button phase4Button = {300, 340, 200, 50, "Fase 4", false};
-Button phase5Button = {300, 280, 200, 50, "Fase 5", false};
-Button phase6Button = {300, 220, 200, 50, "Fase 6", false};
-Button phase7Button = {300, 160, 200, 50, "Fase 7", false};
+Button startButton = {300, 560, 200, 50, "Fase 1", false};
+Button phase2Button = {300, 500, 200, 50, "Fase 2", false};
+Button phase3Button = {300, 440, 200, 50, "Fase 3", false};
+Button phase4Button = {300, 380, 200, 50, "Fase 4", false};
+Button phase5Button = {300, 320, 200, 50, "Fase 5 (3D)", false};
+Button phase6Button = {300, 260, 200, 50, "Fase 6 (3D)", false};
+Button phase7Button = {300, 200, 200, 50, "Fase 7 (3D)", false};
 // instructions and exit below
-Button instructionsButton = {300, 100, 200, 50, "Como Jogar", false};
-Button exitButton = {300, 40, 200, 50, "Sair", false};
-Button backButton = {300, 10, 200, 50, "Voltar para o Menu", false};
+Button instructionsButton = {300, 140, 200, 50, "Como Jogar", false};
+Button exitButton = {300, 80, 200, 50, "Sair", false};
+Button backButton = {300, 40, 200, 50, "Voltar ao Menu", false};
 
 void handleKeyboardUp(unsigned char key, int x, int y) {
     (void)x;
@@ -66,13 +69,12 @@ void handleKeyboardUp(unsigned char key, int x, int y) {
         handlePhase4KeyboardUp(key);
         glutPostRedisplay();
     } else if (currentState == PHASE5_SCREEN) {
-        handlePhase5KeyboardUp(key);
-        glutPostRedisplay();
+        handlePhase5KeyboardUp(key, x, y);
     } else if (currentState == PHASE6_SCREEN) {
-        handlePhase6KeyboardUp(key);
+        handlePhase6KeyboardUp(key, x, y);
         glutPostRedisplay();
     } else if (currentState == PHASE7_SCREEN) {
-        handlePhase7KeyboardUp(key);
+        handlePhase7KeyboardUp(key, x, y);
         glutPostRedisplay();
     }
 }
@@ -159,7 +161,7 @@ bool isMouseOverButton(int x, int y, Button &button) {
 // --- Funções de Renderização das Telas ---
 
 void drawMainMenu() {
-    drawText(320, 500, "Jogo de navinha mais legal da sua vida");
+    drawText(320, 640, "Jogo de navinha mais legal da sua vida");
     drawButton(startButton);
     drawButton(phase2Button);
     drawButton(phase3Button);
@@ -216,24 +218,34 @@ static std::vector<std::string> getStoryParagraphs(int phase) {
         p.push_back("CONTROLE DE MISSAO: Sistemas de varredura indicam danos estruturais severos nas asas e na iluminação.");
         p.push_back("CONTROLE DE MISSAO: Iniciar sequencia de reparos o mais rapido possivel.");
         p.push_back("COMANDANTE: Confirmado, iniciando sequencia de reparos.");
+    } else if (phase == 5) {
+        p.push_back("FASE 5");
+        p.push_back("[ O PLANETA DOS SOLIDOS GEOMETRICOS ]");
+        p.push_back("CONTROLE DE MISSAO: Comandante, entrando em modo de exploracao tridimensional.");
+        p.push_back("COMANDANTE: Confirmado. Ativando sistemas de navegacao livre e sensores de curto alcance.");
+        p.push_back("CONTROLE DE MISSAO: Voce pousou em um planeta com solidos geometricos espalhados.");
+        p.push_back("COMANDANTE: Sua missao e identificar e coletar os objetos geometricos especificos solicitados.");
+        p.push_back("CONTROLE DE MISSAO: Use W/A/S/D para movimentacao e mouse para visao. Cuidado com objetos errados!");
+        p.push_back("COMANDANTE: Entendido. Iniciando varredura do planeta.");
     } else if (phase == 6) {
         p.push_back("FASE 6");
-        p.push_back("[ O ABISMO SILENCIOSO ]");
-        p.push_back("CONTROLE DE MISSAO: Ponte de comando, relatórios indicam um setor vazio na órbita acima da base.");
-        p.push_back("COMANDANTE: Recebido. Investigar o setor e identificar sinais de atividade." );
-        p.push_back("CONTROLE DE MISSAO: Sensores passivos detectaram anomalias magnéticas.");
-        p.push_back("COMANDANTE: Prepare-se para manobras de varredura. Evite exposições prolongadas aos campos.");
-        p.push_back("CONTROLE DE MISSAO: Objetivo: recuperar módulos de nave danificados e reconhecer o local.");
-        p.push_back("COMANDANTE: Confirmado, iniciando varredura e recuperação.");
+        p.push_back("[ CINTURAO DE ASTEROIDES MAGNETICOS ]");
+        p.push_back("CONTROLE DE MISSAO: Comandante, decolagem bem-sucedida. Proximo destino: retorno a base.");
+        p.push_back("COMANDANTE: Confirmado. Ajustando rota para Terra.");
+        p.push_back("CONTROLE DE MISSAO: Alerta. Sensores detectam campo de forca no setor. Multiplos campos magneticos ativos.");
+        p.push_back("CONTROLE DE MISSAO: Os campos geram portoes de energia com diferentes intensidades. Atravessar o campo errado causara dano a nave.");
+        p.push_back("CONTROLE DE MISSAO: Calculo de areas dos campos magneticos sera necessario para identificar o portao seguro.");
+        p.push_back("CONTROLE DE MISSAO: Use a formula: Area = PI * raio ao quadrado. Aproxime PI = 3 para calculos rapidos.");
+        p.push_back("COMANDANTE: Entendido. Iniciando navegacao pelo cinturao magnetico.");
     } else if (phase == 7) {
         p.push_back("FASE 7");
-        p.push_back("[ O CHEFÃO: SENHOR DOS DETRITOS ]");
-        p.push_back("CONTROLE DE MISSÃO: Relatório prioritário — identificada uma nave hostil emergindo entre os destroços.");
-        p.push_back("COMANDANTE: Confirmando visual. O objeto central exibe padrões de energia semelhante aos detectados anteriormente.");
-        p.push_back("CONTROLE DE MISSÃO: Este parece ser a nave que deveria ter sido abatida anteriormente; neutralizá-lo é prioridade máxima.");
-        p.push_back("COMANDANTE: Preparar armamentos pesados e estratégias de evasão. Este será o confronto final.");
-        p.push_back("CONTROLE DE MISSÃO: Boa sorte, Comandante. Toda a terra depende de sua vitória.");
-        p.push_back("COMANDANTE: Entendido. Engajando.");
+        p.push_back("[ INVASAO A BORDO ]");
+        p.push_back("CONTROLE DE MISSAO: Alerta vermelho! Comandante, detectamos uma entidade hostil a bordo!");
+        p.push_back("COMANDANTE: O que? Como entrou na nave?");
+        p.push_back("CONTROLE DE MISSAO: A criatura penetrou o casco durante o combate. Analise indica... capacidade de atravessar materia solida!");
+        p.push_back("CONTROLE DE MISSAO: A entidade pode atravessar paredes e obstaculos. Seus projeteis tambem ignoram barreiras fisicas!");
+        p.push_back("CONTROLE DE MISSAO: Elimine a criatura antes que destrua os sistemas vitais da nave!");
+        p.push_back("COMANDANTE: Entendido. Iniciando caca ao intruso.");
     }
     return p;
 
@@ -359,35 +371,110 @@ void showStoryForPhase(int phase) {
 }
 
 void drawInstructionsScreen() {
-    drawText(330, 500, "Como Jogar");
+    char title[100];
+    if (instructionsPage == 0) {
+        sprintf(title, "Como Jogar - Instrucoes Gerais");
+    } else {
+        sprintf(title, "Como Jogar - Fase %d de 7", instructionsPage);
+    }
+    drawText(280, 600, title);
     
-    // Controles gerais
-    drawText(150, 460, "CONTROLES GERAIS:");
-    drawText(150, 440, "- Pressione 'A' e 'D' (ou setas) para mover a nave horizontalmente.");
-    drawText(150, 420, "- Na Fase 4, use 'W' e 'S' para mover verticalmente tambem.");
-    drawText(150, 400, "- Pressione 'ESC' durante o jogo para voltar ao menu.");
+    if (instructionsPage == 0) {
+        // Página geral - Instruções gerais
+        drawText(250, 550, "INSTRUCOES GERAIS");
+        drawText(150, 500, "PAUSA:");
+        drawText(150, 470, "- Pressione ESC a qualquer momento para pausar o jogo");
+        drawText(150, 440, "- No menu de pausa voce pode:");
+        drawText(150, 420, "  * Pressionar 'C' para continuar jogando");
+        drawText(150, 400, "  * Pressionar 'M' para voltar ao menu principal");
+        drawText(150, 350, "GAME OVER:");
+        drawText(150, 320, "- Se perder todas as vidas, o jogo termina");
+        drawText(150, 300, "- Pressione 'R' para reiniciar a fase");
+        drawText(150, 280, "- Pressione 'M' para voltar ao menu");
+        drawText(150, 230, "VITORIA:");
+        drawText(150, 200, "- Complete os objetivos de cada fase para vencer");
+    } else if (instructionsPage == 1) {
+        // Fase 1
+        drawText(250, 550, "FASE 1 - Destrua os Asteroides");
+        drawText(150, 500, "OBJETIVO:");
+        drawText(150, 470, "- Destrua 10 asteroides antes que atinjam sua nave");
+        drawText(150, 440, "- Resolva as operacoes matematicas para destruir cada asteroide");
+        drawText(150, 390, "CONTROLES:");
+        drawText(150, 360, "- Clique no asteroide para seleciona-lo");
+        drawText(150, 330, "- Digite o resultado da operacao matematica");
+        drawText(150, 300, "- Pressione ENTER para confirmar a resposta");
+        drawText(150, 270, "- A nave e fixa, nao se move");
+    } else if (instructionsPage == 2) {
+        // Fase 2
+        drawText(280, 550, "FASE 2 - Mira Manual");
+        drawText(150, 500, "OBJETIVO:");
+        drawText(150, 470, "- Acerte 10 asteroides corretos em 20 segundos");
+        drawText(150, 390, "CONTROLES:");
+        drawText(150, 360, "- Mova o MOUSE para mirar");
+        drawText(150, 330, "- CLIQUE no asteroide correto");
+        drawText(150, 300, "- Acerte o asteroide que tem a resposta correta");
+        drawText(150, 270, "- A nave e fixa, apenas mire e atire");
+    } else if (instructionsPage == 3) {
+        // Fase 3
+        drawText(250, 550, "FASE 3 - Calculadora Espacial");
+        drawText(150, 500, "OBJETIVO:");
+        drawText(150, 470, "- Resolva 10 equacoes usando a calculadora");
+        drawText(150, 440, "- Acerte para ganhar municao automaticamente");
+        drawText(150, 390, "CONTROLES:");
+        drawText(150, 360, "- CLIQUE nos botoes da calculadora na direita");
+        drawText(150, 330, "- Resolva a equacao mostrada (ex: 5 + ? = 12)");
+        drawText(150, 300, "- Digite o valor de '?' e pressione OK");
+        drawText(150, 270, "- A municao e contabilizada automaticamente");
+    } else if (instructionsPage == 4) {
+        // Fase 4
+        drawText(280, 550, "FASE 4 - Boss Final");
+        drawText(150, 500, "OBJETIVO:");
+        drawText(150, 470, "- Derrote o boss gigante");
+        drawText(150, 440, "- Sobreviva aos ataques e asteroides");
+        drawText(150, 390, "CONTROLES:");
+        drawText(150, 360, "- Use 'W', 'A', 'S', 'D' ou setas para mover em todas direcoes");
+        drawText(150, 330, "- CLIQUE para disparar lasers no boss");
+        drawText(150, 300, "- Desvie dos projeteis vermelhos do boss");
+        drawText(150, 270, "- Municao e limitada, atire com precisao!");
+    } else if (instructionsPage == 5) {
+        // Fase 5
+        drawText(250, 550, "FASE 5 - Exploracao 3D");
+        drawText(150, 500, "OBJETIVO:");
+        drawText(150, 470, "- Colete objetos geometricos e deposite nas zonas corretas");
+        drawText(150, 440, "- Organize cubos, esferas, piramides e cilindros");
+        drawText(150, 390, "CONTROLES:");
+        drawText(150, 360, "- Use 'W', 'A', 'S', 'D' para mover");
+        drawText(150, 330, "- Use o MOUSE para olhar ao redor (camera FPS)");
+        drawText(150, 300, "- Pressione 'E' proximo a um objeto para pega-lo");
+        drawText(150, 270, "- Pressione 'E' na zona de deposito para soltar");
+    } else if (instructionsPage == 6) {
+        // Fase 6
+        drawText(230, 550, "FASE 6 - Cinturao Magnetico");
+        drawText(150, 500, "OBJETIVO:");
+        drawText(150, 470, "- Atravesse os campos magneticos corretos contra o tempo");
+        drawText(150, 440, "- Calcule a area dos campos usando: Area = PI * raio^2");
+        drawText(150, 410, "- Use PI = 3 para calculos rapidos");
+        drawText(150, 380, "- Voce tem 15 segundos para cada campo!");
+        drawText(150, 330, "CONTROLES:");
+        drawText(150, 300, "- Use 'A' e 'D' para mover entre os campos magneticos");
+        drawText(150, 270, "- Calcule a area e va para o campo com o valor correto");
+        drawText(150, 240, "- Acerte 10 calculos para vencer a fase");
+    } else if (instructionsPage == 7) {
+        // Fase 7
+        drawText(250, 550, "FASE 7 - Invasao a Bordo");
+        drawText(150, 500, "OBJETIVO:");
+        drawText(150, 470, "- Encontre e elimine o invasor hostil");
+        drawText(150, 440, "- O monstro pode atravessar paredes!");
+        drawText(150, 390, "CONTROLES:");
+        drawText(150, 360, "- Use 'W', 'A', 'S', 'D' para mover");
+        drawText(150, 330, "- Use o MOUSE para mirar");
+        drawText(150, 300, "- Pressione ESPACO ou CLIQUE para atirar");
+        drawText(150, 270, "- Mantenha distancia do monstro!");
+        drawText(150, 240, "- Municao e limitada, atire com precisao!");
+    }
     
-    // Fase 1
-    drawText(150, 370, "FASE 1 - Destrua os Asteroides:");
-    drawText(150, 350, "- Clique nos asteroides com o botao esquerdo do mouse.");
-    drawText(150, 330, "- Digite o resultado da conta matematica que aparecer no asteroide.");
-    drawText(150, 310, "- Destrua todos os asteroides antes que atinjam sua nave.");
-    
-    // Fase 2
-    drawText(150, 280, "FASE 2 - Mira Manual:");
-    drawText(150, 260, "- Mova o mouse para mirar nos asteroides.");
-    drawText(150, 240, "- Clique para disparar e acertar o asteroide correto (10 acertos).");
-    
-    // Fase 3
-    drawText(150, 210, "FASE 3 - Reciclagem de Municao:");
-    drawText(150, 190, "- Destrua asteroides para coletar municao (triangulos vermelhos).");
-    drawText(150, 170, "- Use espaco para atirar no alvo hostil central.");
-    
-    // Fase 4
-    drawText(150, 140, "FASE 4 - Boss Final:");
-    drawText(150, 120, "- Desvie dos projeteis do boss e dos asteroides.");
-    drawText(150, 100, "- Clique para disparar lasers no boss (munição limitada).");
-    
+    // Navegação
+    drawText(160, 120, "Pressione as setas para navegar entre as explicacoes de cada fase");
     drawButton(backButton);
 }
 
@@ -420,14 +507,13 @@ void renderScene() {
             drawPhase4();
             break;
         case PHASE5_SCREEN:
-            drawPhase5();
+            drawPhase5(windowWidth, windowHeight);
             break;
         case PHASE6_SCREEN:
-            drawPhase6();
+            drawPhase6(windowWidth, windowHeight);
             break;
         case PHASE7_SCREEN:
-            drawPhase7();
-            break;
+            drawPhase7(windowWidth, windowHeight);
             break;
     }
 
@@ -448,14 +534,11 @@ void updateScene() {
         updatePhase4();
         glutPostRedisplay();
     } else if (currentState == PHASE5_SCREEN) {
-        updatePhase5();
-        glutPostRedisplay();
+        // Fase 5 (3D) usa glutTimerFunc próprio, não precisa de update aqui
     } else if (currentState == PHASE6_SCREEN) {
-        updatePhase6();
-        glutPostRedisplay();
+        // Fase 6 (3D) usa glutTimerFunc próprio, não precisa de update aqui
     } else if (currentState == PHASE7_SCREEN) {
-        updatePhase7();
-        glutPostRedisplay();
+        // Fase 7 (3D) usa glutTimerFunc próprio, não precisa de update aqui
     }
 }
 
@@ -484,17 +567,18 @@ void handleMouseClick(int button, int state, int x, int y) {
         handlePhase4MouseClick(button, state, x, y);
         return;
     }
-    // Se estiver na Fase 5/6/7, passar clique para o handler da Fase correspondente
     if (currentState == PHASE5_SCREEN) {
-        handlePhase5MouseClick(button, state, x, y);
+        handlePhase5Mouse(button, state, x, y);
         return;
     }
+    
     if (currentState == PHASE6_SCREEN) {
-        handlePhase6MouseClick(button, state, x, y);
+        // Phase 6 não usa mouse clicks
         return;
     }
+    
     if (currentState == PHASE7_SCREEN) {
-        handlePhase7MouseClick(button, state, x, y);
+        handlePhase7Mouse(button, state, x, y);
         return;
     }
     
@@ -530,18 +614,20 @@ void handleMouseClick(int button, int state, int x, int y) {
                 } else if (storyPhase == 5) {
                     currentState = PHASE5_SCREEN;
                     initPhase5();
-                    glutPassiveMotionFunc(handlePhase5MouseMove);
-                    glutMotionFunc(handlePhase5MouseMove);
+                    glutPassiveMotionFunc(handlePhase5PassiveMotion);
+                    glutMotionFunc(handlePhase5PassiveMotion);
+                    glutTimerFunc(16, updatePhase5, 0);
                 } else if (storyPhase == 6) {
                     currentState = PHASE6_SCREEN;
                     initPhase6();
-                    glutPassiveMotionFunc(handlePhase6MouseMove);
-                    glutMotionFunc(handlePhase6MouseMove);
+                    glutTimerFunc(16, updatePhase6, 0);
                 } else if (storyPhase == 7) {
                     currentState = PHASE7_SCREEN;
                     initPhase7();
-                    glutPassiveMotionFunc(handlePhase7MouseMove);
+                    glutSetCursor(GLUT_CURSOR_NONE);
+                    glutPassiveMotionFunc(handlePhase7PassiveMotion);
                     glutMotionFunc(handlePhase7MouseMove);
+                    glutTimerFunc(16, (void (*)(int))updatePhase7, 0);
                 }
                 // Resetar estado da história
                 showPhaseStory = false;
@@ -587,6 +673,7 @@ void handleMouseClick(int button, int state, int x, int y) {
                     storyPage = 0;
                 } else if (isMouseOverButton(x, y, instructionsButton)) {
                     currentState = INSTRUCTIONS_SCREEN;
+                    instructionsPage = 0; // Resetar para primeira página
                 } else if (isMouseOverButton(x, y, exitButton)) {      
                     exit(0);
                 }
@@ -602,6 +689,9 @@ void handleMouseClick(int button, int state, int x, int y) {
             case PHASE2_SCREEN:
             case PHASE3_SCREEN:
             case PHASE4_SCREEN:
+            case PHASE5_SCREEN:
+            case PHASE6_SCREEN:
+            case PHASE7_SCREEN:
                 break;
         }
         glutPostRedisplay();
@@ -663,6 +753,9 @@ void handleMouseHover(int x, int y) {
         case PHASE2_SCREEN:
         case PHASE3_SCREEN:
         case PHASE4_SCREEN:
+        case PHASE5_SCREEN:
+        case PHASE6_SCREEN:
+        case PHASE7_SCREEN:
             break;
     }
 
@@ -677,108 +770,67 @@ void handleKeyboard(unsigned char key, int x, int y) {
     (void)x;
     (void)y;
     if (currentState == GAME_SCREEN) {
-        if (key == 27) { 
-            currentState = MAIN_MENU;
-            // Restaurar cursor normal e callback de hover do menu
-            glutSetCursor(GLUT_CURSOR_INHERIT);
-            glutPassiveMotionFunc(handleMouseHover);
+        // Se está em Game Over, usar handleGameOverKeyboard
+        if (getGameOver()) {
+            handleGameOverKeyboard(key);
         } else {
-            // Se está em Game Over, usar handleGameOverKeyboard
-            if (getGameOver()) {
-                handleGameOverKeyboard(key);
-            } else {
-                handleGameKeyboard(key);
-            }
+            handleGameKeyboard(key);
         }
         glutPostRedisplay();
     } else if (currentState == PHASE2_SCREEN) {
-        if (key == 27) {
-            currentState = MAIN_MENU;
-            // Restaurar cursor normal e callback de hover do menu
-            glutSetCursor(GLUT_CURSOR_INHERIT);
-            glutPassiveMotionFunc(handleMouseHover);
+        // Se está em Game Over, usar handleGameOverKeyboard
+        if (getGameOver()) {
+            handleGameOverKeyboard(key);
         } else {
-            // Se está em Game Over, usar handleGameOverKeyboard
-            if (getGameOver()) {
-                handleGameOverKeyboard(key);
-            } else {
-                handlePhase2Keyboard(key);
-            }
+            handlePhase2Keyboard(key);
         }
         glutPostRedisplay();
     } else if (currentState == PHASE3_SCREEN) {
-        if (key == 27) {
-            currentState = MAIN_MENU;
-            // Restaurar cursor normal e callback de hover do menu
-            glutSetCursor(GLUT_CURSOR_INHERIT);
-            glutPassiveMotionFunc(handleMouseHover);
+        if (getGameOver()) {
+            handleGameOverKeyboard(key);
         } else {
-            if (getGameOver()) {
-                handleGameOverKeyboard(key);
-            } else {
-                handlePhase3Keyboard(key);
-            }
+            handlePhase3Keyboard(key);
         }
         glutPostRedisplay();
     } else if (currentState == PHASE4_SCREEN) {
-        if (key == 27) {
-            currentState = MAIN_MENU;
-            // Restaurar cursor normal e callback de hover do menu
-            glutSetCursor(GLUT_CURSOR_INHERIT);
-            glutPassiveMotionFunc(handleMouseHover);
+        if (getGameOver()) {
+            handleGameOverKeyboard(key);
         } else {
-            if (getGameOver()) {
-                handleGameOverKeyboard(key);
-            } else {
-                handlePhase4Keyboard(key);
-            }
+            handlePhase4Keyboard(key);
         }
         glutPostRedisplay();
     } else if (currentState == PHASE5_SCREEN) {
-        if (key == 27) {
-            currentState = MAIN_MENU;
-            // Restaurar cursor normal e callback de hover do menu
-            glutSetCursor(GLUT_CURSOR_INHERIT);
-            glutPassiveMotionFunc(handleMouseHover);
+        if (getGameOver()) {
+            handleGameOverKeyboard(key);
         } else {
-            if (getGameOver()) {
-                handleGameOverKeyboard(key);
-            } else {
-                handlePhase5Keyboard(key);
-            }
+            handlePhase5Keyboard(key, x, y);
         }
         glutPostRedisplay();
     } else if (currentState == PHASE6_SCREEN) {
-        if (key == 27) {
-            currentState = MAIN_MENU;
-            glutSetCursor(GLUT_CURSOR_INHERIT);
-            glutPassiveMotionFunc(handleMouseHover);
+        if (getGameOver()) {
+            handleGameOverKeyboard(key);
         } else {
-            if (getGameOver()) {
-                handleGameOverKeyboard(key);
-            } else {
-                handlePhase6Keyboard(key);
-            }
+            handlePhase6Keyboard(key, x, y);
         }
         glutPostRedisplay();
     } else if (currentState == PHASE7_SCREEN) {
-        if (key == 27) {
-            currentState = MAIN_MENU;
-            glutSetCursor(GLUT_CURSOR_INHERIT);
-            glutPassiveMotionFunc(handleMouseHover);
-        } else {
-            if (getGameOver()) {
-                handleGameOverKeyboard(key);
-            } else {
-                handlePhase7Keyboard(key);
-            }
-        }
+        handlePhase7Keyboard(key, x, y);
         glutPostRedisplay();
     }
 }
 
 void handleSpecialKey(int key, int x, int y) {
-    if (currentState == GAME_SCREEN) {
+    if (currentState == INSTRUCTIONS_SCREEN) {
+        if (key == GLUT_KEY_LEFT) {
+            instructionsPage--;
+            if (instructionsPage < 0) instructionsPage = totalInstructionsPages - 1;
+            glutPostRedisplay();
+        } else if (key == GLUT_KEY_RIGHT) {
+            instructionsPage++;
+            if (instructionsPage >= totalInstructionsPages) instructionsPage = 0;
+            glutPostRedisplay();
+        }
+    } else if (currentState == GAME_SCREEN) {
         handleGameSpecialKey(key, x, y);
         glutPostRedisplay();
     } else if (currentState == PHASE2_SCREEN) {
@@ -787,37 +839,29 @@ void handleSpecialKey(int key, int x, int y) {
     } else if (currentState == PHASE4_SCREEN) {
         handlePhase4SpecialKey(key, x, y);
         glutPostRedisplay();
-    } else if (currentState == PHASE5_SCREEN) {
-        handlePhase5SpecialKey(key, x, y);
-        glutPostRedisplay();
     } else if (currentState == PHASE6_SCREEN) {
-        handlePhase6SpecialKey(key, x, y);
+        handlePhase6Special(key, x, y);
         glutPostRedisplay();
     } else if (currentState == PHASE7_SCREEN) {
         handlePhase7SpecialKey(key, x, y);
         glutPostRedisplay();
     }
-    // Adicionar para outras fases conforme necessário
 }
 
 void handleSpecialKeyUp(int key, int x, int y) {
     if (currentState == PHASE4_SCREEN) {
         handlePhase4SpecialKeyUp(key, x, y);
         glutPostRedisplay();
-    }
-    if (currentState == PHASE5_SCREEN) {
-        handlePhase5SpecialKeyUp(key, x, y);
+    } else if (currentState == PHASE6_SCREEN) {
+        handlePhase6SpecialUp(key, x, y);
         glutPostRedisplay();
-    }
-    if (currentState == PHASE6_SCREEN) {
-        handlePhase6SpecialKeyUp(key, x, y);
-        glutPostRedisplay();
-    }
-    if (currentState == PHASE7_SCREEN) {
+    } else if (currentState == PHASE7_SCREEN) {
         handlePhase7SpecialKeyUp(key, x, y);
         glutPostRedisplay();
     }
-    // Adicionar para outras fases conforme necessário
+    (void)key;
+    (void)x;
+    (void)y;
 }
 
 void setup() {
@@ -832,8 +876,24 @@ void setup() {
     // Initialize audio system (optional). Will print warnings if SDL or mixers aren't available.
     Audio::getInstance().init();
     Audio::getInstance().loadAll();
+    // Play menu music (best-effort)
+    Audio::getInstance().playMusic("assets/music/menu.wav");
     // Ensure cleanup on exit
     atexit(audio_cleanup_at_exit);
+}
+
+void setCurrentPhase(int phase) {
+    if (phase == 0) {
+        currentState = MAIN_MENU;
+        glutSetCursor(GLUT_CURSOR_INHERIT);
+        glutPassiveMotionFunc(handleMouseHover);
+        glutPostRedisplay();
+    } else if (phase == 6) {
+        showPhaseStory = true;
+        storyPhase = 6;
+        storyPage = 0;
+        glutPostRedisplay();
+    }
 }
 
 void changeState(int newState) {

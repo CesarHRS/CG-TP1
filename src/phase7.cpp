@@ -705,6 +705,13 @@ void initPhase7() {
         enemyProjectiles[i].active = false;
         playerProjectiles[i].active = false;
     }
+    
+    // Desativar todos os inimigos primeiro
+    for(int i=0; i<5; i++) {
+        enemiesP7[i].active = false;
+        enemiesP7[i].hp = 0;
+    }
+    
     numEnemiesP7 = 1;
     
     // 1 inimigo que aparece em posição aleatória escondida
@@ -956,10 +963,10 @@ void drawPhase7(int windowWidth, int windowHeight) {
             GLfloat mat_emission[] = {0.3f, 0.5f, 0.3f, 1.0f};  // Emissão verde forte
             
             // Ajustar emissão baseado no HP
-            if (enemiesP7[i].hp >= 4) { 
+            if (enemiesP7[i].hp >= 7) { 
                 mat_emission[0] = 0.3f; mat_emission[1] = 0.5f; mat_emission[2] = 0.3f;
             }
-            else if (enemiesP7[i].hp >= 2) { 
+            else if (enemiesP7[i].hp >= 4) { 
                 mat_emission[0] = 0.2f; mat_emission[1] = 0.35f; mat_emission[2] = 0.2f;
             }
             else { 
@@ -1133,10 +1140,10 @@ void drawPhase7(int windowWidth, int windowHeight) {
     
     // Mostrar HP do monstro
     if (numEnemiesP7 > 0 && enemiesP7[0].active) {
-        if (enemiesP7[0].hp >= 4) glColor3f(0.2f, 0.9f, 0.3f); // Verde brilhante
-        else if (enemiesP7[0].hp >= 2) glColor3f(0.9f, 0.8f, 0.2f); // Amarelo
+        if (enemiesP7[0].hp >= 7) glColor3f(0.2f, 0.9f, 0.3f); // Verde brilhante
+        else if (enemiesP7[0].hp >= 4) glColor3f(0.9f, 0.8f, 0.2f); // Amarelo
         else glColor3f(1.0f, 0.0f, 0.0f); // Vermelho
-        sprintf(text, "Monstro HP: %d/5", enemiesP7[0].hp);
+        sprintf(text, "Monstro HP: %d/10", enemiesP7[0].hp);
         drawTextP7(windowWidth - 180, windowHeight - 60, text);
     }
 
@@ -1184,7 +1191,7 @@ void updatePhase7(int value) {
     
     if (getGameOver()) { glutPostRedisplay(); return; }
 
-    float speed = 0.10f; // Velocidade um pouco mais lenta
+    float speed = 0.05f; // Velocidade um pouco mais lenta
     float fwdX = sin(playerP7.angle); float fwdZ = -cos(playerP7.angle);
     float strafeX = cos(playerP7.angle); float strafeZ = sin(playerP7.angle);
     float moveX = 0.0f; float moveZ = 0.0f;
