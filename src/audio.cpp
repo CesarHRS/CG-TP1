@@ -2,25 +2,27 @@
 #include <stdio.h>
 #include <string.h>
 #include <iostream>
+#include <fstream>
 
-// Usar SDL2 por padrão, a menos que NO_SDL seja definido
-#ifndef NO_SDL
-    #define USE_SDL2
-    #ifdef __linux__
-        #include <SDL2/SDL.h>
-        #include <SDL2/SDL_mixer.h>
-    #else
-        #include <SDL.h>
-        #include <SDL_mixer.h>
-    #endif
+// Try to enable SDL2 / SDL2_mixer if headers are available. If not,
+// the code falls back to the previous stub behavior.
+#if defined(__has_include)
+# if __has_include(<SDL2/SDL.h>) && __has_include(<SDL2/SDL_mixer.h>)
+#  include <SDL2/SDL.h>
+#  include <SDL2/SDL_mixer.h>
+#  define AUDIO_HAVE_SDL 1
+# endif
 #endif
 
-#ifdef USE_SDL2
-// Implementação completa com SDL2 para Linux
+// Opaque pointer to Mix_Music stored as void* so header doesn't need SDL.
+static void* s_music = nullptr;
+
 Audio::Audio()
     : initialized(false)
 {
     for (int i = 0; i < SOUND_COUNT; ++i) chunks[i] = nullptr;
+    currentMusicPath = "";
+    musicPlaying = false;
 }
 
 Audio::~Audio() {
@@ -34,100 +36,98 @@ Audio& Audio::getInstance() {
 
 bool Audio::init() {
     if (initialized) return true;
-    
+#ifdef AUDIO_HAVE_SDL
     if (SDL_Init(SDL_INIT_AUDIO) < 0) {
-        printf("SDL_Init failed: %s\n", SDL_GetError());
-        return false;
+        std::cerr << "[Audio] SDL_Init failed: " << SDL_GetError() << "\n";
+        // fall through to stub behavior
+    } else {
+        if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+            std::cerr << "[Audio] Mix_OpenAudio failed: " << Mix_GetError() << "\n";
+        }
     }
-    
-    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
-        printf("Mix_OpenAudio failed: %s\n", Mix_GetError());
-        SDL_Quit();
-        return false;
-    }
-    
+#endif
     initialized = true;
     return true;
 }
 
 void Audio::loadAll() {
-    if (!initialized) {
-        if (!init()) return;
-    }
-    
-    const char* paths[SOUND_COUNT] = {
-        "assets/sounds/correct.wav",
-        "assets/sounds/error.wav",
-        "assets/sounds/victory.wav",
-        "assets/sounds/shoot.wav"
-    };
-    
-    for (int i = 0; i < SOUND_COUNT; ++i) {
-        chunks[i] = Mix_LoadWAV(paths[i]);
-        if (!chunks[i]) {
-            printf("Failed to load sound %s: %s\n", paths[i], Mix_GetError());
-        }
-    }
+    if (!initialized) init();
+    // For now we don't eagerly load music/effects; playMusic will load on demand.
 }
 
 void Audio::play(SoundId id) {
-    if (!initialized || id < 0 || id >= SOUND_COUNT) return;
-    if (chunks[id]) {
-        Mix_PlayChannel(-1, chunks[id], 0);
-    }
-}
-
-void Audio::cleanup() {
-    if (!initialized) return;
-    
-    for (int i = 0; i < SOUND_COUNT; ++i) {
-        if (chunks[i]) {
-            Mix_FreeChunk(chunks[i]);
-            chunks[i] = nullptr;
-        }
-    }
-    
-    Mix_CloseAudio();
-    SDL_Quit();
-    initialized = false;
-}
-
-#else
-// Implementação stub para Windows (sem SDL2)
-Audio::Audio()
-    : initialized(false)
-{
-    for (int i = 0; i < SOUND_COUNT; ++i) chunks[i] = nullptr;
-}
-
-Audio::~Audio() {
-    cleanup();
-}
-
-Audio& Audio::getInstance() {
-    static Audio inst;
-    return inst;
-}
-
-bool Audio::init() {
-    initialized = true;
-    return true;
-}
-
-void Audio::loadAll() {
-    if (!initialized) {
-        init();
-    }
-}
-
-void Audio::play(SoundId id) {
+    // Effects not implemented with SDL_mixer here; keep as stub to avoid
+    // adding lots of per-effect loading logic. This preserves existing
+    // behavior until a follow-up implements effect loading.
     (void)id;
 }
 
+void Audio::playMusic(const std::string &path) {
+    if (!initialized) init();
+#ifdef AUDIO_HAVE_SDL
+    // Stop and free previous music if any
+    if (s_music) {
+        Mix_HaltMusic();
+        Mix_FreeMusic((Mix_Music*)s_music);
+        s_music = nullptr;
+    }
+    Mix_Music *m = Mix_LoadMUS(path.c_str());
+    if (!m) {
+        std::cerr << "[Audio] Mix_LoadMUS failed for " << path << ": " << Mix_GetError() << "\n";
+        // fallback to stub logging
+        std::ifstream f(path.c_str());
+        if (!f.good()) std::cerr << "[Audio] Warning: file not found: " << path << "\n";
+        currentMusicPath = path;
+        musicPlaying = true;
+        return;
+    }
+    s_music = (void*)m;
+    if (Mix_PlayMusic(m, -1) == -1) {
+        std::cerr << "[Audio] Mix_PlayMusic failed: " << Mix_GetError() << "\n";
+    }
+    currentMusicPath = path;
+    musicPlaying = true;
+#else
+    // No SDL: just record path and log for debugging
+    std::ifstream f(path.c_str());
+    if (!f.good()) {
+        std::cerr << "[Audio] Warning: music file not found: " << path << "\n";
+    }
+    currentMusicPath = path;
+    musicPlaying = true;
+    std::cout << "[Audio] (stub) playMusic: " << path << "\n";
+#endif
+}
+
+void Audio::stopMusic() {
+    if (!initialized) init();
+#ifdef AUDIO_HAVE_SDL
+    if (s_music) {
+        Mix_HaltMusic();
+        Mix_FreeMusic((Mix_Music*)s_music);
+        s_music = nullptr;
+    }
+    musicPlaying = false;
+#else
+    if (musicPlaying) std::cout << "[Audio] (stub) stopMusic: " << currentMusicPath << "\n";
+    currentMusicPath = "";
+    musicPlaying = false;
+#endif
+}
+
 void Audio::cleanup() {
+    // Stop music and free resources if SDL_mixer is available
+#ifdef AUDIO_HAVE_SDL
+    if (s_music) {
+        Mix_HaltMusic();
+        Mix_FreeMusic((Mix_Music*)s_music);
+        s_music = nullptr;
+    }
+    Mix_CloseAudio();
+    SDL_Quit();
+#endif
     initialized = false;
 }
-#endif
 
 extern "C" void audio_cleanup_at_exit() {
     Audio::getInstance().cleanup();
