@@ -30,18 +30,18 @@ int scoreP5;
 bool phase5_won = false;
 int heldObjectIndex = -1; // Índice do objeto sendo segurado (-1 = nenhum)
 
-// Timer variables
-float timeRemainingP5 = 30.0f; // 30 seconds
+// Variáveis do temporizador
+float timeRemainingP5 = 30.0f; // 30 segundos
 bool gameOverP5 = false;
 
-// Countdown variables
+// Variáveis da contagem regressiva
 bool showCountdownP5 = false;
 int countdownTimerP5 = 0;
 int countdownValueP5 = 3;
 
 bool keyStateP5[256];
 
-// Mouse look variables
+// Variáveis de controle do mouse
 int lastMouseXP5;
 int lastMouseYP5;
 
@@ -741,9 +741,9 @@ bool isValidObjectPosition(float x, float z) {
     return false;
 }
 
-// Check if position is too close to existing objects
+// Verificar se a posição está muito próxima de objetos existentes
 bool isTooCloseToOtherObjects(float x, float z, int currentObjectCount) {
-    float minDistance = 1.2f; // Distância mínima entre objetos (reduzida para salas pequenas)
+    float minDistance = 1.2f;
     
     for (int i = 0; i < currentObjectCount; i++) {
         float dx = x - objectsP5[i].x;
@@ -757,7 +757,7 @@ bool isTooCloseToOtherObjects(float x, float z, int currentObjectCount) {
     return false;
 }
 
-// Generate random position within a room
+// Gerar posição aleatória dentro de uma sala
 void generateRandomObjectPosition(float &x, float &z, int roomIndex, int currentObjectCount) {
     int maxAttempts = 100;
     int attempts = 0;
@@ -805,7 +805,6 @@ void generateRandomObjectPosition(float &x, float &z, int roomIndex, int current
     }
 }
 
-// Forward declarations
 void returnToMenuFromPhase5();
 
 void initPhase5() {
@@ -919,8 +918,7 @@ void initPhase5() {
     showCountdownP5 = true;
     countdownTimerP5 = 0;
     countdownValueP5 = 3;
-    
-    // Reset global game over state FIRST
+
     setGameOver(false);
     setVictory(false);
     initGameOver(800, 700);
@@ -1614,7 +1612,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
         if (objectsP5[i].collected && !objectsP5[i].held) {
             glPushMatrix();
             glTranslatef(objectsP5[i].x, objectsP5[i].y, objectsP5[i].z); // Usar Y armazenado
-            glScalef(0.18f, 0.18f, 0.18f); // Objetos menores para ficarem lado a lado
+            glScalef(0.18f, 0.18f, 0.18f);
             
             switch (objectsP5[i].type) {
                 case SHAPE_CUBE: 
@@ -1754,7 +1752,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
     
-    // Draw countdown if active
+    // Desenhar contagem regressiva se ativa
     if (showCountdownP5 && countdownValueP5 > 0) {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1782,7 +1780,7 @@ void drawPhase5(int windowWidth, int windowHeight) {
         return;
     }
     
-    // Draw game over screen if needed
+    // Desenhar tela de game over se necessário
     drawGameOver();
 }
 
@@ -1793,10 +1791,8 @@ bool checkCollisionP5(float x, float z) {
     // PAREDES EXTERNAS da nave (limites -10 a 10)
     if (x < -9.5f + radius || x > 9.5f - radius || z < -9.5f + radius || z > 9.5f - radius) return true;
     
-    // ===================================================================
     // PAREDES DO CÔMODO 1: QUARTO (X=-10 a -3, Z=-10 a -3)
     // Porta em X=-3, Z=-7 a -5
-    // ===================================================================
     // Parede direita com porta (X=-3) - seção 1: Z=-10 a Z=-7
     if (fabs(x + 3.0f) < 0.15f && z > -10.0f - radius && z < -7.0f + radius) return true;
     // Parede direita com porta (X=-3) - seção 2: Z=-5 a Z=-3
@@ -1808,10 +1804,8 @@ bool checkCollisionP5(float x, float z) {
     // Parede traseira (Z=-10) do quarto
     if (fabs(z + 10.0f) < 0.15f && x > -10.0f - radius && x < -3.0f + radius) return true;
     
-    // ===================================================================
     // PAREDES DO CÔMODO 2: COZINHA (X=3 a 10, Z=-10 a -3)
     // Porta em X=3, Z=-7 a -5
-    // ===================================================================
     // Parede esquerda com porta (X=3) - seção 1: Z=-10 a Z=-7
     if (fabs(x - 3.0f) < 0.15f && z > -10.0f - radius && z < -7.0f + radius) return true;
     // Parede esquerda com porta (X=3) - seção 2: Z=-5 a Z=-3
@@ -1823,10 +1817,8 @@ bool checkCollisionP5(float x, float z) {
     // Parede traseira (Z=-10) da cozinha
     if (fabs(z + 10.0f) < 0.15f && x < 10.0f + radius && x > 3.0f - radius) return true;
     
-    // ===================================================================
     // PAREDES DO CÔMODO 3: SALA DE MUNIÇÃO (X=-10 a -3, Z=3 a 8.5)
     // Porta em X=-3, Z=5 a 6.5 (sem colisão na porta)
-    // ===================================================================
     // Parede direita com porta (X=-3) - seção 1: Z=3 a Z=5
     if (fabs(x + 3.0f) < 0.15f && z >= 3.0f - radius && z < 5.0f) return true;
     // Parede direita com porta (X=-3) - seção 2: Z=6.5 a Z=8.5
@@ -1838,10 +1830,8 @@ bool checkCollisionP5(float x, float z) {
     // Parede frontal (Z=8.5) da sala de munição
     if (fabs(z - 8.5f) < 0.15f && x > -10.0f - radius && x < -3.0f + radius) return true;
     
-    // ===================================================================
     // PAREDES DO CÔMODO 4: ÁREA DE CONSOLE (X=3 a 10, Z=3 a 8.5)
     // Porta em X=3, Z=5 a 6.5 (sem colisão na porta)
-    // ===================================================================
     // Parede esquerda com porta (X=3) - seção 1: Z=3 a Z=5
     if (fabs(x - 3.0f) < 0.15f && z >= 3.0f - radius && z < 5.0f) return true;
     // Parede esquerda com porta (X=3) - seção 2: Z=6.5 a Z=8.5
@@ -1853,10 +1843,8 @@ bool checkCollisionP5(float x, float z) {
     // Parede frontal (Z=8.5) da área de console
     if (fabs(z - 8.5f) < 0.15f && x < 10.0f + radius && x > 3.0f - radius) return true;
     
-    // ===================================================================
     // MÓVEIS E OBJETOS - QUARTO
-    // ===================================================================
-    // CAMA no quarto (reduzida)
+    // CAMA no quarto
     if (x > -8.0f - radius && x < -6.0f + radius && z > -8.0f - radius && z < -6.0f + radius) return true;
     // Mesa de cabeceira
     if (fabs(x + 8.5f) < 0.5f && fabs(z + 6.5f) < 0.5f) return true;
@@ -1865,12 +1853,10 @@ bool checkCollisionP5(float x, float z) {
     // Cadeira
     if (fabs(x + 4.5f) < 0.4f && fabs(z + 9.0f) < 0.4f) return true;
     
-    // ===================================================================
     // MÓVEIS E OBJETOS - COZINHA
-    // ===================================================================
-    // BANCADA DA COZINHA (reduzida)
+    // BANCADA DA COZINHA
     if (x > 6.0f - radius && x < 8.0f + radius && z > -8.0f - radius && z < -6.5f + radius) return true;
-    // GELADEIRA (reduzida)
+    // GELADEIRA
     if (x > 8.3f - radius && x < 9.3f + radius && z > -7.5f - radius && z < -6.5f + radius) return true;
     // Mesa pequena
     if (fabs(x - 5.0f) < 0.7f && fabs(z + 4.5f) < 0.5f) return true;
@@ -1878,9 +1864,7 @@ bool checkCollisionP5(float x, float z) {
     // Caixas de suprimentos
     if (fabs(x - 4.5f) < 0.4f && fabs(z + 9.5f) < 0.4f) return true;
     
-    // ===================================================================
     // MÓVEIS E OBJETOS - SALA DE MUNIÇÃO
-    // ===================================================================
     // CAIXAS DE MUNIÇÃO empilhadas (múltiplas caixas agrupadas)
     if (x > -8.5f - radius && x < -6.5f + radius && z > 4.5f - radius && z < 6.0f + radius) return true;
     // Rack de armas (X=-8.5, Z=7.5) - movido para frente
@@ -1892,9 +1876,7 @@ bool checkCollisionP5(float x, float z) {
     if (fabs(x + 9.0f) < 0.4f && fabs(z - 4.5f) < 0.5f) return true;
     if (fabs(x + 5.0f) < 0.4f && fabs(z - 7.5f) < 0.4f) return true;
     
-    // ===================================================================
     // MÓVEIS E OBJETOS - ÁREA DE CONSOLE
-    // ===================================================================
     // CONSOLE AUXILIAR e CADEIRA - removidos colisão para não bloquear entrada da sala
     // Estante (X=8.5, Z=7.8) - na área frontal
     if (x > 8.0f - radius && x < 9.0f + radius && z > 7.3f - radius && z < 8.3f + radius) return true;
@@ -1903,9 +1885,7 @@ bool checkCollisionP5(float x, float z) {
     if (x > 8.0f - radius && x < 9.0f + radius && z > 6.2f - radius && z < 7.8f + radius) return true;
     // Caixa de ferramentas - removido colisão para não bloquear acesso à porta
     
-    // ===================================================================
     // OBJETOS DO CORREDOR
-    // ===================================================================
     // Bancos laterais
     if (fabs(x + 4.0f) < 0.6f && fabs(z + 2.0f) < 0.7f) return true;
     if (fabs(x - 4.0f) < 0.6f && fabs(z + 2.0f) < 0.7f) return true;
@@ -1917,7 +1897,6 @@ bool checkCollisionP5(float x, float z) {
     if (fabs(x - 3.5f) < 0.5f && fabs(z - 4.5f) < 0.5f) return true;
     
     // PAINEL DE CONTROLE PRINCIPAL e CADEIRA (centro frontal)
-    // Reduzido para permitir acesso às plataformas de depósito
     if (fabs(x) < 0.6f && z > 7.0f - radius && z < 8.0f + radius) return true;
     // CADEIRA
     if (fabs(x) < 0.4f && z > 5.5f - radius && z < 6.5f + radius) return true;
@@ -2011,7 +1990,6 @@ void updatePhase5(int value) {
                         // Correto! Posicionar objeto na plataforma
                         printf("Objeto depositado corretamente! Score: %d\n", scoreP5 + 1);
                         
-                        // Posicionar lado a lado (offset horizontal)
                         float xOffset = depositsP5[closestDeposit].count == 0 ? -0.15f : 0.15f;
                         
                         depositsP5[closestDeposit].count++;
@@ -2078,7 +2056,7 @@ void handlePhase5Keyboard(unsigned char key, int x, int y) {
         return;
     }
     
-    // Handle game over screen input
+    // Tratar entrada da tela de game over
     if (getGameOver()) {
         handleGameOverKeyboard(key);
         return;
@@ -2111,7 +2089,6 @@ void handlePhase5Keyboard(unsigned char key, int x, int y) {
                         // Correto! Posicionar objeto na plataforma
                         printf("Objeto depositado corretamente! Score: %d\n", scoreP5 + 1);
                         
-                        // Posicionar lado a lado (offset horizontal)
                         float xOffset = depositsP5[closestDeposit].count == 0 ? -0.15f : 0.15f;
                         
                         depositsP5[closestDeposit].count++;

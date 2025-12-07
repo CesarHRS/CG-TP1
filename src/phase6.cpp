@@ -15,18 +15,12 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-// ===================================================================
-// TEXTURAS GLOBAIS FASE 6
-// ===================================================================
 
 GLuint textureShipP6 = 0;
 GLuint textureAsteroidP6 = 0;
 GLuint textureFieldP6 = 0;
 bool texturesLoadedP6 = false;
 
-// ===================================================================
-// FUNÇÕES DE TEXTURAS
-// ===================================================================
 
 GLuint createProceduralTextureP6(int width, int height, int type) {
     unsigned char* data = (unsigned char*)malloc(width * height * 3);
@@ -88,9 +82,6 @@ void loadTexturesP6() {
     }
 }
 
-// ===================================================================
-// ESTRUTURAS E VARIÁVEIS GLOBAIS
-// ===================================================================
 
 struct MagneticField {
     float x, y, z;        // Posição
@@ -105,7 +96,7 @@ struct Question {
     std::string text;
 };
 
-// Player (nave)
+// Jogador (nave)
 float shipX = 0.0f;
 float shipY = 0.0f;
 float shipZ = -5.0f;
@@ -115,7 +106,7 @@ float shipSpeed = 0.3f;
 bool keyStatesP6[256] = {false};
 bool specialKeysP6[256] = {false};
 
-// Game state
+// Estado do jogo
 int livesP6 = 3;
 int scoreP6 = 0;
 int questionsAnsweredP6 = 0;
@@ -144,7 +135,7 @@ std::vector<Star> stars;
 // Timer para próxima pergunta
 int questionCooldown = 0;
 
-// Countdown variables
+// Variáveis da contagem regressiva
 bool showCountdownP6 = false;
 int countdownTimerP6 = 0;
 int countdownValueP6 = 3;
@@ -156,9 +147,6 @@ std::vector<int> usedRadii;
 void restartPhase6();
 void returnToMenuFromPhase6();
 
-// ===================================================================
-// FUNÇÕES AUXILIARES
-// ===================================================================
 
 void drawText3DP6(float x, float y, float z, const char* text, void* font = GLUT_BITMAP_HELVETICA_18) {
     glRasterPos3f(x, y, z);
@@ -249,9 +237,6 @@ void initStars() {
     }
 }
 
-// ===================================================================
-// FUNÇÕES DE DESENHO
-// ===================================================================
 
 void drawStarField() {
     glDisable(GL_LIGHTING);
@@ -282,7 +267,7 @@ void drawCockpitFrame() {
     glPushMatrix();
     glLoadIdentity();
     
-    // Moldura superior (5% da tela = 30 pixels)
+    // Moldura superior
     glColor3f(0.15f, 0.15f, 0.2f);
     glBegin(GL_QUADS);
     glVertex2f(0, 570);
@@ -337,7 +322,7 @@ void drawControlPanel() {
     glPushMatrix();
     glLoadIdentity();
     
-    // Painel inferior (30% = 180 pixels)
+    // Painel inferior
     glColor3f(0.1f, 0.1f, 0.15f);
     glBegin(GL_QUADS);
     glVertex2f(0, 0);
@@ -354,7 +339,7 @@ void drawControlPanel() {
     glVertex2f(800, 180);
     glEnd();
     
-    // Painel da pergunta (centro-superior do painel)
+    // Painel da pergunta
     glColor3f(0.05f, 0.15f, 0.25f);
     glBegin(GL_QUADS);
     glVertex2f(150, 120);
@@ -623,9 +608,6 @@ void drawMagneticField(const MagneticField& field) {
     glEnable(GL_LIGHTING);
 }
 
-// ===================================================================
-// FUNÇÕES PRINCIPAIS
-// ===================================================================
 
 void initPhase6() {
     printf("Inicializando Fase 6 (Cinturão de Asteroides Magnéticos)...\n");
@@ -642,7 +624,6 @@ void initPhase6() {
     shipY = 0.0f;
     shipZ = -5.0f;
     
-    // Reset global game over state FIRST
     setGameOver(false);
     setVictory(false);
     
@@ -655,7 +636,7 @@ void initPhase6() {
     questionCooldown = 0;
     damageFlashP6 = 0;
     
-    // Initialize countdown
+    // Inicializar contagem regressiva
     showCountdownP6 = true;
     countdownTimerP6 = 0;
     countdownValueP6 = 3;
@@ -697,12 +678,10 @@ void drawPhase6(int windowWidth, int windowHeight) {
     glPushMatrix();
     glLoadIdentity();
     
-    // Câmera segue a nave (cockpit se move com WASD)
     gluLookAt(shipX, shipY, shipZ - 8.0f,  // Posição da câmera segue a nave
               shipX, shipY, shipZ + 50.0f,  // Olhando para frente na direção da nave
               0.0f, 1.0f, 0.0f);             // Up vector
     
-    // Fase 6 não usa iluminação (flat shading)
     glDisable(GL_LIGHTING);
     glDisable(GL_LIGHT0);
     
@@ -711,19 +690,16 @@ void drawPhase6(int windowWidth, int windowHeight) {
     
     glEnable(GL_DEPTH_TEST);
     
-    // Desenhar estrelas de fundo (no mundo, atrás de tudo)
+    // Desenhar estrelas de fundo
     drawStarField();
     
-    // Desenhar campos magnéticos (sem iluminação)
     for (size_t i = 0; i < magneticFields.size(); i++) {
         if (magneticFields[i].active) {
-            // Debug: verificar se isCorrect está consistente
             bool shouldBeCorrect = (magneticFields[i].answerValue == currentQuestionP6.correctAnswer);
             if (magneticFields[i].isCorrect != shouldBeCorrect) {
                 printf("ERRO: Campo %zu tem isCorrect=%d mas deveria ser %d (valor=%d, resposta=%d)\n",
                        i, magneticFields[i].isCorrect, shouldBeCorrect, 
                        magneticFields[i].answerValue, currentQuestionP6.correctAnswer);
-                // Corrigir em tempo real
                 magneticFields[i].isCorrect = shouldBeCorrect;
             }
             drawMagneticField(magneticFields[i]);
@@ -748,7 +724,7 @@ void drawPhase6(int windowWidth, int windowHeight) {
     
     glDisable(GL_DEPTH_TEST);
     
-    // Draw countdown if active
+    // Desenhar contagem regressiva se ativa
     if (showCountdownP6 && countdownValueP6 > 0) {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -776,7 +752,7 @@ void drawPhase6(int windowWidth, int windowHeight) {
         return;
     }
     
-    // Draw game over screen if needed
+    // Desenhar tela de game over se necessário
     drawGameOver();
 }
 
@@ -788,7 +764,7 @@ void updatePhase6(int value) {
         return;
     }
     
-    // Update countdown
+    // Atualizar contagem regressiva
     if (showCountdownP6) {
         countdownTimerP6++;
         if (countdownTimerP6 >= 60) {
@@ -866,8 +842,6 @@ void updatePhase6(int value) {
         }
     }
     
-    // Se todos os campos passaram (não há mais campos ativos) e não colidiu com nenhum
-    // Só penalizar se realmente passou pelos campos sem pegar nenhum
     if (!anyFieldActive && magneticFields.size() > 0 && !fieldSetPassed && allFieldsPassed) {
         fieldSetPassed = true;
         Audio::getInstance().play(Audio::SOUND_ERROR);
@@ -903,8 +877,8 @@ void updatePhase6(int value) {
         } else {
             generateQuestion();
             spawnFieldSet();
-            fieldSetPassed = false;  // Resetar flag para o novo conjunto
-            questionCooldown = 60; // Cooldown de 1 segundo
+            fieldSetPassed = false; 
+            questionCooldown = 60;
         }
     }
     

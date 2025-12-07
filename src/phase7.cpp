@@ -16,10 +16,6 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-// ===================================================================
-// Estrutura para modelo OBJ
-// ===================================================================
-
 struct Vec3 {
     float x, y, z;
 };
@@ -55,10 +51,6 @@ GLuint textureFloorP7 = 0;
 GLuint textureProjectileP7 = 0;
 bool texturesLoadedP7 = false;
 
-// ===================================================================
-// Variáveis Globais
-// ===================================================================
-
 PlayerP7 playerP7;
 CollectibleP7 objectsP7[10];
 DepositZoneP7 depositsP7[4];
@@ -85,7 +77,7 @@ float timeRemainingP7 = 15.0f;
 bool gameOverP7 = false;
 bool phase7_gameOver = false; 
 
-// Countdown variables
+// Variáveis da contagem regressiva
 bool showCountdownP7 = false;
 int countdownTimerP7 = 0;
 int countdownValueP7 = 3;
@@ -95,10 +87,6 @@ int findEnemyMsgTimer = 0;
 bool keyStateP7[256];
 int lastMouseXP7;
 int lastMouseYP7;
-
-// ===================================================================
-// Funções para carregar e desenhar modelo OBJ
-// ===================================================================
 
 void loadOBJ(const char* filename) {
     FILE* file = fopen(filename, "r");
@@ -305,9 +293,7 @@ void drawOBJ(float scale) {
     }
 }
 
-// ===================================================================
 // Funções Auxiliares de Desenho (Copiadas e adaptadas da Fase 5)
-// ===================================================================
 
 void drawTextP7(float x, float y, const char *string) {
     glRasterPos2f(x, y);
@@ -335,8 +321,6 @@ void drawCylinderP7(float radius, float height, int sides) {
     }
     glEnd();
 }
-
-// --- Funções de Móveis (Trazidas da Fase 5) ---
 
 void drawDoorP7(float x, float z, float rotation) {
     glPushMatrix();
@@ -441,10 +425,6 @@ void drawCommandChairP7(float x, float z, float rotation) {
     glPopMatrix();
 }
 
-// ===================================================================
-// Lógica de IA e Projéteis
-// ===================================================================
-
 void spawnEnemyProjectile(float x, float y, float z) {
     int slot = -1;
     for(int i=0; i<maxProjectilesP7; i++) {
@@ -472,7 +452,6 @@ void spawnEnemyProjectile(float x, float y, float z) {
     }
 }
 
-// Variáveis static para a IA do inimigo
 static float enemyTargetX = 0.0f;
 static float enemyTargetZ = 0.0f;
 static int enemyFrameCounter = 0;
@@ -484,7 +463,7 @@ void resetEnemyAI() {
 }
 
 void updateEnemiesAI() {
-    float moveSpeed = 0.02f; // Reduzido para ficar ainda mais lento
+    float moveSpeed = 0.02f;
 
     for(int i=0; i<numEnemiesP7; i++) {
         if(!enemiesP7[i].active) continue;
@@ -499,8 +478,8 @@ void updateEnemiesAI() {
                 enemyTargetZ = playerP7.z;
             } else {
                 // Ir para posição aleatória
-                enemyTargetX = ((rand() % 200) - 100) / 10.0f; // -10 a 10
-                enemyTargetZ = ((rand() % 200) - 100) / 10.0f; // -10 a 10
+                enemyTargetX = ((rand() % 200) - 100) / 10.0f; 
+                enemyTargetZ = ((rand() % 200) - 100) / 10.0f;
             }
             enemyFrameCounter = 0;
         }
@@ -515,7 +494,6 @@ void updateEnemiesAI() {
             enemiesP7[i].z += (dz / dist) * moveSpeed;
         }
         
-        // Monstro sempre no chão
         enemiesP7[i].y = 0.0f;
 
         // Calcular distância ao jogador
@@ -553,14 +531,14 @@ void updateEnemiesAI() {
 void updateProjectiles() {
     float projSpeed = 0.15f;
     float playerHitRadius = 0.6f;
-    float enemyHitRadius = 3.0f;  // Aumentado para cobrir todo o modelo (escala 0.5)
+    float enemyHitRadius = 3.0f;
 
     // Atualizar projéteis do jogador
     for(int i=0; i<MAX_PROJECTILES; i++) {
         if(!playerProjectiles[i].active) continue;
 
         // Mover projétil
-        playerProjectiles[i].x += playerProjectiles[i].dirX * projSpeed * 2.0f; // Mais rápido
+        playerProjectiles[i].x += playerProjectiles[i].dirX * projSpeed * 2.0f;
         playerProjectiles[i].y += playerProjectiles[i].dirY * projSpeed * 2.0f;
         playerProjectiles[i].z += playerProjectiles[i].dirZ * projSpeed * 2.0f;
         playerProjectiles[i].distanceTraveled += projSpeed * 2.0f;
@@ -651,10 +629,6 @@ void updateProjectiles() {
     }
 }
 
-// ===================================================================
-// Lógica de Combate e Raycasting
-// ===================================================================
-
 void checkShootingHit() {
     // Criar projétil do jogador
     for (int i = 0; i < MAX_PROJECTILES; i++) {
@@ -678,15 +652,10 @@ void checkShootingHit() {
     }
 }
 
-// ===================================================================
-// Funções Principais
-// ===================================================================
-
 void initPhase7() {
     printf("Initializing Phase 7 (Map P5 + FPS)...\n");
     srand((unsigned int)time(NULL));
 
-    // Garantir que a iluminação esteja ativa e configurada corretamente
     glEnable(GL_LIGHTING); 
     glEnable(GL_LIGHT0); 
     glEnable(GL_COLOR_MATERIAL);
@@ -734,8 +703,6 @@ void initPhase7() {
     }
     
     numEnemiesP7 = 1;
-    
-    // 1 inimigo que aparece em posição aleatória escondida
     // Posições possíveis: nos cantos e longe do jogador
     float spawnPositions[][2] = {
         {-7.0f, -7.0f},  // Canto traseiro esquerdo
@@ -745,12 +712,12 @@ void initPhase7() {
     };
     int randomSpawn = rand() % 4;
     enemiesP7[0].x = spawnPositions[randomSpawn][0]; 
-    enemiesP7[0].y = 0.0f; // No chão
+    enemiesP7[0].y = 0.0f;
     enemiesP7[0].z = spawnPositions[randomSpawn][1];
     enemiesP7[0].startX = enemiesP7[0].x; 
     enemiesP7[0].startZ = enemiesP7[0].z; 
     enemiesP7[0].moveAxis = 0;
-    enemiesP7[0].hp = 10; // HP aumentado para 10 tiros
+    enemiesP7[0].hp = 10;
     enemiesP7[0].active = true;
     enemiesP7[0].moveDir = 1.0f; 
     enemiesP7[0].shootTimer = rand() % 100;
@@ -759,14 +726,12 @@ void initPhase7() {
     phase7_won = false; gameOverP7 = false; phase7_gameOver = false;
     scoreP7 = 0;
     
-    // Initialize countdown
     showCountdownP7 = true;
     countdownTimerP7 = 0;
     countdownValueP7 = 3;
     showFindEnemyMsg = false;
     findEnemyMsgTimer = 0;
-    
-    // Reset da IA do inimigo
+
     resetEnemyAI();
     
     // Carregar modelo 3D do inimigo
@@ -786,7 +751,7 @@ void initPhase7() {
     initGameOver(800, 700);
     registerRestartCallback(initPhase7);
     registerMenuCallback(returnToMenuFromPhase7);
-    // Play boss music for Phase 7
+    // Tocar música de boss para a Fase 7
     Audio::getInstance().playMusic("assets/music/boss2.mp3");
     // Diminuir volume da música para a fase 7
     Audio::getInstance().setMusicVolume(0.3f);
@@ -801,8 +766,7 @@ bool checkCollisionP7(float x, float z) {
     
     // Limites Externos (-10 a 10)
     if (x < -9.5f + radius || x > 9.5f - radius || z < -9.5f + radius || z > 9.5f - radius) return true;
-    
-    // --- Paredes dos Cômodos ---
+
     // Quarto
     if (fabs(x + 3.0f) < 0.15f && z > -10.0f - radius && z < -7.0f + radius) return true;
     if (fabs(x + 3.0f) < 0.15f && z > -5.0f - radius && z < -3.0f + radius) return true;
@@ -823,7 +787,6 @@ bool checkCollisionP7(float x, float z) {
     if (fabs(z - 3.0f) < 0.15f && x > 3.0f - radius && x < 10.0f + radius) return true;
     if (fabs(z - 8.5f) < 0.15f && x < 10.0f + radius && x > 3.0f - radius) return true;
 
-    // --- Móveis Principais ---
     // Cama
     if (x > -8.0f - radius && x < -6.0f + radius && z > -8.0f - radius && z < -6.0f + radius) return true;
     // Bancada
@@ -851,13 +814,13 @@ void drawPhase7(int windowWidth, int windowHeight) {
     float lookZ = playerP7.z - cos(playerP7.angle);
     gluLookAt(playerP7.x, playerP7.y, playerP7.z, lookX, lookY, lookZ, 0.0f, 1.0f, 0.0f);
 
-    // Garantir que a iluminação esteja ativa (pode ter sido desabilitada por outra fase)
+    // Garantir que a iluminação esteja ativa
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
     glEnable(GL_COLOR_MATERIAL);
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
     
-    // Reconfigurar propriedades de material (podem ter sido alteradas por outra fase)
+    // Reconfigurar propriedades de material
     GLfloat mat_ambient[] = {0.2f, 0.2f, 0.2f, 1.0f};
     GLfloat mat_diffuse[] = {0.8f, 0.8f, 0.8f, 1.0f};
     GLfloat mat_specular[] = {0.3f, 0.3f, 0.3f, 1.0f};
@@ -869,10 +832,6 @@ void drawPhase7(int windowWidth, int windowHeight) {
     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
     
     glEnable(GL_DEPTH_TEST);
-
-    // ===================================
-    // MAPA DA FASE 5 (Reconstruído)
-    // ===================================
     
     // Chão com textura
     glEnable(GL_TEXTURE_2D);
@@ -1077,13 +1036,12 @@ void drawPhase7(int windowWidth, int windowHeight) {
     
     glEnable(GL_LIGHTING);
 
-    // HUD
     glMatrixMode(GL_PROJECTION); glLoadIdentity();
     gluOrtho2D(0, windowWidth, 0, windowHeight);
     glMatrixMode(GL_MODELVIEW); glLoadIdentity();
     glDisable(GL_LIGHTING); glDisable(GL_DEPTH_TEST);
 
-    // Draw countdown if active
+    // Desenhar contagem regressiva se ativa
     if (showCountdownP7 && countdownValueP7 > 0) {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1207,7 +1165,7 @@ void updatePhase7(int value) {
         return;
     }
     
-    // Update countdown
+    // Atualizar contagem regressiva
     if (showCountdownP7) {
         countdownTimerP7++;
         if (countdownTimerP7 >= 60) {
@@ -1398,7 +1356,7 @@ void returnToMenuFromPhase7() {
     glClearColor(0.1f, 0.1f, 0.15f, 1.0f); // Restaurar cor de fundo do menu
     setPaused(false, 0);
     setCurrentPhase(0);
-    // Restore menu music
+    // Restaurar música do menu
     Audio::getInstance().playMusic("assets/music/menu.wav");
     // Restaurar volume padrão do menu
     Audio::getInstance().setMusicVolume(1.0f);
