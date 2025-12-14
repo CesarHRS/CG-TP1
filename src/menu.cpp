@@ -13,6 +13,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include "stb_image.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -27,6 +28,10 @@ int windowHeight = 700;
 // menu uses system cursor; custom pointer is drawn only in phase3
 int menuMouseX = 400;
 int menuMouseY = 350;
+
+// Texturas de fundo
+GLuint menuBackgroundTexture = 0;
+GLuint instructionsBackgroundTexture = 0;
 
 // Story overlay state: when true, a space-background overlay with text is shown
 bool showPhaseStory = false;
@@ -82,10 +87,68 @@ void handleKeyboardUp(unsigned char key, int x, int y) {
 
 // custom pointer removed from menu; phase3 draws its own pointer
 
+// Função para carregar textura PNG
+GLuint loadMenuTexture(const char* filename) {
+    int width, height, channels;
+    unsigned char* data = stbi_load(filename, &width, &height, &channels, 0);
+    
+    if (!data) {
+        printf("Erro ao carregar textura: %s\n", filename);
+        return 0;
+    }
+    
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+    
+    stbi_image_free(data);
+    printf("Textura de menu carregada: %s (%dx%d, %d canais)\n", filename, width, height, channels);
+    
+    return textureID;
+}
+
+// Função para desenhar imagem de fundo
+void drawBackgroundImage(GLuint textureID) {
+    if (textureID == 0) return;
+    
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 0.0f); glVertex2f(0, 0);
+    glTexCoord2f(1.0f, 0.0f); glVertex2f(windowWidth, 0);
+    glTexCoord2f(1.0f, 1.0f); glVertex2f(windowWidth, windowHeight);
+    glTexCoord2f(0.0f, 1.0f); glVertex2f(0, windowHeight);
+    glEnd();
+    
+    glDisable(GL_TEXTURE_2D);
+}
+
 void drawText(float x, float y, const char *text) {
     glRasterPos2f(x, y);
     for (const char* c = text; *c != '\0'; c++) {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+    }
+}
+
+void drawTextBold(float x, float y, const char *text, void* font) {
+    // Desenha o texto múltiplas vezes com pequeno offset para simular negrito
+    for (int dx = 0; dx <= 1; dx++) {
+        for (int dy = 0; dy <= 1; dy++) {
+            glRasterPos2f(x + dx, y + dy);
+            for (const char* c = text; *c != '\0'; c++) {
+                glutBitmapCharacter(font, *c);
+            }
+        }
     }
 }
 
@@ -161,7 +224,13 @@ bool isMouseOverButton(int x, int y, Button &button) {
 // --- Funções de Renderização das Telas ---
 
 void drawMainMenu() {
-    drawText(320, 640, "Jogo de navinha mais legal da sua vida");
+    // Desenhar imagem de fundo
+    drawBackgroundImage(menuBackgroundTexture);
+    
+    // Título em negrito e maior
+    glColor3f(1.0f, 1.0f, 1.0f);
+    drawTextBold(190, 640, "Jogo de navinha mais legal da sua vida", GLUT_BITMAP_TIMES_ROMAN_24);
+    
     drawButton(startButton);
     drawButton(phase2Button);
     drawButton(phase3Button);
@@ -371,6 +440,9 @@ void showStoryForPhase(int phase) {
 }
 
 void drawInstructionsScreen() {
+    // Desenhar imagem de fundo
+    drawBackgroundImage(instructionsBackgroundTexture);
+    
     char title[100];
     if (instructionsPage == 0) {
         sprintf(title, "Como Jogar - Instrucoes Gerais");
@@ -870,6 +942,10 @@ void setup() {
     glMatrixMode(GL_MODELVIEW);
     // Menu usa cursor padrão do sistema
     glutSetCursor(GLUT_CURSOR_INHERIT);
+
+    // Carregar texturas de fundo
+    menuBackgroundTexture = loadMenuTexture("imagens/OGA-Background-1.png");
+    instructionsBackgroundTexture = loadMenuTexture("imagens/starfield_alpha.png");
 
     // Initialize audio system (optional). Will print warnings if SDL or mixers aren't available.
     Audio::getInstance().init();
