@@ -602,8 +602,8 @@ void checkTimeoutDamageP2() {
             }
         }
         
-    // Aplicar dano (10 de dano por asteroide restante)
-    int damage = remainingAsteroids * 10;
+    // Aplicar dano (5 de dano por asteroide restante)
+    int damage = remainingAsteroids * 5;
     playerP2.health -= damage;
 
     // tocar som de dano

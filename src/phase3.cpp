@@ -621,7 +621,7 @@ void updatePhase3() {
             currentAmmoP3.exploded = true;
             currentAmmoP3.hitTimer = 30;
             currentAmmoP3.active = false;  // Desativa a bomba atual
-            playerHealthP3 -= 20;
+            playerHealthP3 -= 10;
             
             if (playerHealthP3 <= 0) {
                 playerHealthP3 = 0;

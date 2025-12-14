@@ -58,6 +58,7 @@ void drawGameOver() {
         drawGameOverText("Desenvolvedores:", windowWidth_gameover/2.0f - 60, windowHeight_gameover/2.0f + 30, GLUT_BITMAP_HELVETICA_18);
         drawGameOverText("Lara", windowWidth_gameover/2.0f - 20, windowHeight_gameover/2.0f + 5, GLUT_BITMAP_HELVETICA_18);
         drawGameOverText("Cesar", windowWidth_gameover/2.0f - 20, windowHeight_gameover/2.0f - 15, GLUT_BITMAP_HELVETICA_18);
+        drawGameOverText("Orientador: Andre Rodrigues da Cruz", windowWidth_gameover/2.0f - 140, windowHeight_gameover/2.0f - 45, GLUT_BITMAP_HELVETICA_18);
         drawGameOverText("Pressione 'M' para voltar ao menu", windowWidth_gameover/2.0f - 160, windowHeight_gameover/2.0f - 60, GLUT_BITMAP_HELVETICA_18);
     } else {
         // Tela de Game Over (derrota)
