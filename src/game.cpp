@@ -210,6 +210,14 @@ void drawHealthBar() {
     glVertex2f(barX, barY + barHeight);
     glEnd();
     glLineWidth(1.0f);
+    
+    // Desenhar texto de vida (ex: "Vida: 150/200")
+    std::stringstream healthSS;
+    healthSS << "Vida: " << player.health << "/" << player.maxHealth;
+    std::string healthText = healthSS.str();
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glRasterPos2f(barX, barY - 10.0f);
+    for (const char c : healthText) glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
 }
 
 // Desenhar mira (crosshair) na posição do mouse
@@ -541,8 +549,8 @@ void initGame() {
     player.x = windowWidth_game / 2.0f;
     player.y = 0.0f; // Nave na parte inferior
     player.speed = 15.0f;
-    player.health = 100;    // Vida inicial
-    player.maxHealth = 100; // Vida máxima
+    player.health = 200;    // Vida inicial
+    player.maxHealth = 200; // Vida máxima
     player.isHit = false;   // Não foi atingido
     player.hitTimer = 0;    // Timer zerado
     player.shakeOffsetX = 0.0f; // Sem tremor
@@ -679,7 +687,7 @@ void updateGame() {
                 currentQuestion.asteroidIndex = -1;
             }
             
-            player.health -= 20; // Perde 20 de vida por colisão
+            player.health -= 10; // Perde 10 de vida por colisão
             
             // Ativar efeito de dano
             player.isHit = true;
@@ -963,8 +971,8 @@ void handleGameSpecialKey(int key, int x, int y) {
 // Callbacks para o sistema de Game Over
 void restartCurrentPhase() {
     // Reinicia apenas a fase atual (Fase 1)
-    player.health = 100;
-    player.maxHealth = 100;
+    player.health = 200;
+    player.maxHealth = 200;
     enemies.clear();
     spawnCooldown = 0;
     setGameOver(false);

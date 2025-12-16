@@ -21,8 +21,8 @@ int mouseYP3 = 300;
 
 int correctAnswersCountP3 = 0;
 int correctAnswersTargetP3 = 10;
-int playerHealthP3 = 100;
-int maxPlayerHealthP3 = 100;
+int playerHealthP3 = 200;
+int maxPlayerHealthP3 = 200;
 
 SpecialAmmoP3 currentAmmoP3 = {0, 0, '+', 0, "", 0, 1200, false, false, false, 0};  // 1200 frames = 20 segundos
 
@@ -621,7 +621,7 @@ void updatePhase3() {
             currentAmmoP3.exploded = true;
             currentAmmoP3.hitTimer = 30;
             currentAmmoP3.active = false;  // Desativa a bomba atual
-            playerHealthP3 -= 10;
+            playerHealthP3 -= 5;
             
             if (playerHealthP3 <= 0) {
                 playerHealthP3 = 0;

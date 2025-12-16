@@ -394,8 +394,8 @@ void initPhase2() {
     playerP2.y = windowHeightP2 / 2.0f;
     playerP2.width = 80.0f;
     playerP2.height = 60.0f;
-    playerP2.health = 100;
-    playerP2.maxHealth = 100;
+    playerP2.health = 200;
+    playerP2.maxHealth = 200;
     playerP2.isHit = false;
     playerP2.hitTimer = 0;
     playerP2.shakeOffsetX = 0.0f;
@@ -602,8 +602,8 @@ void checkTimeoutDamageP2() {
             }
         }
         
-    // Aplicar dano (5 de dano por asteroide restante)
-    int damage = remainingAsteroids * 5;
+    // Aplicar dano (2.5 de dano por asteroide restante, arredondado)
+    int damage = remainingAsteroids * 2.5;
     playerP2.health -= damage;
 
     // tocar som de dano

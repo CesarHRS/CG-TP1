@@ -102,8 +102,8 @@ void initPhase4() {
         playerP4.x = windowWidthP4 / 2.0f - playerP4.width / 2.0f; // center horizontally at bottom
         playerP4.y = 50.0f; // slightly above bottom edge so it's visible
         playerP4.speed = 5.0f; // movement speed for WASD
-        playerP4.health = 100;
-        playerP4.maxHealth = 100;
+        playerP4.health = 200;
+        playerP4.maxHealth = 200;
         playerP4.isHit = false;
         playerP4.hitTimer = 0;
         playerP4.shakeOffsetX = 0.0f;
@@ -662,7 +662,7 @@ void updatePhase4() {
         // colisão com jogador
         if (rectCircleCollision(playerP4.x, playerP4.y, playerP4.width, playerP4.height, p.x, p.y, p.radius)) {
             p.active = false;
-            playerP4.health -= 15;
+            playerP4.health -= 7.5;
             playerP4.isHit = true;
             playerP4.hitTimer = 24;
             printf("Player health: %d\n", playerP4.health);
@@ -690,7 +690,7 @@ void updatePhase4() {
         if (a.y < -100.0f) a.active = false;
         if (rectCircleCollision(playerP4.x, playerP4.y, playerP4.width, playerP4.height, a.x, a.y, a.radius)) {
             a.active = false;
-            playerP4.health -= 20;
+            playerP4.health -= 10;
             playerP4.isHit = true;
             playerP4.hitTimer = 24;
             printf("Player health (asteroid): %d\n", playerP4.health);
