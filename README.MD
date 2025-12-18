@@ -15,7 +15,7 @@ Apresentação do Youtube TP2: https://www.youtube.com/watch?v=nlmkilYdk9w
 
 Apresentação do Youtube TP3: https://www.youtube.com/watch?v=xXBWrqdaqGo
 
-Revisão do TP3 no Youtube: https://youtu.be/xXBWrqdaqGo
+Revisão do TP3 no Youtube: https://www.youtube.com/watch?v=xXBWrqdaqGo
 
 ## Estrutura de Arquivos
 
