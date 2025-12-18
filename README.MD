@@ -13,6 +13,8 @@ Apresentação do Youtube TP1: https://www.youtube.com/watch?v=CzZwMi1nJn8
 
 Apresentação do Youtube TP2: https://www.youtube.com/watch?v=nlmkilYdk9w
 
+Apresentação do Youtube TP3: https://www.youtube.com/watch?v=xXBWrqdaqGo
+
 ## Estrutura de Arquivos
 
 O projeto está organizado com a seguinte hierarquia de diretórios, conforme a imagem fornecida:
