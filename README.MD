@@ -7,15 +7,13 @@ César Henrique Resende Soares | 20223006601
 
 Lara Loures Costa França | 201712040154
 
-Orientador: André Rodrigues da Cruz
+Orientador: Professor André Rodrigues da Cruz
 
 Apresentação do Youtube TP1: https://www.youtube.com/watch?v=CzZwMi1nJn8
 
 Apresentação do Youtube TP2: https://www.youtube.com/watch?v=nlmkilYdk9w
 
-Apresentação do Youtube TP3: https://www.youtube.com/watch?v=xXBWrqdaqGo
-
-Revisão do TP3 no Youtube: https://www.youtube.com/watch?v=xXBWrqdaqGo
+Apresentação Revisão do TP3 no Youtube: https://www.youtube.com/watch?v=xXBWrqdaqGo
 
 ## Estrutura de Arquivos
 
